@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<info>
+    <id>files_picocms</id>
+    <name>Pico CMS</name>
+		<version>1.0</version>
+    <description>Pico CMS as a Nextcloud app</description>
+    <licence>AGPL</licence>
+    <author>Frederik Orellana</author>
+    <require>4.93</require>
+</info>
