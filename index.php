@@ -6,7 +6,7 @@ if(!empty($_GET['site_name'])){
 	require_once('apps/files_picocms/lib/Pico.php');
 	// instantiate Pico
 	$pico = new Pico(
-			__DIR__,    // root dir
+			__DIR__ . '3rdparty/Pico',    // root dir
 			'config/',  // config dir
 			'plugins/', // plugins dir
 			'themes/'   // themes dir

@@ -18,14 +18,21 @@
 
 require_once('apps/files_picocms/lib/OC_Pico.php');
 
-$siteName = $_GET['site_name'];
+$site = $_GET['site'];
 
-$user = OCA\FilesPicoCMS\Lib::lookupUser($siteName);
-$contentParent = OCA\FilesPicoCMS\Lib::lookupContentParent($user);
+if(empty($site)){
+	exit;
+}
+
+$path = OCA\FilesPicoCMS\Lib::lookupSitePath($site);
 $datadir = \OC_Config::getValue("datadirectory", \OC::$SERVERROOT . "/data");
 
-$config['base_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT."/sites/".$siteName;
-$config['content_dir'] = $datadir.'/'.$user.'/'.$contentParent.'/'.$siteName;
+if(empty($datadir) || empty($path)){
+	exit;
+}
+
+$config['base_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT."/sites/".$site;
+$config['content_dir'] = $datadir.'/'.$path;
 
 /*
  * BASIC
