@@ -16,7 +16,7 @@ function create_remove_dialog(path){
 		width:320,
 		modal: true,
 		buttons: {
-			"Serve": function() {
+			"Go": function() {
 				removeSiteFolder(path);
 				$(this).dialog("close");
 			},
@@ -31,7 +31,7 @@ function create_remove_dialog(path){
 function appendSiteDiv(folder){
 	$('#filesPicoSiteFolders #filesPicoSiteFoldersList').append('<div class="siteFolder nowrap" path="'+folder+'">\
    		<span style="float:left;width:92%;">\
-   		<label>'+folder+'</label>\
+   		<a href="/sites/'+folder+'"><label>'+folder+'</label></a>\
    		</span>\
    		<label class="remove_site_folder btn btn-flat">-</label>\
    		<div class="dialog" display="none"></div>\
@@ -44,10 +44,23 @@ function addSiteFolder(folder){
 		return false;
 	}
 	
+	var sites = $("#filesPicoSiteFolders #filesPicoSiteFoldersList div.siteFolder");
+	
+	if(sites.length>0){
+		// If sites already exist, we have already shared the sample site with this user
+		postAddSiteFolder(folder, false);
+	}
+	else{
+		postAddSiteFolder(folder, true);
+	}
+}
+
+function postAddSiteFolder(folder, share){
 	$.ajax(OC.linkTo('files_picocms','ajax/add_site_folder.php'), {
 		 type:'POST',
 		  data:{
 			  folder: folder,
+			  share_sample_site: (share?'yes':'no')
 		 },
 		 dataType:'json',
 		 success: function(s){
@@ -97,21 +110,21 @@ $(document).ready(function(){
 	});
 
 	choose_site_folder_dialog = $("#filesPicoSiteFolders div.addSiteFolder div.dialog").dialog({//create dialog, but keep it closed
-	  title: "Choose new site folder",
-	  autoOpen: false,
-	  height: 440,
-	  width: 620,
-	  modal: true,
-	  buttons: {
-	   	"Choose": function() {
-	   		folder = stripTrailingSlash($('#chosen_folder').text());
-	   		addSiteFolder(folder);
-			choose_site_folder_dialog.dialog("close");
-	   	},
-	   	"Cancel": function() {
-	   		choose_site_folder_dialog.dialog("close");
+		title: "Choose new site folder",
+		autoOpen: false,
+		height: 440,
+		width: 620,
+		modal: true,
+		buttons: {
+			"Choose": function() {
+				folder = stripTrailingSlash($('#chosen_site_folder').text());
+				addSiteFolder(folder);
+				choose_site_folder_dialog.dialog("close");
+			},
+			"Cancel": function() {
+				choose_site_folder_dialog.dialog("close");
 			}
-	  }
+		}
 	});
 
 	$('#filesPicoSiteFolders div#filesPicoSiteFoldersList div.siteFolder .remove_site_folder').live('click', function(e){
@@ -124,7 +137,7 @@ $(document).ready(function(){
 	  choose_site_folder_dialog.dialog('open');
 	  //choose_site_folder_dialog.load("/apps/chooser/");
 	  choose_site_folder_dialog.show();
-		$('#loadFolderTree').fileTree({
+		$('#loadSiteFolderTree').fileTree({
 			//root: '/',
 			script: '../../apps/chooser/jqueryFileTree.php',
 			//script: '../../apps/files_sharding/jqueryFileTree.php',
@@ -136,7 +149,7 @@ $(document).ready(function(){
 		},
 		// single-click
 		function(file) {
-			$('#chosen_folder').text(file);
+			$('#chosen_site_folder').text(file);
 		},
 		// double-click
 		function(file) {

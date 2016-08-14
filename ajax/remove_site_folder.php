@@ -3,6 +3,8 @@
 OCP\JSON::checkAppEnabled('files_picocms');
 OCP\JSON::checkLoggedIn();
 
+require_once('apps/files_picocms/lib/OC_Pico.php');
+
 $folder = $_POST['folder'];
 $user_id = isset($_POST['user_id'])?$_POST['user_id']:\OCP\USER::getUser();
 

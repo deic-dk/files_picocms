@@ -1,15 +1,19 @@
 <?php
 
+OCP\JSON::checkAppEnabled('files_picocms');
 OCP\JSON::checkAppEnabled('files_sharding');
+OCP\JSON::checkAppEnabled('chooser');
 OCP\User::checkLoggedIn();
 
-OCP\Util::addscript('files_sharding', 'personalsettings');
+OCP\Util::addscript('files_picocms', 'personalsettings');
 OCP\Util::addStyle('files_sharding', 'personalsettings');
 
-OCP\Util::addStyle('chooser', 'jqueryFileTree');
+//OCP\Util::addStyle('chooser', 'jqueryFileTree');
 
-OCP\Util::addscript('chooser', 'jquery.easing.1.3');
-OCP\Util::addscript('chooser', 'jqueryFileTree');
+//OCP\Util::addscript('chooser', 'jquery.easing.1.3');
+//OCP\Util::addscript('chooser', 'jqueryFileTree');
+
+require_once('apps/files_picocms/lib/OC_Pico.php');
 
 $errors = Array();
 
@@ -17,6 +21,6 @@ $tmpl = new OCP\Template('files_picocms', 'personalsettings');
 
 $user_id = OCP\USER::getUser();
 
-$tmpl->assign('site_folders', OCA\FilesSharding\Lib::getSiteFoldersList($user_id));
+$tmpl->assign('site_folders', OCA\FilesPicoCMS\Lib::getSiteFoldersList($user_id));
 
 return $tmpl->fetchPage();

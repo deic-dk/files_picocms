@@ -16,24 +16,6 @@
  * @version 1.0
  */
 
-require_once('apps/files_picocms/lib/OC_Pico.php');
-
-$site = $_GET['site'];
-
-if(empty($site)){
-	exit;
-}
-
-$path = OCA\FilesPicoCMS\Lib::lookupSitePath($site);
-$datadir = \OC_Config::getValue("datadirectory", \OC::$SERVERROOT . "/data");
-
-if(empty($datadir) || empty($path)){
-	exit;
-}
-
-$config['base_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT."/sites/".$site;
-$config['content_dir'] = $datadir.'/'.$path;
-
 /*
  * BASIC
  */

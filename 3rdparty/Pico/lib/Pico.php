@@ -1220,10 +1220,21 @@ class Pico
             'config' => $this->getConfig(),
             'base_dir' => rtrim($this->getRootDir(), '/'),
             'base_url' => rtrim($this->getBaseUrl(), '/'),
-            'theme_dir' => $this->getThemesDir() . $this->getConfig('theme'),
-            'theme_url' => $this->getBaseUrl() . basename($this->getThemesDir()) . '/' . $this->getConfig('theme'),
-            'rewrite_url' => $this->isUrlRewritingEnabled(),
-            'site_title' => $this->getConfig('site_title'),
+        		// NC change
+            //'theme_dir' => $this->getThemesDir() . $this->getConfig('theme'),
+        		'theme_dir' => $this->getThemesDir() . (!empty($this->meta['theme'])?
+        				$this->meta['theme']:$this->getConfig('theme')),
+        		// NC change
+            //'theme_url' => $this->getBaseUrl() . basename($this->getThemesDir()) . '/' . $this->getConfig('theme'),
+            'theme_url' => (!empty($this->getConfig('themes_url'))?
+            		$this->getConfig('themes_url'):
+            		$this->getBaseUrl() . basename($this->getThemesDir())) . '/' .
+        				(!empty($this->meta['theme'])?
+        				$this->meta['theme']:$this->getConfig('theme')),
+        		'rewrite_url' => $this->isUrlRewritingEnabled(),
+        		// NC change
+            //'site_title' => $this->getConfig('site_title'),
+        		'site_title' => !empty($this->meta['title'])?$this->meta['title']:$this->getConfig('site_title'),
             'meta' => $this->meta,
             'content' => $this->content,
             'pages' => $this->pages,

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <info>
     <id>files_picocms</id>
-    <name>Pico CMS</name>
+    <name>Pico For Nextcloud</name>
 		<version>1.0</version>
     <description>Pico CMS as a Nextcloud app</description>
     <licence>AGPL</licence>

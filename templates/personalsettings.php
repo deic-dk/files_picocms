@@ -1,15 +1,15 @@
-<fieldset id="filesPicoDataFolders" class="section">
-	<h2><?php p($l->t('Data folders')); ?></h2>
-	These folders are intended to hold data: Their content is NOT synchronized.<br />
-	Any files put in them locally, will be uploaded and then deleted locally.
+<fieldset id="filesPicoSiteFolders" class="section">
+	<h2><?php p($l->t('Site folders')); ?></h2>
+	These folders are intended to hold files in markdown format - with extension 'md'.
+	These files will be parsed and served up to browsers as html by Pico CMS.
 	<br />
 	<br />
 	<div id="filesPicoSiteFoldersList">
 	<?php foreach($_['site_folders'] as $p){ 
-		$path = $p['folder'];
 		?>
-		<div class="siteFolder nowrap" path="<?php print($path);?>">
-			<span style="float:left;width:92%;"><label><?php print($path);?></label></span><label class="remove_site_folder btn btn-flat">-</label>
+		<div class="siteFolder nowrap" path="<?php print($p['path']);?>">
+			<span style="float:left;width:92%;"><a href="/sites/<?php print($p['path']);?>"><label><?php print($p['path']);?></label></a></span>
+			<label class="remove_site_folder btn btn-flat">-</label>
 			<div class="dialog" display="none"></div>
 		</div>
 	<?php } ?>
@@ -17,10 +17,9 @@
 	<br />
 	<div class="nowrap addSiteFolder">
 		<span style="float:left;width:92%;"><label></label></span><label class="add_site_folder btn btn-flat">+</label>
-		<div id="chosen_folder" style="visibility:hidden;display:none;"></div>
+		<div id="chosen_site_folder" style="visibility:hidden;display:none;"></div>
 		<div class="dialog" display="none">
-			<div id="loadFolderTree"></div>
-			<div id="file" style="visibility: hidden; display:inline;"></div>
+			<div id="loadSiteFolderTree"></div>
 		</div>
 	</div>
 </fieldset>
