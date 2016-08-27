@@ -202,6 +202,15 @@ class Pico
      * @var array|null
      */
     protected $twigVariables;
+    
+    //NC change
+    /**
+     * Path the the requested file, relative to the Nextcloud base dir
+     * (i.e. relativ to e.g. /data/user_name/files).
+     * 
+     * @var string
+     */
+    protected $ocPath;
 
     /**
      * Constructs a new Pico instance
@@ -319,6 +328,17 @@ class Pico
 
         $this->triggerEvent('onMetaParsing', array(&$this->rawContent, &$headers));
         $this->meta = $this->parseFileMeta($this->rawContent, $headers);
+
+        // NC change
+        if(!empty($this->meta['access'])){
+        	if(!$this->checkPermissions($this->requestFile, $this->meta['access'],
+        			$this->getConfig('user'), $this->getConfig('group'))){
+        		header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden');
+        		$this->rawContent = $this->loadStatusContent($this->requestFile, 403);
+        	}
+        }
+
+
         $this->triggerEvent('onMetaParsed', array(&$this->meta));
 
         // register parsedown
@@ -713,6 +733,104 @@ class Pico
         $errorFile = $this->getConfig('content_dir') . '404' . $this->getConfig('content_ext');
         throw new RuntimeException('Required "' . $errorFile . '" not found');
     }
+
+    /**
+     * If the meta attribute 'Access' is set to 'private',
+     * this function is called to check Nextcloud access rights.
+     * It also sets the variable $ocPath.
+     * @param unknown $file absolute path of the file
+     * @param unknown $access Pico ACL defined by file's meta attribute 'Access'
+     * @param unknown $owner the owner of the file
+     * @param unknown $group possible name of group folder holding the file
+     */
+    public function checkPermissions($file, $access, $owner, $group=null)
+    {
+    	if(trim(strtolower($access))!=='private'){
+    		return true;
+    	}
+    	$user_id = \OCP\User::getUser();
+    	if(empty($user_id)){
+    		return false;
+    	}
+    	if(!empty($group)){
+    		$view = new \OC\Files\View('/'.$owner.'/user_group_admin/'.$group);
+    	}
+    	else{
+    		$view = new \OC\Files\View('/'.$owner.'/files');
+    	}
+    	$ownerRoot = $view->getLocalFile('/');
+    	\OCP\Util::writeLog('files_picocms', 'Checking permissions: '.$access.' for file '.$file. ' in '.
+    			$ownerRoot, \OC_Log::DEBUG);
+    	if(strpos($file, $ownerRoot)!==0){
+    		\OCP\Util::writeLog('files_picocms', 'Trying to access file outside of user dir', \OC_Log::ERROR);
+    		return false;
+    	}
+    	$ocPath = substr($file, strlen($ownerRoot));
+    	$this->ocPath = $ocPath;
+    	// First check if I own the file
+    	if($user_id===$owner){
+    		return true;
+    	}
+    	else{
+    		\OC\Files\Filesystem::tearDown();
+    		\OC_User::setUserId($owner);
+    		$baseDir = '/'.$owner.(!empty($group)?'/user_group_admin/'.$group:'/files');
+    		\OC\Files\Filesystem::init($owner, $baseDir);
+    		// Next check if the file or one of its parent folders is shared with me.
+    		while($ocPath!=='.'){
+    			$fileInfo = \OC\Files\Filesystem::getFileInfo($ocPath);
+    			$fileType = $fileInfo->getType()===\OCP\Files\FileInfo::TYPE_FOLDER?'folder':'file';
+    			if(!\OCP\App::isEnabled('files_sharding') || \OCA\FilesSharding\Lib::isMaster()){
+    				$itemShared = \OCP\Share::getItemSharedWithUser(
+    						$fileType, $fileInfo->getId(), $user_id);
+    			}
+    			else{
+    				$itemShared = \OCA\FilesSharding\Lib::checkReadAccess($user_id, $fileInfo->getId(), $fileType);
+    			}
+    			\OCP\Util::writeLog('files_picocms', 'Checking sharing of: '.$ocPath.':'.$fileInfo->getId().':'.
+    					$fileInfo->getType().':'.serialize($itemShared), \OC_Log::INFO);
+    			if(!empty($itemShared)){
+    				break;
+    			}
+    			$ocPath = dirname($ocPath);
+    		}
+    		\OC_Util::teardownFS();
+    		\OC_User::setUserId($user_id);
+    		\OC_Util::setupFS('/'.$user_id.'/files');
+    		return $ocPath!=='.';
+    	}
+    	return false;
+    }
+
+    /**
+     * NC change: load arbitratry status document
+     */
+    public function loadStatusContent($file, $code)
+    {
+    	$contentDir = $this->getConfig('content_dir');
+    	$contentDirLength = strlen($contentDir);
+    
+    	if (substr($file, 0, $contentDirLength) === $contentDir) {
+    		$errorFileDir = substr($file, $contentDirLength);
+    
+    		while ($errorFileDir !== '.') {
+    			$errorFileDir = dirname($errorFileDir);
+    			$errorFile = $errorFileDir . '/' . $code . $this->getConfig('content_ext');
+    
+    			if (file_exists($this->getConfig('content_dir') . $errorFile)) {
+    				return $this->loadFileContent($this->getConfig('content_dir') . $errorFile);
+    			}
+    		}
+    	} elseif (file_exists($this->getConfig('content_dir') . $code . $this->getConfig('content_ext'))) {
+    		// provided that the requested file is not in the regular
+    		// content directory, fallback to Pico's global status doc for the given code
+    		return $this->loadFileContent($this->getConfig('content_dir') . $code . $this->getConfig('content_ext'));
+    	}
+    
+    				$errorFile = $this->getConfig('content_dir') . $code . $this->getConfig('content_ext');
+    				throw new RuntimeException('Required "' . $errorFile . '" not found');
+    }
+    
 
     /**
      * Returns the raw contents, either of the requested or the 404 file
@@ -1235,7 +1353,10 @@ class Pico
         		// NC change
             //'site_title' => $this->getConfig('site_title'),
         		'site_title' => !empty($this->meta['title'])?$this->meta['title']:$this->getConfig('site_title'),
-            'meta' => $this->meta,
+            'oc_path' => $this->ocPath,
+        		'oc_group' => $this->getConfig('group'),
+        		//
+        		'meta' => $this->meta,
             'content' => $this->content,
             'pages' => $this->pages,
             'prev_page' => $this->previousPage,

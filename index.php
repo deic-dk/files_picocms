@@ -81,35 +81,40 @@ require_once('apps/files_picocms/3rdparty/Pico/lib/PicoTwigExtension.php');
 
 require_once('apps/files_picocms/lib/OC_Pico.php');
 
-if(empty($_GET['site'])){
-	exit;
-}
-
 if(!empty($_GET['path'])){
 	$_SERVER['QUERY_STRING'] = $_GET['path'];
 }
 
-$sitePath = OCA\FilesPicoCMS\Lib::lookupSitePath($_GET['site']);
+$siteInfo = OCA\FilesPicoCMS\Lib::lookupSiteInfo($_GET['site']);
+$sitePath = $siteInfo['uid'].
+	(empty($siteInfo['gid'])?'/files':'/user_group_admin/'.$siteInfo['gid']).
+		$siteInfo['path'];
 $dataDir = \OC_Config::getValue("datadirectory", \OC::$SERVERROOT . "/data");
 
 if(empty($dataDir)){
 	exit;
 }
 
-$config['site_title'] = $_GET['site'];
-$config['base_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT."/sites/".$_GET['site'];
-if(empty($sitePath) ||
-		(!file_exists($dataDir.'/'.$sitePath.'/content/index.md') &&
-				!file_exists($dataDir.'/'.$sitePath.'/content/index.html'))){
-	$config['content_dir'] = __DIR__ . '/lib/samplesite/content';
-}
-else{
-	$config['content_dir'] = $dataDir.'/'.$sitePath.'/content';
-}
+$config['group'] = $siteInfo['gid'];
+$config['user'] = $siteInfo['uid'];
 $config['rewrite_url'] = true;
 
+$config['site_title'] = $_GET['site'];
+$config['base_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT."/sites/".$_GET['site'];
+
 if(is_dir($dataDir.'/'.$sitePath.'/themes')){
-	$themesDir = $dataDir.'/'.$sitePath.'/themes';
+	$themesDir = $dataDir.'/'.$sitePath.'/themes/';
+	//$config['themes_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT .
+	//	"/sites/".$_GET['site']."/themes";
+	if(isset($_GET['path']) && strpos($_GET['path'], 'themes/')===0){
+		\OCP\Util::writeLog('files_picocms', 'Serving '.$dataDir.'/'.$sitePath.'/'.$_GET['path'], \OC_Log::WARN);
+		$extension = pathinfo($_GET['path'], PATHINFO_EXTENSION);
+		if(!empty($extension)){
+			header("Content-type: text/".$extension);
+		}
+		echo file_get_contents($dataDir.'/'.$sitePath.'/'.$_GET['path']);
+		exit;
+	}
 }
 else{
 	$themesDir = __DIR__ . '/lib/samplesite/themes/';
@@ -118,6 +123,17 @@ else{
 }
 
 \OCP\Util::writeLog('files_picocms', 'Themes dir: '.$themesDir, \OC_Log::WARN);
+
+if(empty($sitePath) ||
+		(!file_exists($dataDir.'/'.$sitePath.'/content/index.md') &&
+				!file_exists($dataDir.'/'.$sitePath.'/content/index.html'))){
+	$config['content_dir'] = __DIR__ . '/lib/samplesite/content';
+}
+else{
+	$config['content_dir'] = $dataDir.'/'.$sitePath.'/content';
+}
+
+\OCP\Util::writeLog('files_picocms', 'Content dir: '.$config['content_dir'], \OC_Log::WARN);
 
 // instantiate Pico
 $pico = new Pico(

@@ -4,29 +4,29 @@ namespace OCA\FilesPicoCMS;
 
 class Lib {
 	
-	public static function addSiteFolder($folder, $user_id, $shareSampleSite=false){
+	public static function addSiteFolder($folder, $user_id, $group, $shareSampleSite=false){
 		if(!\OCP\App::isEnabled('files_sharding') || \OCA\FilesSharding\Lib::isMaster()){
-			return self::dbAddSiteFolder($folder, $user_id, $shareSampleSite);
+			return self::dbAddSiteFolder($folder, $user_id, $group, $shareSampleSite);
 		}
 		else{
 			$ret = \OCA\FilesSharding\Lib::ws('addSiteFolder', Array('folder'=>$folder, 'user_id' =>$user_id,
-					'share_sample_site'=>($shareSampleSite?'yes':'no')),
+					'group'=>$group, 'share_sample_site'=>($shareSampleSite?'yes':'no')),
 					false, true, null, 'files_picocms');
 			return $ret;
 		}
 	}
 	
-	public static function dbAddSiteFolder($folder, $user_id, $shareSampleSite=false){
+	public static function dbAddSiteFolder($folder, $user_id, $group='', $shareSampleSite=false){
 		$parts = pathinfo($folder);
 		$site = $parts['basename'];
 		// Site is just the top-level element of folder (a path).
 		// Check if site name is taken
-		if(self::dbLookupSitePath($site)){
+		if(self::dbLookupSiteInfo($site)){
 			return false;
 		}
 		$query = \OC_DB::prepare(
-				'INSERT INTO `*PREFIX*files_picocms` (`user`, `site`, `path`) VALUES (?, ?, ?)');
-		$result = $query->execute(Array($user_id, $site, $folder));
+				'INSERT INTO `*PREFIX*files_picocms` (`uid`, `site`, `path`, `gid`) VALUES (?, ?, ?, ?)');
+		$result = $query->execute(Array($user_id, $site, $folder, $group));
 		if(\OCP\DB::isError($result)){
 			\OCP\Util::writeLog('files_picocms', \OC_DB::getErrorMessage($result), \OC_Log::ERROR);
 			return false;
@@ -145,7 +145,7 @@ class Lib {
 	}
 	
 	public static function dbGetSiteFoldersList($user_id){
-		$query = \OC_DB::prepare('SELECT * FROM `*PREFIX*files_picocms` WHERE `user` = ?');
+		$query = \OC_DB::prepare('SELECT * FROM `*PREFIX*files_picocms` WHERE `uid` = ?');
 		$result = $query->execute(Array($user_id));
 		if(\OCP\DB::isError($result)){
 			\OCP\Util::writeLog('files_picocms', \OC_DB::getErrorMessage($result), \OC_Log::ERROR);
@@ -166,7 +166,7 @@ class Lib {
 	
 	public static function dbRemoveSiteFolder($folder, $user_id){
 		$query = \OC_DB::prepare(
-				'DELETE FROM `*PREFIX*files_picocms` WHERE `path` = ? AND `user` = ?');
+				'DELETE FROM `*PREFIX*files_picocms` WHERE `path` = ? AND `uid` = ?');
 		$result = $query->execute(Array($folder, $user_id));
 		if(\OCP\DB::isError($result)){
 			\OCP\Util::writeLog('files_picocms', \OC_DB::getErrorMessage($result), \OC_Log::ERROR);
@@ -176,7 +176,7 @@ class Lib {
 		
 	}
 	
-	public static function dbLookupSitePath($site){
+	public static function dbLookupSiteInfo($site){
 		$query = \OC_DB::prepare('SELECT * FROM `*PREFIX*files_picocms` WHERE `site` = ?');
 		$result = $query->execute(Array($site));
 		if(\OCP\DB::isError($result)){
@@ -187,17 +187,17 @@ class Lib {
 			\OCP\Util::writeLog('files_picocms', 'ERROR: Duplicate entries found for server '.$node, \OCP\Util::ERROR);
 		}
 		foreach($results as $row){
-			return $row['user'].'/files/'.$row['path'];
+			return $row;
 		}
 		return null;
 	}
 	
-	public static function lookupSitePath($site){
+	public static function lookupSiteInfo($site){
 		if(!\OCP\App::isEnabled('files_sharding') || \OCA\FilesSharding\Lib::isMaster()){
-			return self::dbLookupSitePath($site);
+			return self::dbLookupSiteInfo($site);
 		}
 		else{
-			$ret = \OCA\FilesSharding\Lib::ws('lookupSitePath', Array('site'=>$site),
+			$ret = \OCA\FilesSharding\Lib::ws('lookupSiteInfo', Array('site'=>$site),
 					false, true, null, 'files_picocms');
 			return $ret;
 		}

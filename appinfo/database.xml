@@ -23,7 +23,7 @@
 			</field>
 
 			<field>
-				<name>user</name>
+				<name>uid</name>
 				<type>text</type>
 				<notnull>true</notnull>
 				<length>64</length>
@@ -43,6 +43,13 @@
 				<length>255</length>
 			</field>
 
+			<field>
+				<name>gid</name>
+				<type>text</type>
+				<notnull>true</notnull>
+				<length>255</length>
+			</field>
+			
 		</declaration>
 
 	</table>	

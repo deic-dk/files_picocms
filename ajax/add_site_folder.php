@@ -6,6 +6,7 @@ OCP\JSON::checkLoggedIn();
 require_once('apps/files_picocms/lib/OC_Pico.php');
 
 $folder = $_POST['folder'];
+$group = empty($_POST['group'])?'':$_POST['group'];
 
 $shareSampleSite = !empty($_POST['share_sample_site'])?$_POST['share_sample_site']=='yes':false;
 
@@ -19,7 +20,7 @@ else{
 OC_Log::write('files_picocms',"Adding folder: ".$folder." for ".$user_id."-->".$shareSampleSite, OC_Log::WARN);
 
 if(empty($folder) || empty($user_id) ||
-		!OCA\FilesPicoCMS\Lib::addSiteFolder($folder, $user_id, $shareSampleSite)){
+		!OCA\FilesPicoCMS\Lib::addSiteFolder($folder, $user_id, $group, $shareSampleSite)){
 	$ret['error'] = "Failed adding folder ".$folder;
 }
 else{

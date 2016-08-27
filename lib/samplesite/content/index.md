@@ -120,6 +120,13 @@ CSS and JavaScript, the latter mostly consists of PHP programming.
 In the case of Pico for Nextcloud, for security reasons, users cannot add
 plugins. An administrator can simply add plugins in the `plugins` folder.
 
+Moreover, special meta attributes can be used to customize individual pages:
+
+* <code>Theme</code> - The theme used to style the page
+* <code>Access</code> - Access rights to the page - either `public` or
+  `private`. The default is `public`. When set to `private`, access is granted
+  using the access rights to the file, i.e. who it has been shared with.
+
 This is all Greek to you? Don't worry, you don't have to spend time on these
 techie talk - it's very easy to use one of the great themes or plugins others
 developed and released to the public. Please refer to the next sections for
