@@ -10,6 +10,11 @@ if(empty($_GET['site'])){
 require_once('apps/files_picocms/3rdparty/symfony/component/yaml/Parser.php');
 require_once('apps/files_picocms/3rdparty/symfony/component/yaml/Inline.php');
 require_once('apps/files_picocms/3rdparty/symfony/component/yaml/Yaml.php');
+require_once('apps/files_picocms/3rdparty/symfony/component/yaml/Exception/ExceptionInterface.php');
+require_once('apps/files_picocms/3rdparty/symfony/component/yaml/Exception/RuntimeException.php');
+foreach(glob(__DIR__ . "/3rdparty/symfony/component/yaml/Exception/*.php") as $filename){
+	require_once($filename);
+}
 
 require_once('apps/files_picocms/3rdparty/Parsedown.php');
 require_once('apps/files_picocms/3rdparty/ParsedownExtra.php');
@@ -73,6 +78,9 @@ foreach(glob(__DIR__ . "/3rdparty/Twig/lib/Twig/NodeVisitor/*.php") as $filename
 foreach(glob(__DIR__ . "/3rdparty/Twig/lib/Twig/*.php") as $filename){
 	require_once($filename);
 }
+foreach(glob(__DIR__ . "/3rdparty/Twig/lib/Twig/Error/*.php") as $filename){
+	require_once($filename);
+}
 
 require_once('apps/files_picocms/3rdparty/Pico/lib/Pico.php');
 require_once('apps/files_picocms/3rdparty/Pico/lib/PicoPluginInterface.php');
@@ -132,6 +140,11 @@ if(empty($sitePath) ||
 else{
 	$config['content_dir'] = $dataDir.'/'.$sitePath.'/content';
 }
+
+// This is for the clean-blog theme
+$config['pages_order_by'] = 'date';
+$config['pages_order'] = 'desc';
+$config['pagination'] = 8;
 
 \OCP\Util::writeLog('files_picocms', 'Content dir: '.$config['content_dir'], \OC_Log::WARN);
 

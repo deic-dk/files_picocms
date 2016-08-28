@@ -379,7 +379,8 @@ class Pico
         } else {
             $templateName = 'index';
         }
-        if (file_exists($this->getThemesDir() . $this->getConfig('theme') . '/' . $templateName . '.twig')) {
+        if (file_exists($this->getThemesDir() . (!empty($this->meta['theme'])?
+        				$this->meta['theme']:$this->getConfig('theme')) . '/' . $templateName . '.twig')) {
             $templateName .= '.twig';
         } else {
             $templateName .= '.html';
@@ -1008,7 +1009,8 @@ class Pico
         $content = str_replace('%base_url%', rtrim($this->getBaseUrl(), '/'), $content);
 
         // replace %theme_url%
-        $themeUrl = $this->getBaseUrl() . basename($this->getThemesDir()) . '/' . $this->getConfig('theme');
+        $themeUrl = $this->getBaseUrl() . basename($this->getThemesDir()) . '/' . (!empty($this->meta['theme'])?
+        				$this->meta['theme']:$this->getConfig('theme'));
         $content = str_replace('%theme_url%', $themeUrl, $content);
 
         // replace %meta.*%
@@ -1286,7 +1288,8 @@ class Pico
      */
     protected function registerTwig()
     {
-        $twigLoader = new Twig_Loader_Filesystem($this->getThemesDir() . $this->getConfig('theme'));
+        $twigLoader = new Twig_Loader_Filesystem($this->getThemesDir() . (!empty($this->meta['theme'])?
+        				$this->meta['theme']:$this->getConfig('theme')));
         $this->twig = new Twig_Environment($twigLoader, $this->getConfig('twig_config'));
         $this->twig->addExtension(new Twig_Extension_Debug());
         $this->twig->addExtension(new PicoTwigExtension($this));
