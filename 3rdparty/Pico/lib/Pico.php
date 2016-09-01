@@ -202,10 +202,10 @@ class Pico
      * @var array|null
      */
     protected $twigVariables;
-    
+
     //NC change
     /**
-     * Path the the requested file, relative to the Nextcloud base dir
+     * Path of the requested file, relative to the Nextcloud base dir
      * (i.e. relativ to e.g. /data/user_name/files).
      * 
      * @var string
@@ -213,6 +213,12 @@ class Pico
     protected $ocPath;
 
     /**
+     * ID of the requested file.
+     * 
+     * @var string
+     */
+    protected $ocId;    /**
+
      * Constructs a new Pico instance
      *
      * To carry out all the processing in Pico, call {@link Pico::run()}.
@@ -333,6 +339,7 @@ class Pico
         if(!empty($this->meta['access'])){
         	if(!$this->checkPermissions($this->requestFile, $this->meta['access'],
         			$this->getConfig('user'), $this->getConfig('group'))){
+        		$this->meta['permissions'] = 'none';
         		header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden');
         		$this->rawContent = $this->loadStatusContent($this->requestFile, 403);
         	}
@@ -353,6 +360,12 @@ class Pico
 
         $this->content = $this->parseFileContent($this->content);
         $this->triggerEvent('onContentParsed', array(&$this->content));
+
+        // NC change
+        if( empty($config['pages_order']) && !empty($this->meta['theme']) &&
+        		$this->meta['theme'] == 'clean-blog'){
+        	$config['pages_order'] = 'desc';
+        }
 
         // read pages
         $this->triggerEvent('onPagesLoading');
@@ -738,7 +751,7 @@ class Pico
     /**
      * If the meta attribute 'Access' is set to 'private',
      * this function is called to check Nextcloud access rights.
-     * It also sets the variable $ocPath.
+     * It also sets the variables $ocPath and $ocId.
      * @param unknown $file absolute path of the file
      * @param unknown $access Pico ACL defined by file's meta attribute 'Access'
      * @param unknown $owner the owner of the file
@@ -780,6 +793,7 @@ class Pico
     		// Next check if the file or one of its parent folders is shared with me.
     		while($ocPath!=='.'){
     			$fileInfo = \OC\Files\Filesystem::getFileInfo($ocPath);
+    			$this->ocId = $fileInfo->getId();
     			$fileType = $fileInfo->getType()===\OCP\Files\FileInfo::TYPE_FOLDER?'folder':'file';
     			if(!\OCP\App::isEnabled('files_sharding') || \OCA\FilesSharding\Lib::isMaster()){
     				$itemShared = \OCP\Share::getItemSharedWithUser(
@@ -1356,7 +1370,9 @@ class Pico
         		// NC change
             //'site_title' => $this->getConfig('site_title'),
         		'site_title' => !empty($this->meta['title'])?$this->meta['title']:$this->getConfig('site_title'),
-            'oc_path' => $this->ocPath,
+        		'oc_user' => $this->getConfig('user'),
+        		'oc_path' => $this->ocPath,
+            'oc_id' => $this->ocId,
         		'oc_group' => $this->getConfig('group'),
         		//
         		'meta' => $this->meta,

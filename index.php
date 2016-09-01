@@ -124,10 +124,14 @@ if(is_dir($dataDir.'/'.$sitePath.'/themes')){
 		exit;
 	}
 }
-else{
+elseif(is_dir($dataDir.'/'.$sitePath)){
 	$themesDir = __DIR__ . '/lib/samplesite/themes/';
 	$config['themes_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT .
 		"/apps/files_picocms/lib/samplesite/themes";
+}
+else{
+	echo("Site does not exist");
+	exit;
 }
 
 \OCP\Util::writeLog('files_picocms', 'Themes dir: '.$themesDir, \OC_Log::WARN);
@@ -143,7 +147,7 @@ else{
 
 // This is for the clean-blog theme
 $config['pages_order_by'] = 'date';
-$config['pages_order'] = 'desc';
+//$config['pages_order'] = 'asc';
 $config['pagination'] = 8;
 
 \OCP\Util::writeLog('files_picocms', 'Content dir: '.$config['content_dir'], \OC_Log::WARN);

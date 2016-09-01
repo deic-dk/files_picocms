@@ -78,8 +78,8 @@
                 </div>
             </div>
         </div>
-        {% if meta.access == 'private' %}
-            <button class="edit-button btn btn-primary btn-flat" path="{{  oc_path }}" group="{{  oc_group }}">Show file</button>
+        {% if meta.access == 'private' and meta.permissions != 'none' %}
+            <button class="edit-button btn btn-primary btn-flat" path="{{  oc_path }}" id="{{  oc_id }}" user="{{  oc_user }}" group="{{  oc_group }}">Show file</button>
         {% endif %}
     </header>
 
