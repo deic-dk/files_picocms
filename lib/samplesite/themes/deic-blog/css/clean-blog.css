@@ -30,7 +30,8 @@ a {
 }
 a:hover,
 a:focus {
-  color: #0085a1;
+  color: #808080;
+	text-decoration: none;
 }
 a img:hover,
 a img:focus {
@@ -43,8 +44,15 @@ blockquote {
 hr.small {
   max-width: 100px;
   margin: 15px auto;
-  border-width: 4px;
+  border-width: 2px;
+  border-color: #808080;
+}
+hr.thin {
+	width: 100%;
   border-color: white;
+}
+hr {
+	border-color: #808080 -moz-use-text-color -moz-use-text-color;
 }
 .navbar-custom {
   position: absolute;
@@ -65,9 +73,110 @@ hr.small {
 }
 
 .edit-button {
+	position: absolute;
+	right: 26px;
+	top: 23px;
+	z-index: 10;
+}
+
+.post-header .avatardiv {
+	float: left;
+	margin-top: 44px;
+	margin-left: 26px;
+	position: relative;
+	height: 64px;
+	width: 64px;
+	line-height: 64px;
+	font-size: 48px;
+}
+
+.avatardiv {
+	background-color: rgb(166, 246, 85);
+	color: rgb(255, 255, 255);
+	font-weight: bold;
+	text-align: left;
+	line-height: 48px;
+	font-size: 36px;
 	float: right;
-	margin-right: 42px;
-	margin-top: 96px;
+	margin-top: 0px;
+	position: relative;
+	top: -15px;
+	height: 48px;
+	width: 48px;
+}
+
+#search_form  {
+	margin-left: 20px;
+}
+
+.navbar-right {
+	float: right;
+}
+
+#search_form.navbar-search {
+	float: right;
+	margin-top: 8px;
+	margin-left: 0;
+}
+
+#write_post {
+	float: left;
+	margin-left: 14px;
+	position: absolute;
+	top: 308px;
+}
+
+a.navbar-left:hover, a.navbar-left:focus {
+		cursor: pointer;
+		color: rgba(255,255,255,0.8);
+}
+
+
+.navbar-left {
+	float: left;
+	font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size: 20px;
+	font-weight: 800;
+	color: white;
+	margin-left: 24px;
+	position: absolute;
+	top: 313px;
+}
+
+.search_result p {
+	margin-bottom: 0;
+	margin-top: 0;
+	line-height: 1.0;
+}
+
+.post-header {
+  padding: 46px 0 30px;
+  color: #808080;
+}
+
+.navbar-brand-post {
+    color: #404040;
+    padding: 12px;
+		font-weight: 800;
+		line-height: 64px;
+		font-size: 20px;
+}
+
+.navbar-brand {
+		font-size: 20px;
+}
+
+article .container .row div {
+	color: black;
+}
+
+@media only screen and (max-width: 768px) {
+  .write-post {
+		display: none;
+	}
+	#write_post {
+		display: none;
+	}
 }
 
 @media only screen and (min-width: 768px) {
@@ -121,14 +230,14 @@ hr.small {
   }
   .navbar-custom.is-fixed .navbar-brand:hover,
   .navbar-custom.is-fixed .navbar-brand:focus {
-    color: #0085a1;
+    color: #808080;
   }
   .navbar-custom.is-fixed .nav li a {
     color: #404040;
   }
   .navbar-custom.is-fixed .nav li a:hover,
   .navbar-custom.is-fixed .nav li a:focus {
-    color: #0085a1;
+    color: #808080;
   }
   .navbar-custom.is-visible {
     /* if the user changes the scrolling direction, we show the header */
@@ -147,24 +256,24 @@ hr.small {
   -moz-background-size: cover;
   background-size: cover;
   -o-background-size: cover;
-  margin-bottom: 50px;
+  margin-bottom: 8px;
 }
 .intro-header .site-heading,
 .intro-header .post-heading,
 .intro-header .page-heading {
-  padding: 100px 0 50px;
+  padding: 64px 0 50px;
   color: white;
 }
 @media only screen and (min-width: 768px) {
   .intro-header .site-heading,
   .intro-header .post-heading,
   .intro-header .page-heading {
-    padding: 150px 0;
+    padding: 64px 0;
   }
 }
 .intro-header .site-heading,
 .intro-header .page-heading {
-  text-align: center;
+  text-align: justify;
 }
 .intro-header .site-heading h1,
 .intro-header .page-heading h1 {
@@ -173,7 +282,7 @@ hr.small {
 }
 .intro-header .site-heading .subheading,
 .intro-header .page-heading .subheading {
-  font-size: 24px;
+  font-size: 46px;
   line-height: 1.1;
   display: block;
   font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -196,7 +305,7 @@ hr.small {
 }
 .intro-header .post-heading .subheading {
   font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 24px;
+  font-size: 46px;
   margin: 10px 0 30px;
   font-weight: 600;
 }
@@ -223,7 +332,7 @@ hr.small {
 .post-preview > a:hover,
 .post-preview > a:focus {
   text-decoration: none;
-  color: #0085a1;
+  color: #808080;
 }
 .post-preview > a > .post-title {
   font-size: 30px;
@@ -240,6 +349,10 @@ hr.small {
   font-size: 18px;
   font-style: italic;
   margin-top: 0;
+	margin-bottom: 36px;
+}
+.post-preview > .post-meta:last-child {
+	margin-bottom: 0;
 }
 .post-preview > .post-meta > a {
   text-decoration: none;
@@ -247,7 +360,7 @@ hr.small {
 }
 .post-preview > .post-meta > a:hover,
 .post-preview > .post-meta > a:focus {
-  color: #0085a1;
+  color: #808080;
   text-decoration: underline;
 }
 @media only screen and (min-width: 768px) {
@@ -271,7 +384,7 @@ hr.small {
   border-bottom-left-radius: 5px;
 }
 footer {
-  padding: 50px 0 65px;
+  padding: 24px 0;
 }
 footer .list-inline {
   margin: 0;
@@ -294,7 +407,7 @@ footer .copyright {
   z-index: 1;
   position: relative;
   padding-right: 0;
-  padding-left: 0;
+  padding-left: 0;</script>
   border: none;
   border-radius: 0;
   font-size: 1.5em;
@@ -327,7 +440,7 @@ footer .copyright {
   opacity: 1;
 }
 .floating-label-form-group-with-focus label {
-  color: #0085a1;
+  color: #808080;
 }
 form .row:first-child .floating-label-form-group {
   border-top: 1px solid #eeeeee;
@@ -347,8 +460,8 @@ form .row:first-child .floating-label-form-group {
 }
 .btn-default:hover,
 .btn-default:focus {
-  background-color: #0085a1;
-  border: 1px solid #0085a1;
+  background-color: #808080;
+  border: 1px solid #808080;
   color: white;
 }
 .pager {
@@ -368,8 +481,8 @@ form .row:first-child .floating-label-form-group {
 .pager li > a:hover,
 .pager li > a:focus {
   color: white;
-  background-color: #0085a1;
-  border: 1px solid #0085a1;
+  background-color: #808080;
+  border: 1px solid #808080;
 }
 .pager .disabled > a,
 .pager .disabled > a:hover,
@@ -382,12 +495,12 @@ form .row:first-child .floating-label-form-group {
 ::-moz-selection {
   color: white;
   text-shadow: none;
-  background: #0085a1;
+  background: #808080;
 }
 ::selection {
   color: white;
   text-shadow: none;
-  background: #0085a1;
+  background: #808080;
 }
 img::selection {
   color: white;
@@ -398,5 +511,8 @@ img::-moz-selection {
   background: transparent;
 }
 body {
-  webkit-tap-highlight-color: #0085a1;
+  webkit-tap-highlight-color: #808080;
+}
+.text-green {
+    color: #cdea24;
 }

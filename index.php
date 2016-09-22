@@ -1,5 +1,8 @@
 <?php 
 
+require_once __DIR__ . '/../../lib/base.php';
+require_once('apps/chooser/appinfo/apache_note_user.php');
+
 \OCP\Util::writeLog('files_picocms', 'Firing up '.$_GET['site'].":".$_SERVER['QUERY_STRING'], \OCP\Util::WARN);
 
 if(empty($_GET['site'])){
@@ -144,6 +147,9 @@ if(empty($sitePath) ||
 else{
 	$config['content_dir'] = $dataDir.'/'.$sitePath.'/content';
 }
+
+// requesttoken is needed to get avatars
+$config['requesttoken'] = \OC::$session->get('requesttoken');
 
 // This is for the clean-blog theme
 $config['pages_order_by'] = 'date';

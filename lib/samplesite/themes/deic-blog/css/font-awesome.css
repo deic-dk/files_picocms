@@ -6,8 +6,8 @@
  * -------------------------- */
 @font-face {
   font-family: 'FontAwesome';
-  src: url('/apps/files_picocms/lib/samplesite/themes/clean-blog/fonts/fontawesome-webfont.eot?v=4.6.3');
-  src: url('/apps/files_picocms/lib/samplesite/themes/clean-blog/fonts/fontawesome-webfont.eot?#iefix&v=4.6.3') format('embedded-opentype'), url('/apps/files_picocms/lib/samplesite/themes/clean-blog/fonts/fontawesome-webfont.woff2?v=4.6.3') format('woff2'), url('/apps/files_picocms/lib/samplesite/themes/clean-blog/fonts/fontawesome-webfont.woff?v=4.6.3') format('woff'), url('/apps/files_picocms/lib/samplesite/themes/clean-blog/fonts/fontawesome-webfont.ttf?v=4.6.3') format('truetype'), url('/apps/files_picocms/lib/samplesite/themes/clean-blog/fonts/fontawesome-webfont.svg?v=4.6.3#fontawesomeregular') format('svg');
+  src: url('/apps/files_picocms/lib/samplesite/themes/deic-blog/fonts/fontawesome-webfont.eot?v=4.6.3');
+  src: url('/apps/files_picocms/lib/samplesite/themes/deic-blog/fonts/fontawesome-webfont.eot?#iefix&v=4.6.3') format('embedded-opentype'), url('/apps/files_picocms/lib/samplesite/themes/deic-blog/fonts/fontawesome-webfont.woff2?v=4.6.3') format('woff2'), url('/apps/files_picocms/lib/samplesite/themes/deic-blog/fonts/fontawesome-webfont.woff?v=4.6.3') format('woff'), url('/apps/files_picocms/lib/samplesite/themes/deic-blog/fonts/fontawesome-webfont.ttf?v=4.6.3') format('truetype'), url('/apps/files_picocms/lib/samplesite/themes/deic-blog/fonts/fontawesome-webfont.svg?v=4.6.3#fontawesomeregular') format('svg');
   font-weight: normal;
   font-style: normal;
 }

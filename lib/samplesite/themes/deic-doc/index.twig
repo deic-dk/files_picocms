@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8" />
+
+    <title>{% if meta.title %}{{ meta.title }} | {% endif %}{{ site_title }}</title>
+    {% if meta.description %}
+        <meta name="description" content="{{ meta.description|striptags }}">
+    {% endif %}{% if meta.robots %}
+        <meta name="robots" content="{{ meta.robots }}">
+    {% endif %}
+    <link type="text/css" rel="stylesheet" href="{{ theme_url }}/css/bootstrap.css"/>
+    <style>
+      body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+    </style>
+    <link type="text/css" rel="stylesheet" href="{{ theme_url }}/css/bootstrap-responsive.css"/>
+    <link type="text/css" rel="stylesheet" href="{{ theme_url }}/css/pilcrow.css"/>
+    <link type="text/css" rel="stylesheet" href="{{ theme_url }}/css/hljs-github.min.css"/>
+    <link type="text/css" rel="stylesheet" href="{{ theme_url }}/css/style.css"/>
+    <link type="text/css" rel="stylesheet" href="{{ theme_url }}/css/default_style.css"/>
+  </head>
+<body>
+
+    <div class="container-fluid">
+    <div class="row-fluid">
+      <div class="span2 navigation">
+        <form id="search_form" action="{{ base_url  }}/search">
+					<label id="search_label" for="search_input"><a href="{{ base_url  }}">
+					<i class="icon icon-home icon-white"></i>{{ (pages|first).title }}</a></label>
+					<input type="search" id="search_input" name="q" placeholder="Search the docs" />
+					<!--<input type="submit" id="search_submit" value="Search" />-->
+				</form>
+				<script type="text/javascript">
+						// Intercept form submit and go to the search results page directly, avoiding a redirect
+						document.getElementById('search_form').addEventListener('submit', function (e) {
+								var search_terms = document.getElementById('search_input').value;
+								location.href = '{{ base_url  }}/search/' + encodeURIComponent(search_terms);
+								e.preventDefault();
+						});
+				</script>
+				
+				{% if paged_pages %}
+				<div id="nav">
+					<ul>
+						{% set len = '0' %}
+						{% for page in paged_pages|sort_by("id") %}
+							{% set arr = page.id|split('/') %}
+							{% set len = arr|length %}
+							{% if arr|last == 'index' and len > 0 %}
+								{% set len = len - 1 %}
+							{% endif %}
+							{% if meta.title == page.title %}
+								<li class="current toc{{ len }}">
+									<a href="{{ page.url }}">{{ page.title }}</a>
+								</li>
+							{% else %}	
+								<li class="toc{{ len }}">
+									<a href="{{ page.url }}">{{ page.title }}</a>
+								</li>
+							{% endif %}	
+						{% endfor %}
+					</ul>
+				</div>
+				{% endif %}
+				
+				{{ toc }}
+
+      </div>
+      <div class="span9 main">
+        {{ content}}
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script type="text/javascript" src="{{ theme_url }}/js/bootstrap.js"></script>
+  <script type="text/javascript" src="{{ theme_url }}/js/toc.js"></script>
+  <script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+		  tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+		});
+	</script>
+  <script src="/apps/files_markdown/js/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>

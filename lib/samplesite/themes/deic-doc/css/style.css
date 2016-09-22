@@ -1,0 +1,125 @@
+body {
+  background-color: #f6f6f6;
+  padding-top: 30px;
+	padding-bottom: 30px;
+}
+.main {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 30px 40px;
+}
+.container {
+  width: 1100px;
+}
+.nav-list {
+  font-size: 17px;
+}
+.nav-header {
+  font-size: 17px;
+  text-transform: none;
+  line-height: 30px;
+}
+.sidebar-header-2 { margin-left: 10px; }
+.sidebar-header-3 { margin-left: 20px; }
+.sidebar-header-4 { margin-left: 30px; }
+.sidebar-header-5 { margin-left: 40px; }
+
+
+#toc{float: left;border: 1px solid #bba;background-color: #f7f8ff;margin-left:0.5em;margin-top:0px;margin-bottom:4px;padding: 10px 0px 0px 12px;font-size: 100%;text-align: center;min-width: 12em;}
+#toc-header{display: inline;padding: 0;font-size: 100%;font-weight: bold;}
+#toc-nav{float: right;font-size: 94%;padding-right: 1.5em;padding-left: 0.5em;}
+#toc ul{list-style: none; margin-left: 0; padding-left: 0; text-align: left;}
+.toc1{}
+.toc2 a {margin-left: 1em;}
+.toc3 a {margin-left: 2em;}
+.toc4 a {margin-left: 3em;}
+.toc5 a {margin-left: 4em;}
+.toc6 a {margin-left: 5em;}
+
+a {text-decoration: none;}
+a:hover{text-decoration: none;}
+a:active {text-decoration: none;}
+a:focus {text-decoration: none;}
+
+#nav ul{list-style: none; margin-left: 0; padding-left: 0; text-align: left;}
+#nav li {
+	background-color: #b3b3b3;
+	width: 230px;
+	margin-left: -10px;
+	padding-left: 10px;
+	padding-top: 3px;
+	padding-bottom: 3px;
+}
+#nav li:hover {
+	background-color: #404040;
+}
+#nav li.current {
+	background-color: #404040;
+}
+#nav li:first-child {
+	padding-top: 17px;
+}
+
+form#search_form input#search_submit {
+	margin-bottom: 10px;
+}
+
+.row-fluid .navigation {
+	width: 240px;
+  overflow:auto;
+	height: 100%;
+	background-color: #b3b3b3;
+	padding: 10px;
+}
+
+#search_form {
+	background-color: #2980b9;
+	margin-left: -10px;
+	margin-top: -10px;
+	margin-bottom: 0;
+	width: 220px;
+	padding: 10px;
+}
+
+#search_label {
+	color: #fff;
+	text-align: center;
+  display: block;
+  margin-bottom: 9px;
+  margin-left: -10px;
+  width: 220px;
+}
+
+#search_label a {
+	color: #fff;
+	text-align: center;
+}
+
+#search_label a i {
+  padding-right: 4px;
+}
+
+#search_input {
+	border-color: #2472a4;
+	border-radius: 50px;
+	padding-left: 12px;
+	width: 200px;
+}
+
+.row-fluid .main {
+    position: absolute;
+    top: 30px;
+		margin-left: 260px;
+		margin-right: 20px;
+		width: auto;
+}
+
+@media only screen and (max-width: 768px) {
+  .row-fluid .navigation { 
+    display:none;
+  }
+  .row-fluid .main {
+		margin-left: 0;
+}
+}
+

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
+<head data-requesttoken="{{ config.requesttoken }}">
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -14,7 +14,7 @@
 	<meta content='{{ site_title }}' property='og:title'/>
 	<meta content='website' property='og:type'/>
 	<meta content='{{ current_page.url }}' property='og:url'/>
-	<meta content='{% if meta.img %}{{ meta.img }}{% else %}{{ theme_url }}/img/home-bg.jpg{% endif %}' property='og:image'/>
+	<meta content='{% if meta.img %}{{ meta.img }}{% else %}{{ theme_url }}/img/home.jpg{% endif %}' property='og:image'/>
 	<meta content="{{ meta.description|striptags }}" property='og:description'/>
 	<meta content='{{ site_title }}' property='og:site_name'/>
 	<meta content='en_US' property='og:locale'/>
@@ -23,7 +23,7 @@
 	<meta content='{{ config.twitter }}' name='twitter:site'/>
 	<meta content='{{ config.twitter }}' name='twitter:creator'/>
 	<meta content='{{ meta.description|striptags }}' name='twitter:description'/>
-	<meta content='{% if meta.img %}{{ meta.img }}{% else %}{{ theme_url }}/img/home-bg.jpg{% endif %}' name='twitter:image'/>
+	<meta content='{% if meta.img %}{{ meta.img }}{% else %}{{ theme_url }}/img/home.jpg{% endif %}' name='twitter:image'/>
     <!-- Bootstrap Core CSS -->
     <link href="{{ theme_url }}/css/bootstrap.min.css" rel="stylesheet">
 
@@ -41,51 +41,80 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
-    <script src="{{ theme_url }}/js/jquery.min.js"></script>
-    <script src="{{ theme_url }}/js/bootstrap.min.js"></script>
-    <script src="{{ theme_url }}/js/clean-blog.js"></script>
     <script src="/apps/files_markdown/js/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
- 
+    <script src="/core/js/jquery-1.10.0.min.js?v=cf866614b6b18cda13fe699a3a65661b" type="text/javascript"></script>
+		<script src="/core/js/jquery-migrate-1.2.1.min.js?v=cf866614b6b18cda13fe699a3a65661b" type="text/javascript"></script>
+		<script src="/core/js/jquery-ui-1.10.0.custom.js?v=cf866614b6b18cda13fe699a3a65661b" type="text/javascript"></script>
+		<script src="/core/js/underscore.js?v=cf866614b6b18cda13fe699a3a65661b" type="text/javascript"></script>
+    <script src="/core/js/jquery.avatar.js?v=cf866614b6b18cda13fe699a3a65661b" type="text/javascript"></script>
+    <script src="/themes/deic_theme_oc7/core/js/jquery.ocdialog.js?v=cf866614b6b18cda13fe699a3a65661b" type="text/javascript"></script>
+    <script src="/themes/deic_theme_oc7/core/js/oc-dialogs.js?v=cf866614b6b18cda13fe699a3a65661b" type="text/javascript"></script>
+    <script src="/core/js/jquery-showpassword.js?v=cf866614b6b18cda13fe699a3a65661b" type="text/javascript"></script>
+    <script src="/core/js/placeholders.js?v=cf866614b6b18cda13fe699a3a65661b" type="text/javascript"></script>
+		<script src="/core/js/jquery-tipsy.js?v=cf866614b6b18cda13fe699a3a65661b" type="text/javascript"></script>
+		<script src="/core/js/compatibility.js?v=cf866614b6b18cda13fe699a3a65661b" type="text/javascript"></script>
+    <script src="/themes/deic_theme_oc7/core/js/js.js?v=cf866614b6b18cda13fe699a3a65661b" type="text/javascript"></script>
+    <script src="/themes/deic_theme_oc7/core/js/avatar.js?v=cf866614b6b18cda13fe699a3a65661b" type="text/javascript"></script>
+    <script src="/core/js/placeholder.js?v=cf866614b6b18cda13fe699a3a65661b" type="text/javascript"></script>
+    <script src="/3rdparty/js/md5/md5.min.js?v=cf866614b6b18cda13fe699a3a65661b" type="text/javascript"></script>
+    <script src="{{ theme_url }}/js/bootstrap.min.js"></script>
+    <script src="{{ theme_url }}/js/clean-blog.js"></script> 
 </head>
 
 <body>
 	<!-- Navigation -->
-	{% if page_number > 1 %}
     <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
         <div class="container-fluid">
             <!-- Brand and toggle get grouped for better mobile display -->
-            <div class="navbar-header page-scroll">
-                <a class="navbar-brand" href="{{ base_url }}">Home</a>
-            </div>
-
+						{% if page_number > 1 %}
+							<div class="navbar-header page-scroll">
+									<a class="navbar-brand" href="{{ base_url }}">Home</a>
+							</div>
+						{% endif %}
             <!-- /.navbar-collapse -->
+							<form class = "navbar-search" id="search_form" action="{{ base_url  }}/search">
+								<input type="search" id="search_input" name="q" placeholder="Search" />
+								<!--<input type="submit" id="search_submit" value="Search" />-->
+							</form>
+							<div class="navbar-header page-scroll navbar-right">
+									<a class="navbar-brand search" href="{{ base_url }}/search">Search</a>
+							</div>
         </div>
         <!-- /.container -->
     </nav>
-	{% endif %}
     <!-- Page Header -->
     <!-- Set your background image for this header on the line below. -->
-    <header class="intro-header" style="background-image: {% if meta.img %} url({{ meta.img }}) {% else %} url('{{ theme_url }}/img/home-bg.jpg'){% endif %};">
+    <header class="intro-header" style="background-image: {% if meta.img %} url({{ meta.img }}) {% else %} url('{{ theme_url }}/img/home.jpg'){% endif %};">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                     <div class="site-heading">
                         <h1>{{ site_title }}</h1>
-                        <hr class="small">
+                        <hr class="thin">
                         <span class="subheading">{{ meta.tagline }}</span>
                     </div>
                 </div>
             </div>
         </div>
+        
+        
+        {% if meta.access == 'private' and meta.permissions != 'none' %}
+            <a class="navbar-left write-post" path="{{  oc_path }}" owner="{{  oc_owner }}" user="{{  oc_user }}" group="{{  oc_group }}">Write</a>
+            <input type="search" id="write_post" name="q" placeholder="Title" />
+        {% endif %}
+        
     </header>
 
     <!-- Main Content -->
     <div class="container">
         <div class="row">
             <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      {% set num_pages = paged_pages|length %}
+      {% set i = 0 %}
 			{% for page in paged_pages|sort_by("time")|reverse %}
+      {% set i = i + 1 %}
 				<div class="post-preview">
-                    <a href="{{ page.url }}">
+                   <a href="{{ base_url }}/search/author:{{ page.author }}"><div class="avatardiv" author="{{ page.author }}"></div></a><a href="{{ page.url }}">
                         <h2 class="post-title">
 							{{ page.title }}
                         </h2>
@@ -93,9 +122,11 @@
 							{{ page.description }}
                         </h3>
                     </a>
-                    <p class="post-meta">Posted by {{ page.author }} on {{ page.date }}</p>
+                    <p class="post-meta">Posted by {{ page.meta.displayname }} on {{ page.date }}</p>
                 </div>
+							{% if i < num_pages %}
                 <hr>
+							{% endif %}   
             {% endfor %}   
                 <!-- Pager -->
                 <ul class="pager">

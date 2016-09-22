@@ -27,7 +27,7 @@ class Pagination extends AbstractPicoPlugin {
 			'output_format'	=> 'links',
 			'flip_links' => false,
 			'filter_date' => true,
-			'sub_page' => false,
+			'sub_page' => true,
 		);
 	}
 

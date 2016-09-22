@@ -218,6 +218,13 @@ class Pico
      * @var string
      */
     protected $ocId;    /**
+    
+    /**
+     * Owner of the requested file.
+     * 
+     * @var string
+     */
+    protected $ocOwner;    /**
 
      * Constructs a new Pico instance
      *
@@ -344,7 +351,6 @@ class Pico
         		$this->rawContent = $this->loadStatusContent($this->requestFile, 403);
         	}
         }
-
 
         $this->triggerEvent('onMetaParsed', array(&$this->meta));
 
@@ -793,7 +799,10 @@ class Pico
     		// Next check if the file or one of its parent folders is shared with me.
     		while($ocPath!=='.'){
     			$fileInfo = \OC\Files\Filesystem::getFileInfo($ocPath);
-    			$this->ocId = $fileInfo->getId();
+    			if(empty($this->ocId)){
+    				$this->ocId = $fileInfo->getId();
+    				$this->ocOwner = $owner;
+    			}
     			$fileType = $fileInfo->getType()===\OCP\Files\FileInfo::TYPE_FOLDER?'folder':'file';
     			if(!\OCP\App::isEnabled('files_sharding') || \OCA\FilesSharding\Lib::isMaster()){
     				$itemShared = \OCP\Share::getItemSharedWithUser(
@@ -953,6 +962,10 @@ class Pico
             // guarantee array key existance
             $meta = array_fill_keys(array_keys($headers), '');
             $meta['time'] = $meta['date_formatted'] = '';
+        }
+        // NC change
+        if(!empty($meta['author'])){
+        	$meta['displayname'] = \OCP\User::getDisplayName($meta['author']);
         }
 
         return $meta;
@@ -1137,7 +1150,10 @@ class Pico
                 'title' => &$meta['title'],
                 'description' => &$meta['description'],
                 'author' => &$meta['author'],
-                'time' => &$meta['time'],
+            		// NC change
+                'displayname' => &$meta['displayname'],
+            		//
+            		'time' => &$meta['time'],
                 'date' => &$meta['date'],
                 'date_formatted' => &$meta['date_formatted'],
                 'raw_content' => &$rawContent,
@@ -1369,11 +1385,12 @@ class Pico
         		'rewrite_url' => $this->isUrlRewritingEnabled(),
         		// NC change
             //'site_title' => $this->getConfig('site_title'),
-        		'site_title' => !empty($this->meta['title'])?$this->meta['title']:$this->getConfig('site_title'),
+        		'site_title' => !empty($this->meta['site'])?$this->meta['site']:$this->getConfig('site_title'),
         		'oc_user' => $this->getConfig('user'),
         		'oc_path' => $this->ocPath,
             'oc_id' => $this->ocId,
         		'oc_group' => $this->getConfig('group'),
+            'oc_owner' => $this->ocOwner,
         		//
         		'meta' => $this->meta,
             'content' => $this->content,
