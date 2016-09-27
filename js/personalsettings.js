@@ -81,7 +81,7 @@ function removeSiteFolder(folder){
 		 dataType:'json',
 		 success: function(s){
 				if(s.error){
-					alert(s.error);
+					alert('Could not remove site folder. '+s.error);
 				}
 				else{
 					$("#filesPicoSiteFolders div#filesPicoSiteFoldersList div.siteFolder[path='"+folder+"']").remove();
