@@ -218,7 +218,14 @@ class Pico
      * @var string
      */
     protected $ocId;    /**
-    
+
+    /**
+     * ID of the directory of the requested file.
+     * 
+     * @var string
+     */
+    protected $ocParentId;    /**
+
     /**
      * Owner of the requested file.
      * 
@@ -757,7 +764,7 @@ class Pico
     /**
      * If the meta attribute 'Access' is set to 'private',
      * this function is called to check Nextcloud access rights.
-     * It also sets the variables $ocPath and $ocId.
+     * It also sets the variables $ocPath, $ocId and $ocParentId.
      * @param unknown $file absolute path of the file
      * @param unknown $access Pico ACL defined by file's meta attribute 'Access'
      * @param unknown $owner the owner of the file
@@ -770,6 +777,7 @@ class Pico
     	}
     	$user_id = \OCP\User::getUser();
     	if(empty($user_id)){
+    		\OCP\Util::writeLog('files_picocms', 'No user '.$user_id, \OC_Log::ERROR);
     		return false;
     	}
     	if(!empty($group)){
@@ -780,7 +788,7 @@ class Pico
     	}
     	$ownerRoot = $view->getLocalFile('/');
     	\OCP\Util::writeLog('files_picocms', 'Checking permissions: '.$access.' for file '.$file. ' in '.
-    			$ownerRoot, \OC_Log::DEBUG);
+    			$ownerRoot, \OC_Log::WARN);
     	if(strpos($file, $ownerRoot)!==0){
     		\OCP\Util::writeLog('files_picocms', 'Trying to access file outside of user dir', \OC_Log::ERROR);
     		return false;
@@ -798,9 +806,12 @@ class Pico
     		\OC\Files\Filesystem::init($owner, $baseDir);
     		// Next check if the file or one of its parent folders is shared with me.
     		while($ocPath!=='.'){
+    			$view = new \OC\Files\View($baseDir);
+    			$pathInfo = $view->getFileInfo($ocPath);
     			$fileInfo = \OC\Files\Filesystem::getFileInfo($ocPath);
     			if(empty($this->ocId)){
     				$this->ocId = $fileInfo->getId();
+    				$this->ocParentId = $pathInfo['parent'];
     				$this->ocOwner = $owner;
     			}
     			$fileType = $fileInfo->getType()===\OCP\Files\FileInfo::TYPE_FOLDER?'folder':'file';
@@ -814,6 +825,7 @@ class Pico
     			\OCP\Util::writeLog('files_picocms', 'Checking sharing of: '.$ocPath.':'.$fileInfo->getId().':'.
     					$fileInfo->getType().':'.serialize($itemShared), \OC_Log::INFO);
     			if(!empty($itemShared)){
+    				$this->ocPath = substr($this->ocPath, strlen(dirname($ocPath)));
     				break;
     			}
     			$ocPath = dirname($ocPath);
@@ -1389,6 +1401,7 @@ class Pico
         		'oc_user' => $this->getConfig('user'),
         		'oc_path' => $this->ocPath,
             'oc_id' => $this->ocId,
+            'oc_parent_id' => $this->ocParentId,
         		'oc_group' => $this->getConfig('group'),
             'oc_owner' => $this->ocOwner,
         		//
