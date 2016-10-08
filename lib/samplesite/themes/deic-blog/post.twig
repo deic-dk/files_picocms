@@ -115,8 +115,31 @@
             </div>
         </div>
     </article>
+    
+      <div class="col-lg-8">
+        <a href="#" id="show_comments">Comments <span class="laquo">&laquo;</span><span class="raquo">&raquo;</span></a>
+      </div>
 
-    <hr>
+    <comments>
+    <div class="container">
+	    <div class="col-lg-offset-2">
+		    <div class="form-group col-xs-5 comment-post"
+		    share="{{  oc_share }}" path="{{  oc_path }}" owner="{{  oc_owner }}" user="{{  oc_user }}"
+		    group="{{  oc_group }}">
+		     <input placeholder="Your name" type="text" class="form-control" id="name" size="64" value="{{ oc_full_name }}" />
+		     <textarea placeholder="Your comment" class="form-control" rows="3" id="comment"></textarea>
+		     <button id="submit_comment" class="btn btn-default btn-small">Submit</button>
+		    </div>
+		
+		    <!-- Comments -->
+		    <div id="comments" class="col-md-10">
+		    </div>
+		  </div>
+	  </div>
+    </comments>
+    
+    <p />
+    <hr class="foot">
 
     <!-- Footer -->
     <footer>

@@ -206,11 +206,20 @@ class Pico
     //NC change
     /**
      * Path of the requested file, relative to the Nextcloud base dir
-     * (i.e. relativ to e.g. /data/user_name/files).
+     * or the shared folder.
+     * (i.e. relative to e.g. /data/user_name/files).
      * 
      * @var string
      */
     protected $ocPath;
+
+    /**
+     * In case of a shared folder, the ID of the shared folder.
+     * (i.e. relative to e.g. /data/user_name/files/mysite).
+     * 
+     * @var string
+     */
+    protected $ocShare;
 
     /**
      * ID of the requested file.
@@ -242,6 +251,10 @@ class Pico
      * @param string $pluginsDir plugins directory of this Pico instance
      * @param string $themesDir  themes directory of this Pico instance
      */
+
+    // NC change
+    private $site;
+
     public function __construct($rootDir, $configDir, $pluginsDir, $themesDir)
     {
         $this->rootDir = rtrim($rootDir, '/\\') . '/';
@@ -764,7 +777,7 @@ class Pico
     /**
      * If the meta attribute 'Access' is set to 'private',
      * this function is called to check Nextcloud access rights.
-     * It also sets the variables $ocPath, $ocId and $ocParentId.
+     * It also sets the variables $ocPath, $ocShare, $ocId and $ocParentId.
      * @param unknown $file absolute path of the file
      * @param unknown $access Pico ACL defined by file's meta attribute 'Access'
      * @param unknown $owner the owner of the file
@@ -797,6 +810,7 @@ class Pico
     	$this->ocPath = $ocPath;
     	// First check if I own the file
     	if($user_id===$owner){
+    		$this->ocShare = '';
     		return true;
     	}
     	else{
@@ -825,6 +839,8 @@ class Pico
     			\OCP\Util::writeLog('files_picocms', 'Checking sharing of: '.$ocPath.':'.$fileInfo->getId().':'.
     					$fileInfo->getType().':'.serialize($itemShared), \OC_Log::INFO);
     			if(!empty($itemShared)){
+    				$this->ocShare = $fileInfo->getId();
+    				// This sets $this->ocPath to the path relative to the parent of the shared folder
     				$this->ocPath = substr($this->ocPath, strlen(dirname($ocPath)));
     				break;
     			}
@@ -1176,6 +1192,11 @@ class Pico
                 $page['content'] = &$this->content;
             }
 
+            // NC change
+            if (basename($id) === "index" && !empty($meta['site']) && empty($this->meta['site'])) {
+            	$this->site = $meta['site'];
+            }
+
             unset($rawContent, $meta);
 
             // trigger event
@@ -1379,6 +1400,7 @@ class Pico
     protected function getTwigVariables()
     {
         $frontPage = $this->getConfig('content_dir') . 'index' . $this->getConfig('content_ext');
+        $user_id = \OCP\User::getUser();
         return array(
             'config' => $this->getConfig(),
             'base_dir' => rtrim($this->getRootDir(), '/'),
@@ -1397,10 +1419,15 @@ class Pico
         		'rewrite_url' => $this->isUrlRewritingEnabled(),
         		// NC change
             //'site_title' => $this->getConfig('site_title'),
-        		'site_title' => !empty($this->meta['site'])?$this->meta['site']:$this->getConfig('site_title'),
-        		'oc_user' => $this->getConfig('user'),
+        		'site_title' =>
+        			!empty($this->meta['site'])?$this->meta['site']:
+        				(!empty($this->site)?$this->site:$this->getConfig('site_title')),
+        		//'oc_user' => $this->getConfig('user'),
+        		'oc_user' => $user_id,
+        		'oc_full_name' => \OC_User::getDisplayName($user_id),
         		'oc_path' => $this->ocPath,
-            'oc_id' => $this->ocId,
+        		'oc_share' => $this->ocShare,
+        		'oc_id' => $this->ocId,
             'oc_parent_id' => $this->ocParentId,
         		'oc_group' => $this->getConfig('group'),
             'oc_owner' => $this->ocOwner,

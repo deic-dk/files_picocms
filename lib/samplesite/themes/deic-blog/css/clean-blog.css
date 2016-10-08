@@ -37,6 +37,14 @@ a img:hover,
 a img:focus {
   cursor: zoom-in;
 }
+h1 a {
+  color: #ffffff;
+}
+h1 a:hover,
+h1 a:focus {
+  color: #ffffff;
+	text-decoration: none;
+}
 blockquote {
   color: #808080;
   font-style: italic;
@@ -516,3 +524,72 @@ body {
 .text-green {
     color: #cdea24;
 }
+
+.col-xs-5, div#comments {
+	padding-left: 3px;
+}
+
+comments {
+	display: block;
+}
+
+comments .comments {
+	padding-left: 30px;
+}
+
+a#show_comments {
+	text-decoration: underline;
+	margin-left: 12px;
+}
+
+a.navbar-brand-post {
+	text-decoration: underline;
+}
+
+.foot {
+	margin-top: 52px;
+}
+
+.btn-small{
+	padding: 8px 16px;
+}
+
+comment {
+	background-color: rgb(250,250,250);
+	display: block;
+	margin: 10px 0 20px 0;
+	padding: 8px;
+  border: 1px solid rgb(230,230,230);
+  border-radius: 3px;
+}
+
+.comment_avatar {
+	float: left;
+	margin: 14px 8px 0 0;
+}
+
+.comment_author {
+	margin-left: 12px;
+	font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	font-weight: 500;
+	color: #808080;
+}
+
+.comment_date {
+	margin-left: 12px;
+	font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	font-weight: 500;
+	color: #808080;
+}
+
+.comment_text {
+	display: block;
+	clear: both;
+}
+
+.comment_meta {
+	margin-top: 5px;
+}
+
