@@ -1,5 +1,7 @@
 ---
+Site: Pico for Nextcloud
 Title: Pico for Nextcloud
+Theme: default
 Description: Pico is a stupidly simple, blazing fast, flat file CMS.
 social:
     - title: Visit us on GitHub
@@ -85,6 +87,19 @@ error page for your blog, you could simply create `content/blog/404.md`.
 Text files are marked up using [Markdown][] and [Markdown Extra][MarkdownExtra].
 They can also contain regular HTML.
 
+In the case of Pico for Nextcloud, we've included LaTeX support via [MathJax](www.mathjax.org),
+allowing you to directly use expressions like:
+
+```
+When $a \ne 0$, there are two solutions to $\(ax^2 + bx + c = 0\)$ and they are
+$$x = {-b \pm \sqrt{b^2-4ac} \over 2a}.$$
+```
+
+Resulting in:
+
+When $a \ne 0$, there are two solutions to $\(ax^2 + bx + c = 0\)$ and they are
+$$x = {-b \pm \sqrt{b^2-4ac} \over 2a}.$$
+
 At the top of text files you can place a block comment and specify certain meta
 attributes of the page using [YAML][] (the "YAML header"). For example:
 
@@ -96,6 +111,7 @@ attributes of the page using [YAML][] (the "YAML header"). For example:
     Robots: noindex,nofollow
     Template: index
     Theme: my_cool_theme
+    
     ---
 
 These values will be contained in the `{{ meta }}` variable in themes
@@ -109,6 +125,19 @@ There are also certain variables that you can use in your text files:
 * <code>&#37;theme_url&#37;</code> - The URL to the currently used theme
 * <code>&#37;meta.&#42;&#37;</code> - Access any meta variable of the current
   page, e.g. <code>&#37;meta.author&#37;</code> is replaced with `Joe Bloggs`
+
+Pico for Nextcloud adds a few more:
+
+* <code>&#37;user&#37;</code> - On a page marked with meta attribute <code>Access: private</code>,
+the user name of a logged-in visitor with access rights to the page in question
+* <code>&#37;group&#37;</code> - On a page marked with meta attribute <code>Access: private</code>,
+the group of a logged-in visitor that gives him access to the page in question
+* <code>&#37;owner&#37;</code> - The owner of the page in question
+* <code>&#37;master_url&#37;</code> - In a distributed setup, the URL of the master server that
+redirects to the slave servers holding the data. A site may e.g. have URL
+<code>%master_url%sites/mysite</code>, but be physically hosted at
+<code>https://someslave.somesite/sites/mysite</code>, and the actual file located at
+<code>https://someslave.somesite/shared/mysite/content/index.md</code>
 
 ## Customization
 

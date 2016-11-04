@@ -22,5 +22,9 @@ $tmpl = new OCP\Template('files_picocms', 'personalsettings');
 $user_id = OCP\USER::getUser();
 
 $tmpl->assign('site_folders', OCA\FilesPicoCMS\Lib::getSiteFoldersList($user_id));
+$sampleSitePath = OCP\Config::getAppValue('files_picocms', 'samplesitepath', 'samplesite');
+$pathArr = pathinfo($sampleSitePath);
+$sampleSiteUrl = OC::$WEBROOT . '/sites/' . $pathArr['basename'];
+$tmpl->assign('samplesite_url', $sampleSiteUrl);
 
 return $tmpl->fetchPage();

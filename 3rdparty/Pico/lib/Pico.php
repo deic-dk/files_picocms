@@ -233,15 +233,25 @@ class Pico
      * 
      * @var string
      */
-    protected $ocParentId;    /**
+    protected $ocParentId;
 
     /**
      * Owner of the requested file.
      * 
      * @var string
      */
-    protected $ocOwner;    /**
+    protected $ocOwner;
 
+    /**
+     * URL of the master in a sharded setup.
+     * 
+     * @var string
+     */
+    protected $ocMasterUrl;
+
+    private $site;
+
+    /**
      * Constructs a new Pico instance
      *
      * To carry out all the processing in Pico, call {@link Pico::run()}.
@@ -252,15 +262,18 @@ class Pico
      * @param string $themesDir  themes directory of this Pico instance
      */
 
-    // NC change
-    private $site;
-
     public function __construct($rootDir, $configDir, $pluginsDir, $themesDir)
     {
         $this->rootDir = rtrim($rootDir, '/\\') . '/';
         $this->configDir = $this->getAbsolutePath($configDir);
         $this->pluginsDir = $this->getAbsolutePath($pluginsDir);
         $this->themesDir = $this->getAbsolutePath($themesDir);
+        if(\OCP\App::isEnabled('files_sharding') ){
+        	$this->ocMasterUrl = \OCA\FilesSharding\Lib::getMasterURL();
+        }
+        else{
+        	$this->ocMasterUrl = $_SERVER['HTTP_HOST'];
+        }
     }
 
     /**
@@ -345,8 +358,18 @@ class Pico
         $notFoundFile = '404' . $this->getConfig('content_ext');
         if (file_exists($this->requestFile) && (basename($this->requestFile) !== $notFoundFile)) {
             $this->rawContent = $this->loadFileContent($this->requestFile);
+            // NC change
+            // Why is this necessary? Why aren't images served...?
+            //$pathInfo = pathinfo(array_pop((array_slice($requestFileParts, -1))));
+            //if(empty($pathInfo['extension'])){
+            	if(getimagesize($this->requestFile)){
+            		return $this->rawContent;
+            	}
+            //}
         } else {
-            $this->triggerEvent('on404ContentLoading', array(&$this->requestFile));
+        		\OCP\Util::writeLog('files_picocms', 'No such file '.$this->requestFile, \OC_Log::ERROR);
+
+        		$this->triggerEvent('on404ContentLoading', array(&$this->requestFile));
 
             header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
             $this->rawContent = $this->load404Content($this->requestFile);
@@ -712,7 +735,10 @@ class Pico
                     return;
                 }
             }
-            $this->requestFile .= $this->getConfig('content_ext');
+            $pathInfo = pathinfo(array_pop((array_slice($requestFileParts, -1))));
+            if(empty($pathInfo['extension'])){
+            	$this->requestFile .= $this->getConfig('content_ext');
+            }
         }
     }
 
@@ -1080,6 +1106,22 @@ class Pico
             $content = str_replace($metaKeys, $metaValues, $content);
         }
 
+        // NC change
+        if(!empty($this->getConfig('group'))){
+        	$content = str_replace('%group%', $this->getConfig('group'), $content);
+        }
+        $user_id = \OCP\User::getUser();
+        if(!empty($user_id)){
+        	$content = str_replace('%user%', $user_id, $content);
+        }
+        if(!empty($this->ocOwner)){
+        	$content = str_replace('%owner%', $this->ocOwner, $content);
+        }
+        if(!empty($this->ocMasterUrl)){
+        	$content = str_replace('%master_url%', $this->ocMasterUrl, $content);
+        }
+        //
+
         return $content;
     }
 
@@ -1144,7 +1186,10 @@ class Pico
                 unset($files[$i]);
                 continue;
             }
-
+            if (basename($file) === '403' . $this->getConfig('content_ext')) {
+            	unset($files[$i]);
+            	continue;
+            }
             $id = substr($file, strlen($this->getConfig('content_dir')), -strlen($this->getConfig('content_ext')));
 
             // drop inaccessible pages (e.g. drop "sub.md" if "sub/index.md" exists)
@@ -1431,6 +1476,7 @@ class Pico
             'oc_parent_id' => $this->ocParentId,
         		'oc_group' => $this->getConfig('group'),
             'oc_owner' => $this->ocOwner,
+            'oc_master_url' => $this->ocMasterUrl,
         		//
         		'meta' => $this->meta,
             'content' => $this->content,

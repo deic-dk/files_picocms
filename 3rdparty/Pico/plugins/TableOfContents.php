@@ -68,7 +68,7 @@ class TableOfContents extends AbstractPicoPlugin {
       // http://stackoverflow.com/questions/8218230/php-domdocument-loadhtml-not-encoding-utf-8-correctly
       $dom = new \DOMDocument();
       $html = $dom->loadHTML('<?xml encoding="utf-8" ?>' . $content);
-      \OCP\Util::writeLog('files_picocms', 'CONTENT: '.$content, \OC_Log::WARN);
+      \OCP\Util::writeLog('files_picocms', 'CONTENT: '.$content, \OC_Log::INFO);
       $xp = new \DOMXPath($dom);
 
       $nodes =$xp->query($this->xpQuery);

@@ -8,7 +8,7 @@ Install
 -------
 
 - Place `files_picocms` in your app folder.
-- Copy the folder `samplesite` to the folder of some user
+- Copy the folder `samplesite` to the folder of some user (it will be shared with users)
 - Set the uid of this user in the app settings
 - If necessary, modify the copied file `samplesite/themes/default/fontello.css`:
   Change

@@ -72,10 +72,10 @@ select:focus {
 
 /* Main Styles
 /*---------------------------------------------*/
-body {
+/*body {
     font: 14px/1.8em 'Open Sans', Helvetica, Arial, Helvetica, sans-serif;
     -webkit-font-smoothing: antialiased;
-}
+}*/
 
 a, a:visited {
     color: #006b93;
@@ -95,24 +95,56 @@ a:hover, a:active {
 h1, h2, h3, h4, h5, h6 {
     color: #000;
     line-height: 1.2em;
-    margin-bottom: 0.6em;
+    margin-bottom: 0.3em;
+    margin-top: 0;
+		font-family: Circular,Helvetica,Arial,sans-serif;
+}
+
+subtitle {
+	font-size: 24px;
+	font-weight: 200;
+	line-height: 1.3em;
+	margin-bottom: 34px; 
+	display: block;
+	font-family: Circular,Helvetica,Arial,sans-serif;
+}
+
+h3+subsubtitle {
+	font-size: 18px;
+}
+
+subsubtitle {
+	font-size: 20px;
+	font-weight: 200;
+	line-height: 1.3em;
+	margin-bottom: 20px; 
+	display: block;
+	font-family: Circular,Helvetica,Arial,sans-serif;
+	font-style: italic;
 }
 
 h1 {
-    font-size: 2em;
+    font-size: 2.7em;
+    margin-top: 8px;
 }
 
 h2 {
     font-size: 1.7em;
+    margin-top: 20px;
 }
 
 h3 {
     font-size: 1.5em;
-    margin-top: 2em;
+    margin-top: 1.0em;
+    margin-bottom: 0.5em;
 }
 
 p, table, ol, ul, pre, blockquote, dl {
     margin-bottom: 1em;
+}
+
+table {
+	margin-bottom: 1.4em;
 }
 
 ol, ul {
@@ -172,6 +204,7 @@ pre {
     background: #eee;
     padding: 20px;
     overflow: auto;
+    margin-bottom: 24px;
 }
 
 blockquote {

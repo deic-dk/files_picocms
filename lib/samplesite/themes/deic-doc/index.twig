@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8" />
 
-    <title>{% if meta.title %}{{ meta.title }} | {% endif %}{{ site_title }}</title>
+    <title>{{ site_title }}{% if meta.title %} | {{ meta.title }}{% endif %}</title>
     {% if meta.description %}
         <meta name="description" content="{{ meta.description|striptags }}">
     {% endif %}{% if meta.robots %}
@@ -25,12 +25,12 @@
   </head>
 <body>
 
-    <div class="container-fluid">
+    <div class="container-fluid doc-container">
     <div class="row-fluid">
       <div class="span2 navigation">
         <form id="search_form" action="{{ base_url  }}/search">
 					<label id="search_label" for="search_input"><a href="{{ base_url  }}">
-					<i class="icon icon-home icon-white"></i>{{ (pages|first).title }}</a></label>
+					<i class="icon icon-home icon-white"></i>{{ (pages|first).meta.site }}</a></label>
 					<input type="search" id="search_input" name="q" placeholder="Search the docs" />
 					<!--<input type="submit" id="search_submit" value="Search" />-->
 				</form>
@@ -47,7 +47,7 @@
 				<div id="nav">
 					<ul>
 						{% set len = '0' %}
-						{% for page in paged_pages|sort_by("id") %}
+						{% for page in paged_pages|sort_by("date") %}
 							{% set arr = page.id|split('/') %}
 							{% set len = arr|length %}
 							{% if arr|last == 'index' and len > 0 %}
@@ -55,19 +55,21 @@
 							{% endif %}
 							{% if meta.title == page.title %}
 								<li class="current toc{{ len }}">
-									<a href="{{ page.url }}">{{ page.title }}</a>
+									{% if toc %}
+										{{ toc }}
+									{% else %}
+										<a href="{{ page.url }}">{{ page.title }}</a>
+									{% endif %}
 								</li>
-							{% else %}	
+							{% else %}
 								<li class="toc{{ len }}">
 									<a href="{{ page.url }}">{{ page.title }}</a>
 								</li>
-							{% endif %}	
+							{% endif %}
 						{% endfor %}
 					</ul>
 				</div>
 				{% endif %}
-				
-				{{ toc }}
 
       </div>
       <div class="span9 main">

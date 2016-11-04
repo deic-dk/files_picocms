@@ -154,7 +154,8 @@ $config['requesttoken'] = \OC::$session->get('requesttoken');
 // This is for the clean-blog theme
 $config['pages_order_by'] = 'date';
 //$config['pages_order'] = 'asc';
-$config['pagination'] = 8;
+$config['pagination'] = -1;
+$config['pagination_limit'] = 100;
 
 \OCP\Util::writeLog('files_picocms', 'Content dir: '.$config['content_dir'], \OC_Log::WARN);
 

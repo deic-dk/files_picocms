@@ -204,8 +204,8 @@ class Lib {
 	}
 	
 	public static function dbSetSampleFolder($owner, $path){
-		$ret1 = \OCP\Config::setAppValue('files_picocms', 'samplefolderowner', $owner);
-		$ret2 = \OCP\Config::setAppValue('files_picocms', 'samplefolderpath', $path);
+		$ret1 = \OCP\Config::setAppValue('files_picocms', 'samplesiteowner', $owner);
+		$ret2 = \OCP\Config::setAppValue('files_picocms', 'samplesitepath', $path);
 		return $ret1 && $ret2;
 	}
 	
