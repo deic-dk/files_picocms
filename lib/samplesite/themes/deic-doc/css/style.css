@@ -185,6 +185,7 @@ form#search_form input#search_submit {
 		margin-left: 264px;
 		margin-right: 0px;
 		width: auto;
+		height: 100%
 }
 
 @media only screen and (max-width: 768px) {
