@@ -845,10 +845,15 @@ class Pico
     		$baseDir = '/'.$owner.(!empty($group)?'/user_group_admin/'.$group:'/files');
     		\OC\Files\Filesystem::init($owner, $baseDir);
     		// Next check if the file or one of its parent folders is shared with me.
+    		$folderId = null;
+    		$i = 0;
     		while($ocPath!=='.'){
     			$view = new \OC\Files\View($baseDir);
     			$pathInfo = $view->getFileInfo($ocPath);
     			$fileInfo = \OC\Files\Filesystem::getFileInfo($ocPath);
+    			if($i==1){
+    				$folderId = $fileInfo->getId();
+    			}
     			if(empty($this->ocId)){
     				$this->ocId = $fileInfo->getId();
     				$this->ocParentId = $pathInfo['parent'];
@@ -865,12 +870,14 @@ class Pico
     			\OCP\Util::writeLog('files_picocms', 'Checking sharing of: '.$ocPath.':'.$fileInfo->getId().':'.
     					$fileInfo->getType().':'.serialize($itemShared), \OC_Log::INFO);
     			if(!empty($itemShared)){
-    				$this->ocShare = $fileInfo->getId();
+    				//$this->ocShare = $fileInfo->getId();
+    				$this->ocShare = $folderId;
     				// This sets $this->ocPath to the path relative to the parent of the shared folder
     				$this->ocPath = substr($this->ocPath, strlen(dirname($ocPath)));
     				break;
     			}
     			$ocPath = dirname($ocPath);
+    			++$i;
     		}
     		\OC_Util::teardownFS();
     		\OC_User::setUserId($user_id);

@@ -37,9 +37,7 @@ body {
   font-size: 16px;
 	font-weight: 200;
 }
-#toc {
-	font-size: 14px;
-}
+
 body pre, body code{
 	font-size: 14px;
 }
@@ -79,16 +77,25 @@ body pre{
     margin-left: 0;
     margin-top: 0;
     text-align: center;
+    font-size: 13px;
 }
+
 #toc-header{display: inline;padding: 0;font-size: 100%;font-weight: bold;}
 #toc-nav{float: right;font-size: 52%;padding-right: 0;padding-left: 0.5em;}
 #nav #toc ul{list-style: none; margin-left: 0; padding-left: 0; text-align: left;}
-.toc1{}
-.toc2 a {margin-left: 1em;}
-.toc3 a {margin-left: 2em;}
-.toc4 a {margin-left: 3em;}
-.toc5 a {margin-left: 4em;}
-.toc6 a {margin-left: 5em;}
+#nav #toc>ul>.toc1{font-size: 16px; font-weight: bolder;}
+#nav #toc>ul>.toc2 a {margin-left: 1em;}
+#nav #toc>ul>.toc3 a {margin-left: 2em;}
+#nav #toc>ul>.toc4 a {margin-left: 3em;}
+#nav #toc>ul>.toc5 a {margin-left: 4em;}
+#nav #toc>ul>.toc6 a {margin-left: 5em;}
+
+#nav>ul>.toc1{}
+#nav>ul>.toc2 a {margin-left: 0.3em;}
+#nav>ul>.toc3 a {margin-left: 0.6em;}
+#nav>ul>.toc4 a {margin-left: 0.9em;}
+#nav>ul>.toc5 a {margin-left: 1.2em;}
+#nav>ul>.toc6 a {margin-left: 1.5em;}
 
 a {text-decoration: none;}
 a:hover{text-decoration: none;}
@@ -100,7 +107,7 @@ a:focus {text-decoration: none;}
 	background-color: #b3b3b3;
 }
 #nav li {
-	width: 240px;
+	width: 254px;
 	margin-left: -10px;
 	padding-left: 10px;
 	padding-top: 3px;
@@ -123,7 +130,7 @@ form#search_form input#search_submit {
 }
 
 .row-fluid .navigation {
-	width: 250px;
+	width: 278px;
   overflow:auto;
 	height: 100%;
 	background-color: #b3b3b3;
@@ -142,7 +149,7 @@ form#search_form input#search_submit {
 	margin-left: -10px;
 	margin-top: -10px;
 	margin-bottom: 0;
-	width: 230px;
+	width: 244px;
 	padding: 10px;
 }
 
@@ -151,7 +158,7 @@ form#search_form input#search_submit {
 	text-align: center;
   display: block;
   margin-bottom: 9px;
-  margin-left: -10px;
+  margin-left: 6px;
   width: 220px;
 }
 
@@ -169,12 +176,13 @@ form#search_form input#search_submit {
 	border-radius: 50px;
 	padding-left: 12px;
 	width: 200px;
+	margin-left: 10px;
 }
 
 .row-fluid .main {
     position: absolute;
     top: 0;
-		margin-left: 250px;
+		margin-left: 264px;
 		margin-right: 0px;
 		width: auto;
 }
