@@ -47,7 +47,7 @@ body pre{
 .main {
   background-color: #fff;
   /*border: 1px solid #ccc;*/
-  padding: 24px 42px;
+  padding: 24px 38px;
 }
 .container {
   width: 1100px;
@@ -179,11 +179,15 @@ form#search_form input#search_submit {
 	margin-left: 10px;
 }
 
+.row-fluid {
+	overflow-x: hidden;
+}
+
 .row-fluid .main {
-    position: absolute;
+    position: relative;
     top: 0;
-		left: 241px;
-		right: 0;
+		margin-left: 264px;
+		margin-right: 0;
 		width: auto;
 		height: 100%
 }
