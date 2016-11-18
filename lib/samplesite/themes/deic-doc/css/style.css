@@ -182,8 +182,8 @@ form#search_form input#search_submit {
 .row-fluid .main {
     position: absolute;
     top: 0;
-		margin-left: 264px;
-		margin-right: 0px;
+		left: 241px;
+		right: 0;
 		width: auto;
 		height: 100%
 }
