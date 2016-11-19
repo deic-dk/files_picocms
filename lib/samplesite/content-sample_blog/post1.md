@@ -7,6 +7,7 @@ Template: post
 Access: private
 Theme: deic-blog
 Comments: on
+
 ---
 What a great day: Unexpectedly warm autumn weather - and a new blog to read for all you e-infrastructure craving data geeks out there in the great kingdom of Denmark.
 

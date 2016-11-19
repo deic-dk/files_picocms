@@ -30,7 +30,7 @@
 }
 
 body {
-  background-color: #f6f6f6;
+  /*background-color: #f6f6f6;*/
   padding-top: 0;
 	padding-bottom: 0;
   font-family: Circular,Helvetica,Arial,sans-serif;
@@ -189,7 +189,7 @@ form#search_form input#search_submit {
 		margin-left: 264px;
 		margin-right: 0;
 		width: auto;
-		height: 100%
+		min-height: 100vh;
 }
 
 @media only screen and (max-width: 768px) {
@@ -198,10 +198,12 @@ form#search_form input#search_submit {
   }
   .row-fluid .main {
 		margin-left: 0;
+		margin-right: 0;
 	}
 	body{
 		padding-left: 0;
-	}
+		padding-right: 0;
+}
 }
 
 .icon-home {
