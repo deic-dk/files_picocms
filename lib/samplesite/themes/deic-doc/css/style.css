@@ -125,6 +125,19 @@ a:focus {text-decoration: none;}
 #nav #toc>ul>li:last-child {
 	padding-bottom: 9px;
 }
+
+.main ul>li>ul>li:last-child {
+	padding-bottom: 9px;
+}
+
+.main ul>li>ul>li:first-child {
+	margin-top: -9px;
+}
+
+.main ul>li>ul>li>ul>li:first-child {
+	margin-top: 6px;
+}
+
 form#search_form input#search_submit {
 	margin-bottom: 10px;
 }
