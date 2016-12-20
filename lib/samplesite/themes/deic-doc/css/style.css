@@ -110,8 +110,11 @@ a:focus {text-decoration: none;}
 	width: 254px;
 	margin-left: -10px;
 	padding-left: 10px;
-	padding-top: 3px;
+	padding-top: 6px;
 	padding-bottom: 3px;
+}
+#nav ul>li #toc>ul>li {
+		padding-top: 0px;
 }
 #nav li:hover {
 	background-color: #808080;

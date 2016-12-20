@@ -10,7 +10,6 @@
     <meta name="author" content="{{ config.author }}">
 
     <title>{{ site_title }}</title>
-	<!-- [ Social Media Meta Tags ] -->
 	<meta content='{{ site_title }}' property='og:title'/>
 	<meta content='website' property='og:type'/>
 	<meta content='{{ current_page.url }}' property='og:url'/>
@@ -20,8 +19,6 @@
 	<meta content='en_US' property='og:locale'/>
 	<meta content='summary_large_image' name='twitter:card'/>
 	<meta content='{{ site_title }}' name='twitter:title'/>
-	<meta content='{{ config.twitter }}' name='twitter:site'/>
-	<meta content='{{ config.twitter }}' name='twitter:creator'/>
 	<meta content='{{ meta.description|striptags }}' name='twitter:description'/>
 	<meta content='{% if meta.img %}{{ meta.img }}{% else %}{{ theme_url }}/img/home.jpg{% endif %}' name='twitter:image'/>
     <!-- Bootstrap Core CSS -->

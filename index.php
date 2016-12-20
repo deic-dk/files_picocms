@@ -112,6 +112,11 @@ $config['rewrite_url'] = true;
 
 $config['site_title'] = $_GET['site'];
 $config['base_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT."/sites/".$_GET['site'];
+/*$config['master_url'] = $_SERVER['HTTP_HOST'];
+
+if(\OCP\App::isEnabled('files_sharding') ){
+	$config['master_url'] = \OCA\FilesSharding\Lib::getMasterURL();
+}*/
 
 if(is_dir($dataDir.'/'.$sitePath.'/themes')){
 	$themesDir = $dataDir.'/'.$sitePath.'/themes/';

@@ -1,18 +1,18 @@
 ---
 Title: Welcome
-Description: to the first DeIC blog - powered by data.deic.dk
-Date: 8 September 2016
-Author: fror@dtu.dk
+Description: to my personal blog - powered by Nextcloud and Pico CMS
+Date: 
+Author: 
 Template: post
 Access: private
 Theme: deic-blog
 Comments: on
 
 ---
-What a great day: Unexpectedly warm autumn weather - and a new blog to read for all you e-infrastructure craving data geeks out there in the great kingdom of Denmark.
+This is an example of a post.
 
-This blog will feature analysis and opinion pieces by the DeIC staff working on the subject of data management.
+To create more posts, simply create more files like this one.
 
-Posts will allow comments - so voice your opinion.
+You can use Markdown or HTML or both.
 
-PS: We reserve the right to moderate inappropriate comments.
+Have fun!

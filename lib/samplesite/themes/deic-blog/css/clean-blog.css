@@ -55,12 +55,19 @@ hr.small {
   border-width: 2px;
   border-color: #808080;
 }
+hr.left {
+  margin-left: 0;
+}
 hr.thin {
 	width: 100%;
   border-color: white;
 }
 hr {
 	border-color: #808080 -moz-use-text-color -moz-use-text-color;
+}
+.displayname {
+	margin-top: 39px;
+	margin-bottom: 0;
 }
 .navbar-custom {
   position: absolute;
@@ -84,6 +91,17 @@ hr {
 	position: absolute;
 	right: 26px;
 	top: 23px;
+	z-index: 10;
+}
+
+.edit-button+.home-link {
+	top: 66px;
+}
+
+.home-link {
+	position: absolute;
+	right: 18px;
+	top: 52px;
 	z-index: 10;
 }
 
@@ -159,6 +177,10 @@ a.navbar-left:hover, a.navbar-left:focus {
 
 .post-header {
   padding: 46px 0 30px;
+  color: #808080;
+}
+.profile-header {
+  padding: 46px 0 12px;
   color: #808080;
 }
 
@@ -540,6 +562,7 @@ comments .comments {
 a#show_comments {
 	text-decoration: underline;
 	margin-left: 12px;
+	cursor: pointer;
 }
 
 a.navbar-brand-post {

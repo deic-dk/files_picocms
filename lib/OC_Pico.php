@@ -4,6 +4,49 @@ namespace OCA\FilesPicoCMS;
 
 class Lib {
 	
+	private static function copyRec($src, $dest, $srcView, $destView){
+		if($srcView->is_dir($src)){ // copy dir
+			if($dh = $srcView->opendir($src)){
+				$destView->mkdir($dest);
+				while(($file = readdir($dh)) !== false){
+					if(in_array($file, array('.', '..'))){
+						continue;
+					}
+					if($srcView->is_dir($src.'/'.$file)){
+						self::copyRec($src.'/'.$file, $dest.'/'.$file, $srcView, $destView);
+					}
+					else{
+						self::copyFile($src.'/'.$file, $dest.'/'.$file, $srcView, $destView);
+					}
+				}
+			}
+		}
+		else{ // copy file
+			$tmpFile = $srcView->toTmpFile($srcFile);
+			$destView->fromTmpFile($tmpFile, $destFile);
+			$srcView->unlink($tmpFile);
+		}
+	}
+	
+	public static function createPersonalSite($user_id){
+		// Create directory
+		$websitesFolder = "/websites";
+		$folder = preg_replace("/[@|\.]/", "_", $user_id);
+		$folder = $websitesFolder. "/" . $folder;
+		if(\OC\Files\Filesystem::file_exists($websitesFolder)){
+			\OC\Files\Filesystem::mkdir($websitesFolder);
+		}
+		if(\OC\Files\Filesystem::file_exists($folder)){
+			\OC\Files\Filesystem::mkdir($folder);
+		}
+		// Add content
+		$srcView = new OC\Files\View('/'.$user.'/files_picocms');
+		$destView = new OC\Files\View('/'.$user.'/files');
+		self::copyRec('/lib/samplesite/content-sample_blog', $folder.'/content', $srcView, $destView);
+		// Serve
+		self::addSiteFolder($folder, $user_id, '');
+	}
+	
 	public static function addSiteFolder($folder, $user_id, $group, $shareSampleSite=false){
 		if(!\OCP\App::isEnabled('files_sharding') || \OCA\FilesSharding\Lib::isMaster()){
 			return self::dbAddSiteFolder($folder, $user_id, $group, $shareSampleSite);
