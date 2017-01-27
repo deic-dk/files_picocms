@@ -26,5 +26,7 @@ $sampleSitePath = OCP\Config::getAppValue('files_picocms', 'samplesitepath', 'sa
 $pathArr = pathinfo($sampleSitePath);
 $sampleSiteUrl = OC::$WEBROOT . '/sites/' . $pathArr['basename'];
 $tmpl->assign('samplesite_url', $sampleSiteUrl);
+$createPersonalSiteUrl = OC::$WEBROOT . '/apps/files_picocms/index.php';
+$tmpl->assign('create_personal_site_url', $createPersonalSiteUrl);
 
 return $tmpl->fetchPage();

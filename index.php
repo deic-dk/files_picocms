@@ -3,11 +3,12 @@
 require_once __DIR__ . '/../../lib/base.php';
 require_once('apps/chooser/appinfo/apache_note_user.php');
 
-\OCP\Util::writeLog('files_picocms', 'Firing up '.$_GET['site'].":".$_SERVER['QUERY_STRING'], \OCP\Util::WARN);
 
 if(empty($_GET['site'])){
 	exit;
 }
+
+\OCP\Util::writeLog('files_picocms', 'Firing up '.$_GET['site'].":".$_SERVER['QUERY_STRING'], \OCP\Util::WARN);
 
 // If redirected by mod_rewrite with site_name set, serve the site	
 require_once('apps/files_picocms/3rdparty/symfony/component/yaml/Parser.php');
@@ -126,7 +127,12 @@ if(is_dir($dataDir.'/'.$sitePath.'/themes')){
 		\OCP\Util::writeLog('files_picocms', 'Serving '.$dataDir.'/'.$sitePath.'/'.$_GET['path'], \OC_Log::WARN);
 		$extension = pathinfo($_GET['path'], PATHINFO_EXTENSION);
 		if(!empty($extension)){
-			header("Content-type: text/".$extension);
+			if($extension=='js'){
+				header("Content-type: application/javascript");
+			}
+			else{
+				header("Content-type: text/".$extension);
+			}
 		}
 		echo file_get_contents($dataDir.'/'.$sitePath.'/'.$_GET['path']);
 		exit;

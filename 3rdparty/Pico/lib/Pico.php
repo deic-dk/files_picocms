@@ -249,6 +249,20 @@ class Pico
      */
     protected $ocMasterUrl;
 
+    /**
+     * ORCID if set and user_orcid is enabled.
+     * 
+     * @var string
+     */
+    protected $orcid;
+    
+    /**
+     * Registered email of user.
+     * 
+     * @var string
+     */
+    protected $ocEmail;
+    
     private $site;
 
     /**
@@ -274,6 +288,11 @@ class Pico
         else{
         	$this->ocMasterUrl = $_SERVER['HTTP_HOST'];
         }
+        if(\OCP\App::isEnabled('user_orcid') ){
+        	$this->orcid = \OCP\Config::getUserValue(\OCP\User::getUser(),
+        			'user_orcid', 'orcid');
+        }
+        $this->ocEmail = \OCP\Config::getUserValue(\OCP\User::getUser(), 'settings', 'email');
     }
 
     /**
@@ -1127,7 +1146,12 @@ class Pico
         if(!empty($this->ocMasterUrl)){
         	$content = str_replace('%master_url%', $this->ocMasterUrl, $content);
         }
-        //
+        if(!empty($this->orcid)){
+        	$content = str_replace('%orcid%', $this->orcid, $content);
+        }
+        if(!empty($this->ocEmail)){
+        	$content = str_replace('%email%', $this->ocEmail, $content);
+        }        //
 
         return $content;
     }
@@ -1484,6 +1508,8 @@ class Pico
         		'oc_group' => $this->getConfig('group'),
             'oc_owner' => $this->ocOwner,
             'oc_master_url' => $this->ocMasterUrl,
+            'orcid' => $this->orcid,
+            'oc_email' => $this->ocEmail,
         		//
         		'meta' => $this->meta,
             'content' => $this->content,

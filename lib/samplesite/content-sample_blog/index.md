@@ -1,7 +1,7 @@
 ---
-Title: DeIC on data
-Site: DeIC on data
-Tagline: News & views on data management by <span class=text-green>DeIC</span> experts
+Title: About me
+Site: Personal site
+Tagline: Information on my interests and <span class=text-green>research</span> activities
 Social:
   https://www.linkedin.com/company/deic: linkedin
   https://github.com/deic-dk: github

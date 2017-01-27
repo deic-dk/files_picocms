@@ -4,47 +4,117 @@ namespace OCA\FilesPicoCMS;
 
 class Lib {
 	
-	private static function copyRec($src, $dest, $srcView, $destView){
-		if($srcView->is_dir($src)){ // copy dir
-			if($dh = $srcView->opendir($src)){
-				$destView->mkdir($dest);
-				while(($file = readdir($dh)) !== false){
-					if(in_array($file, array('.', '..'))){
+	private static function copyFile($srcFile, $destFile, $destView, $srcView=null, $replacements=null,
+			$repFilePattern=null){
+		if(!empty($srcView) && $srcView===$destView){
+			$srcView->copy($srcFile, $destFile);
+		}
+		else{
+			if(empty($srcView)){
+				// empty srcView means we're copying an absolute path
+				$tmpFile = tempnam(sys_get_temp_dir(), 'files_picocms_');
+				copy($srcFile, $tmpFile);
+			}
+			else{
+				$tmpFile = $srcView->toTmpFile($srcFile);
+			}
+			if(!empty($destView)){
+				$destView->fromTmpFile($tmpFile, $destFile);
+				/*if(empty($srcView)){
+					unlink($tmpFile);
+				}
+				else{
+					$srcView->unlink($tmpFile);
+				}*/
+				if(!empty($replacements) && !empty($repFilePattern) && preg_match($repFilePattern, $destFile)){
+					$str = $destView->file_get_contents($destFile);
+					foreach($replacements as $pattern=>$replacement){
+						$str = preg_replace($pattern, $replacement, $str);
+						\OCP\Util::writeLog('files_picocms', 'Replacing'.$pattern.'=>'.$replacement.
+							' in '. $destFile, \OCP\Util::WARN);
+					}
+					$destView->unlink($destFile);
+					$destView->file_put_contents($destFile, $str);
+				}
+			}
+			else{
+				\OCP\Util::writeLog('files_picocms', 'ERROR: Cannot copy to remote server'.$destFile, \OCP\Util::ERROR);
+				return false;
+			}
+		}
+	}
+	
+	private static function copyRec($src, $dest, $destView, $srcView=null, $replacements=null,
+			$repFilePattern=null){
+		if((empty($srcView) && !file_exists($src)) || (!empty($srcView) && !$srcView->file_exists($src))){
+			\OCP\Util::writeLog('files_picocms', 'No such file or directory '.$src, \OC_Log::ERROR);
+			return false;
+		}
+		
+		if((empty($srcView) && is_dir($src)) || (!empty($srcView) && $srcView->is_dir($src))){ // copy dir
+			if((empty($srcView) && $dh = opendir($src)) || (!empty($srcView) && $dh = $srcView->opendir($src))){
+				if(!$destView->is_dir($dest) && !$destView->mkdir($dest)){
+					\OCP\Util::writeLog('files_picocms', 'Could not create '.$dest, \OC_Log::ERROR);
+					return false;
+				}
+				if(empty($dh)){
+					\OCP\Util::writeLog('files_picocms', 'Could not read '.$src, \OC_Log::ERROR);
+					return false;
+				}
+				while($dh!==false && $dh!==true && ($file = readdir($dh))!==false){
+					if(empty($file) || in_array($file, array('.', '..'))){
 						continue;
 					}
-					if($srcView->is_dir($src.'/'.$file)){
-						self::copyRec($src.'/'.$file, $dest.'/'.$file, $srcView, $destView);
+					if((empty($srcView) && is_dir($src.'/'.$file)) || (!empty($srcView) && $srcView->is_dir($src.'/'.$file))){
+						self::copyRec($src.'/'.$file, $dest.'/'.$file, $destView, $srcView,
+								$replacements, $repFilePattern);
 					}
 					else{
-						self::copyFile($src.'/'.$file, $dest.'/'.$file, $srcView, $destView);
+						self::copyFile($src.'/'.$file, $dest.'/'.$file, $destView, $srcView,
+								$replacements, $repFilePattern);
 					}
 				}
 			}
 		}
 		else{ // copy file
-			$tmpFile = $srcView->toTmpFile($srcFile);
-			$destView->fromTmpFile($tmpFile, $destFile);
-			$srcView->unlink($tmpFile);
+			self::copyFile($src, $dest, $destView, $srcView, $replacements, $repFilePattern);
 		}
 	}
 	
-	public static function createPersonalSite($user_id){
+	public static function createPersonalSite($user_id, $folder,
+			$contentFolder='/samplesite/content-sample_blog', $theme=null){
 		// Create directory
-		$websitesFolder = "/websites";
-		$folder = preg_replace("/[@|\.]/", "_", $user_id);
-		$folder = $websitesFolder. "/" . $folder;
-		if(\OC\Files\Filesystem::file_exists($websitesFolder)){
-			\OC\Files\Filesystem::mkdir($websitesFolder);
-		}
-		if(\OC\Files\Filesystem::file_exists($folder)){
+		if(!\OC\Files\Filesystem::file_exists($folder)){
 			\OC\Files\Filesystem::mkdir($folder);
 		}
+		
+		//$srcView = new \OC\Files\View('/'.$user_id.'/files_picocms');
+		$srcView = null;
+		$destView = new \OC\Files\View('/'.$user_id.'/files');
+	
+		// Copy over themes
+		$themesFolder = '/samplesite/themes';
+		$themesFolder = dirname(__FILE__).$themesFolder;
+		self::copyRec($themesFolder, $folder.'/themes', $destView, $srcView);
+		
 		// Add content
-		$srcView = new OC\Files\View('/'.$user.'/files_picocms');
-		$destView = new OC\Files\View('/'.$user.'/files');
-		self::copyRec('/lib/samplesite/content-sample_blog', $folder.'/content', $srcView, $destView);
+		$contentFolder = dirname(__FILE__).$contentFolder;
+		if(!empty($theme)){
+			self::copyRec($contentFolder, $folder.'/content', $destView, $srcView,
+					array('/^Theme:.*$/m'=>'Theme: '.$theme,
+								 '/^Date:.*$/m'=>'Date: '.date("j M Y"),
+								 '/^Author:.*$/m'=>'Author: '.$user_id,
+								 '/^Site:.*$/m'=>'Site: '.\OC_User::getDisplayName($user_id)),
+					'|.*\.md$|');
+		}
+		else{
+			self::copyRec($contentFolder, $folder.'/content', $destView, $srcView);
+		}
+		
 		// Serve
 		self::addSiteFolder($folder, $user_id, '');
+		
+		return true;
 	}
 	
 	public static function addSiteFolder($folder, $user_id, $group, $shareSampleSite=false){
@@ -84,22 +154,11 @@ class Lib {
 	private static function shareSampleSite($user_id){
 		$owner = \OCP\Config::getAppValue('files_picocms', 'samplesiteowner');
 		if($owner==$user_id){
-			return;
+			return true;
 		}
 		$path = \OCP\Config::getAppValue('files_picocms', 'samplesitepath');
 		$loggedin_user = \OCP\USER::getUser();
 		$old_user = null;
-		if(isset($owner)){
-			if(!empty($loggedin_user) && !empty($owner) && $owner!==$loggedin_user){
-				$old_user = $loggedin_user;
-				\OC\Files\Filesystem::tearDown();
-				\OC_User::setUserId($owner);
-				//\OC_Util::teardownFS();
-				\OC_Util::setupFS($owner);
-				\OC\Files\Filesystem::init($owner, '/'.$owner.'/files');
-				\OCP\Util::writeLog('files_picocms', 'Changed user from '.$old_user.' to '.\OCP\USER::getUser(), \OC_Log::WARN);
-			}
-		}
 		
 		// Check if already shared
 		if(\OCP\App::isEnabled('files_sharding') && !\OCA\FilesSharding\Lib::onServerForUser($owner)){
@@ -117,9 +176,29 @@ class Lib {
 			}
 		}
 		
-		// If not, share
-		if($share){
-			self::doShareSampleSite($path, $owner, $user_id);
+		if(!$share){
+			return true;
+		}
+		
+		if(isset($owner)){
+			if(!empty($loggedin_user) && !empty($owner) && $owner!==$loggedin_user){
+				$old_user = $loggedin_user;
+				\OC\Files\Filesystem::tearDown();
+				\OC_User::setUserId($owner);
+				//\OC_Util::teardownFS();
+				\OC_Util::setupFS($owner);
+				\OC\Files\Filesystem::init($owner, '/'.$owner.'/files');
+				\OCP\Util::writeLog('files_picocms', 'Changed user from '.$old_user.' to '.\OCP\USER::getUser(), \OC_Log::WARN);
+			}
+		}
+		
+		// If not already shared, share
+		$ok = false;
+		try{
+			$ok = self::doShareSampleSite($path, $owner, $user_id);
+		}
+		catch(\Exception $e){
+			\OCP\Util::writeLog('files_picocms', 'ERROR '.$e->getMessage(), \OC_Log::ERROR);
 		}
 		
 		if(!empty($old_user)){
@@ -131,6 +210,7 @@ class Lib {
 			//\OC\Files\Filesystem::init($old_user, '/'.$old_user);
 			\OCP\Util::writeLog('files_picocms', 'Changed user back to '.\OCP\USER::getUser(), \OC_Log::WARN);
 		}
+		return $ok;
 	}
 	
 	private static function doShareSampleSite($path, $owner, $user_id){
@@ -146,12 +226,20 @@ class Lib {
 		$sampleFolderId = $fileInfo['fileid'];
 		\OCP\Util::writeLog('files_picocms', 'INFO: '.$path.':'.$fileInfo['fileid'], \OC_Log::WARN);
 		
-		//$sampleFolderPath = \OC\Files\Filesystem::getPath($sampleFolderId);
-		\OCP\Util::writeLog('files_picocms', 'PATH: '.$path.'-->'.$sampleFolderId, \OC_Log::WARN);
+		if(\OCP\App::isEnabled('files_sharding') && !\OCA\FilesSharding\Lib::onServerForUser($owner)){
+			$alreadySharedItem = \OCP\Share::getItemShared('file', $sampleFolderId);
+		}
+		else{
+			$alreadySharedItem = \OCA\Files\Share_files_sharding\Api::getItemShared('file', $sampleFolderId);
+		}
 		
-		if(!empty($sampleFolderId) /*&& !empty($sampleFolderPath) && '/'.$path==$sampleFolderPath*/){
+		//$sampleFolderPath = \OC\Files\Filesystem::getPath($sampleFolderId);
+		\OCP\Util::writeLog('files_picocms', 'PATH: '.$path.'-->'.$sampleFolderId.'-->'.
+				serialize($alreadySharedItem), \OC_Log::WARN);
+		
+		if(empty($alreadySharedItem) && !empty($sampleFolderId) /*&& !empty($sampleFolderPath) && '/'.$path==$sampleFolderPath*/){
 			if(\OCP\App::isEnabled('files_sharding')){
-				\OCA\Files\Share_files_sharding\Api::shareItem(
+				return \OCA\Files\Share_files_sharding\Api::shareItem(
 						'folder',
 						$sampleFolderId,
 						\OCP\Share::SHARE_TYPE_USER,
@@ -159,8 +247,8 @@ class Lib {
 						\OCP\PERMISSION_READ
 				);
 			}
-			else{
-				\OCP\Share::shareItem(
+			elseif(empty($alreadySharedItem)){
+				return \OCP\Share::shareItem(
 						'folder',
 						$sampleFolderId,
 						\OCP\Share::SHARE_TYPE_USER,
@@ -174,6 +262,7 @@ class Lib {
 			$query = \OC_DB::prepare('UPDATE `*PREFIX*share` SET `parent` = ? WHERE `item_source` = ?');
 			$query->execute(array(-1, $sampleFolderId));
 		}*/
+		return true;
 	}
 	
 	public static function getSiteFoldersList($user_id){
