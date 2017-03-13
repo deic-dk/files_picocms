@@ -27,7 +27,13 @@
 
     <header id="header">
         <div class="inner clearfix">
-            <h1><a href="{{ "index"|link }}" id="logo">{{ site_title }}</a></h1>
+            <h1>
+            <a href="{{ "index"|link }}" id="logo">{{ site_title }}</a>
+            </h1>
+            {% if meta.image and pages | length == 1 %}
+            <img class="menu-image" src="{{ meta.image }}" />
+            {% endif %}
+            {% if pages | length > 1 %}
             <nav>
                 <a href="#" class="menu-icon"></a>
                 <ul>
@@ -38,6 +44,7 @@
                     {% endfor %}
                 </ul>
             </nav>
+            {% endif %}
         </div>
         {% if meta.access == 'private' and meta.permissions != 'none' %}
             <button class="edit-button btn btn-primary btn-flat" path="{{  oc_path }}" id="{{  oc_id }}" user="{{  oc_user }}" group="{{  oc_group }}">Show file</button>
@@ -58,9 +65,7 @@
                     <a href="{{ social.url }}" title="{{ social.title }}"><span class="icon-{{ social.icon }}"></span></a>
                 {% endfor %}
             </div>
-            <a href="http://picocms.org/">Pico</a> was made by <a href="http://gilbert.pellegrom.me">Gilbert Pellegrom</a>
-            and is maintained by <a href="https://github.com/picocms/Pico/graphs/contributors">The Pico Community</a>.
-            Released under the <a href="https://github.com/picocms/Pico/blob/master/LICENSE.md">MIT license</a>.
+            {{ meta.footer }}
         </div>
     </footer>
 
