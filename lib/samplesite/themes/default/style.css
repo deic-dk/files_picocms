@@ -397,21 +397,23 @@ dd {
     }
 }
 
-/* Bootstrap button */
-
+/* Bootstrap buttons */
 
 .buttons {
-    margin-bottom: 0;
-    margin-top: 12px;
+    margin-bottom: 28px;
+    margin-top: 18px;
 }
 
-.btn-info {
-    background-color: #49afcd;
-    background-image: linear-gradient(to bottom, #5bc0de, #2f96b4);
+.center {
+	text-align: center;
+}
+
+.buttons .btn-info {
+    background-color: #006b93;
+    background-image: linear-gradient(to bottom, #428bca, #006b93);
     background-repeat: repeat-x;
     border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
     color: #ffffff;
-    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
 }
 .btn-large {
     border-radius: 6px;
@@ -440,6 +442,5 @@ dd {
     margin-bottom: 0;
     padding: 4px 12px;
     text-align: center;
-    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
     vertical-align: middle;
 }
