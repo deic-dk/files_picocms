@@ -119,13 +119,17 @@ if(\OCP\App::isEnabled('files_sharding') ){
 	$config['master_url'] = \OCA\FilesSharding\Lib::getMasterURL();
 }*/
 
+$extension = pathinfo($_GET['path'], PATHINFO_EXTENSION);
+if(!empty($extension) && ($extension=='png'||$extension=='jpg'||$extension=='svg')){
+	header("Content-type: image/".$extension);
+}
+
 if(is_dir($dataDir.'/'.$sitePath.'/themes')){
 	$themesDir = $dataDir.'/'.$sitePath.'/themes/';
 	//$config['themes_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT .
 	//	"/sites/".$_GET['site']."/themes";
 	if(isset($_GET['path']) && strpos($_GET['path'], 'themes/')===0){
 		\OCP\Util::writeLog('files_picocms', 'Serving '.$dataDir.'/'.$sitePath.'/'.$_GET['path'], \OC_Log::WARN);
-		$extension = pathinfo($_GET['path'], PATHINFO_EXTENSION);
 		if(!empty($extension)){
 			if($extension=='js'){
 				header("Content-type: application/javascript");

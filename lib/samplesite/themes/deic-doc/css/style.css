@@ -47,7 +47,7 @@ body pre{
 .main {
   background-color: #fff;
   /*border: 1px solid #ccc;*/
-  padding: 24px 38px;
+  padding: 24px 20px 24px 30px
 }
 .container {
   width: 1100px;
@@ -107,7 +107,7 @@ a:focus {text-decoration: none;}
 	background-color: #b3b3b3;
 }
 #nav li {
-	width: 254px;
+	width: 264px;
 	margin-left: -10px;
 	padding-left: 10px;
 	padding-top: 6px;
@@ -165,7 +165,7 @@ form#search_form input#search_submit {
 	margin-left: -10px;
 	margin-top: -10px;
 	margin-bottom: 0;
-	width: 244px;
+	width: 264px;
 	padding: 10px;
 }
 
@@ -174,7 +174,7 @@ form#search_form input#search_submit {
 	text-align: center;
   display: block;
   margin-bottom: 9px;
-  margin-left: 5px;
+  margin-left: 0px;
   width: 220px;
 }
 
@@ -192,7 +192,7 @@ form#search_form input#search_submit {
 	border-radius: 50px;
 	padding-left: 12px;
 	width: 200px;
-	margin-left: 10px;
+	margin-left: 16px;
 }
 
 .row-fluid {
@@ -204,8 +204,19 @@ form#search_form input#search_submit {
     top: 0;
 		margin-left: 264px;
 		margin-right: 0;
-		width: auto;
 		min-height: 100vh;
+}
+
+@media (min-width: 769px) and (max-width: 912px) {
+	.row-fluid {
+		padding-right: 52px;
+	}
+}
+
+@media (max-width: 1200px) {
+	.main {
+		padding: 24px 50px 24px 30px;
+	}
 }
 
 @media only screen and (max-width: 768px) {
@@ -219,12 +230,52 @@ form#search_form input#search_submit {
 	body{
 		padding-left: 0;
 		padding-right: 0;
+	}
+	.row-fluid .main {
+		width: 100%;
+	}
 }
+
+[class^="icon-"],
+[class*=" icon-"] {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-top: 1px;
+  *margin-right: .3em;
+  line-height: 14px;
+  vertical-align: text-top;
+  background-image: url("../img/glyphicons-halflings.png");
+  background-position: 14px 14px;
+  background-repeat: no-repeat;
+}
+
+/* White icons with optional class, or on hover/focus/active states of certain elements */
+
+.icon-white,
+.nav-pills > .active > a > [class^="icon-"],
+.nav-pills > .active > a > [class*=" icon-"],
+.nav-list > .active > a > [class^="icon-"],
+.nav-list > .active > a > [class*=" icon-"],
+.navbar-inverse .nav > .active > a > [class^="icon-"],
+.navbar-inverse .nav > .active > a > [class*=" icon-"],
+.dropdown-menu > li > a:hover > [class^="icon-"],
+.dropdown-menu > li > a:focus > [class^="icon-"],
+.dropdown-menu > li > a:hover > [class*=" icon-"],
+.dropdown-menu > li > a:focus > [class*=" icon-"],
+.dropdown-menu > .active > a > [class^="icon-"],
+.dropdown-menu > .active > a > [class*=" icon-"],
+.dropdown-submenu:hover > a > [class^="icon-"],
+.dropdown-submenu:focus > a > [class^="icon-"],
+.dropdown-submenu:hover > a > [class*=" icon-"],
+.dropdown-submenu:focus > a > [class*=" icon-"] {
+  background-image: url("../img/glyphicons-halflings-white.png");
 }
 
 .icon-home {
     background-position: 0 -23px;
     vertical-align: top;
+    width: 16px
 }
 
 thead th:empty {
@@ -232,4 +283,33 @@ thead th:empty {
   margin: 0;
   padding: 0;
   border: 0;
+}
+
+img {
+    cursor: pointer;
+}
+
+.modal-header {
+	padding: 0;
+}
+
+.modal-header button.close {
+	margin-right: 11px;
+	margin-top: 6px;
+}
+
+.modal-title {
+	line-height: 1;
+}
+
+.ekko-lightbox {
+	padding-left: 14px;
+}
+
+.container-fluid {
+	padding-left: 0;
+}
+
+.inline-img {
+	margin-bottom: 12px;
 }

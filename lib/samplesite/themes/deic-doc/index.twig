@@ -11,7 +11,7 @@
     {% endif %}{% if meta.robots %}
         <meta name="robots" content="{{ meta.robots }}">
     {% endif %}
-    <link type="text/css" rel="stylesheet" href="{{ theme_url }}/css/bootstrap.css"/>
+    <link type="text/css" rel="stylesheet" href="{{ theme_url }}/css/bootstrap.min.css"/>
     <style>
       body {
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
@@ -22,13 +22,19 @@
     <link type="text/css" rel="stylesheet" href="{{ theme_url }}/css/hljs-github.min.css"/>
     <link type="text/css" rel="stylesheet" href="{{ theme_url }}/css/style.css"/>
     <link type="text/css" rel="stylesheet" href="{{ theme_url }}/css/default_style.css"/>
+    <link type="text/css" rel="stylesheet" href="{{ theme_url }}/css/ekko-lightbox.css"/>
+    <script type="text/javascript" src="{{ theme_url }}/js/jquery.min.js"></script>
+    <script type="text/javascript" src="{{ theme_url }}/js/tether.min.js"></script>
+    <script type="text/javascript" src="{{ theme_url }}/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{{ theme_url }}/js/ekko-lightbox.js"></script>
+    <script type="text/javascript" src="{{ theme_url }}/js/toc.js"></script>
   </head>
 <body>
 
-    <div class="container-fluid doc-container">
-    <div class="row-fluid">
-      <div class="span2 navigation">
-        <form id="search_form" action="{{ base_url  }}/search">
+	<div class="container-fluid doc-container">
+		<div class="row-fluid">
+			<div class="span2 navigation">
+				<form id="search_form" action="{{ base_url  }}/search">
 					<label id="search_label" for="search_input"><a href="{{ base_url  }}">
 					<i class="icon icon-home icon-white"></i>{{ (pages|first).meta.site }}</a></label>
 					<input type="search" id="search_input" name="q" placeholder="Search the docs" />
@@ -78,9 +84,6 @@
     </div>
   </div>
 
-  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script type="text/javascript" src="{{ theme_url }}/js/bootstrap.js"></script>
-  <script type="text/javascript" src="{{ theme_url }}/js/toc.js"></script>
   <script type="text/x-mathjax-config">
 		MathJax.Hub.Config({
 		  tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
