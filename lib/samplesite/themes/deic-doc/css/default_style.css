@@ -147,8 +147,12 @@ h4 {
     margin-bottom: 0.5em;
 }
 
-p, table, ol, ul, pre, blockquote, dl {
-    margin-bottom: 1em;
+ol, ul, pre, blockquote, dl {
+    margin-bottom: 8px;
+}
+
+p {
+    margin-bottom: 4px;
 }
 
 table {
