@@ -311,5 +311,6 @@ img {
 }
 
 .inline-img {
-	margin-bottom: 12px;
+	margin-bottom: 0;
+	margin-top: -10px;
 }
