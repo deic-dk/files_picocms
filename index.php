@@ -123,6 +123,11 @@ $extension = pathinfo($_GET['path'], PATHINFO_EXTENSION);
 if(!empty($extension) && ($extension=='png'||$extension=='jpg'||$extension=='svg')){
 	header("Content-type: image/".$extension);
 }
+if(!empty($extension) && ($extension=='pdf')){
+	header("Content-type: application/".$extension);
+	echo file_get_contents($dataDir.'/'.$sitePath.'/content/'.$_GET['path']);
+	exit;
+}
 
 if(is_dir($dataDir.'/'.$sitePath.'/themes')){
 	$themesDir = $dataDir.'/'.$sitePath.'/themes/';
