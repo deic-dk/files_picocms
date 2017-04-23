@@ -122,6 +122,12 @@ class Pico
      * @var string|null
      */
     protected $requestFile;
+    
+    /**
+     * NC change: keep track of whether or not an index file was *implicitly* requested.
+     * This to allow fixing up img src's
+     */
+    protected $indexInferred;
 
     /**
      * Raw, not yet parsed contents to serve
@@ -293,6 +299,7 @@ class Pico
         			'user_orcid', 'orcid');
         }
         $this->ocEmail = \OCP\Config::getUserValue(\OCP\User::getUser(), 'settings', 'email');
+        $this->indexInferred = false;
     }
 
     /**
@@ -716,6 +723,7 @@ class Pico
     {
         if (empty($this->requestUrl)) {
             $this->requestFile = $this->getConfig('content_dir') . 'index' . $this->getConfig('content_ext');
+            $this->indexInferred = true;
         } else {
             // prevent content_dir breakouts using malicious request URLs
             // we don't use realpath() here because we neither want to check for file existance
@@ -738,6 +746,7 @@ class Pico
 
             if (empty($requestFileParts)) {
                 $this->requestFile = $this->getConfig('content_dir') . 'index' . $this->getConfig('content_ext');
+                $this->indexInferred = true;
                 return;
             }
 
@@ -751,6 +760,7 @@ class Pico
                 $indexFile = $this->requestFile . '/index' . $this->getConfig('content_ext');
                 if (file_exists($indexFile) || !file_exists($this->requestFile . $this->getConfig('content_ext'))) {
                     $this->requestFile = $indexFile;
+                    $this->indexInferred = true;
                     return;
                 }
             }
@@ -1046,6 +1056,9 @@ class Pico
         // NC change
         if(!empty($meta['author'])){
         	$meta['displayname'] = \OCP\User::getDisplayName($meta['author']);
+        }
+        if(!empty($this->indexInferred)){
+        	$meta['indexinferred'] = 'yes';
         }
 
         return $meta;

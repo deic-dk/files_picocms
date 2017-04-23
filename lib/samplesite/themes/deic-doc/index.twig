@@ -8,6 +8,8 @@
     <title>{{ site_title }}{% if meta.title %} | {{ meta.title }}{% endif %}</title>
     {% if meta.description %}
         <meta name="description" content="{{ meta.description|striptags }}">
+    {% endif %}{% if meta.indexinferred %}
+        <meta name="indexinferred" content="{{ meta.indexinferred }}">
     {% endif %}{% if meta.robots %}
         <meta name="robots" content="{{ meta.robots }}">
     {% endif %}

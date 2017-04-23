@@ -314,3 +314,13 @@ img {
 	margin-bottom: 0;
 	margin-top: -10px;
 }
+
+.modal-body {
+    padding-bottom: 15px;
+    padding-top: 0;
+}
+
+.ekko-lightbox-item img {
+	margin-top: 4px;
+	margin-bottom: 4px;
+}
