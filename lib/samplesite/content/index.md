@@ -2,7 +2,7 @@
 Site: Pico for Nextcloud
 Title: Pico for Nextcloud
 Theme: default
-Description: Pico is a stupidly simple, blazing fast, flat file CMS.
+Description: Pico is a simple, fast, flat file CMS.
 social:
     - title: Visit us on GitHub
       url: https://github.com/picocms/Pico
@@ -17,12 +17,11 @@ social:
 
 ## Welcome
 
-Congratulations, you are now using [Pico](http://picocms.org/).
-%meta.description% <!-- replaced by the above Description meta header -->
+Thanks for using [Pico](http://picocms.org/) for Nextcloud.
 
 ## Creating Content
 
-Pico is a flat file CMS. This means there is no administration backend or
+%meta.description% This means there is no administration backend or
 database to deal with. You simply create `.md` files in a `content` folder
 and those files become your pages. For example, this file is called `index.md`
 and is shown as the main landing page.
