@@ -294,9 +294,9 @@ class Pico
         else{
         	$this->ocMasterUrl = $_SERVER['HTTP_HOST'];
         }
-        if(\OCP\App::isEnabled('user_orcid') ){
-        	$this->orcid = \OCP\Config::getUserValue(\OCP\User::getUser(),
-        			'user_orcid', 'orcid');
+        if(\OCP\App::isEnabled('user_orcid')){
+        	require_once('user_orcid/lib/lib_orcid.php');
+        	$this->orcid = \OCA\FilesOrcid\Lib::getOrcid(\OCP\User::getUser());
         }
         $this->ocEmail = \OCP\Config::getUserValue(\OCP\User::getUser(), 'settings', 'email');
         $this->indexInferred = false;

@@ -6,9 +6,14 @@
 	Click on the plus below to add a folder. You must youself create a "content"
 	subfolder inside this folder and populate it with pages in Markdown format -
 	plus a "themes" subfolder if you want to customize your pages.
-	Or click <a class="edit_personal_website" href="#">here</a>
-	to create a simple personal site.
+	A site will be served at the URL <?php print(OC::$WEBROOT);?>/sites/site_folder, where
+	"site_folder" is the name of site folder you choose.
 	<br /><br />
+	Or use the website wizard to create a simple site.	
+	<br /><br />
+	<div style="text-align: center;"><div  class="edit_personal_website btn btn-primary btn-flat">
+	Website wizard</div></div>
+	<br />
 	<div id="filesPicoSiteFoldersList">
 	<?php foreach($_['site_folders'] as $p){
 		$parts = pathinfo($p['path']);

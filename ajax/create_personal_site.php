@@ -16,13 +16,30 @@ $site = $parts['basename'];
 
 OC_Log::write('files_picocms',"Creating personal site: ".$folder, OC_Log::WARN);
 
-if(empty($folder) || empty($user_id) ||
-		!OCA\FilesPicoCMS\Lib::createPersonalSite($user_id, $folder, $content, $theme)){
-	$ret['error'] = "Failed creating site ".$folder;
+if(empty($folder)){
+	$ret['error'] = "Failed creating site. No folder name ".$folder;
 }
-else{
-	$ret['msg'] = "Created site ".$folder;
-	$ret['site'] = $site;
+if(empty($user_id)){
+	$ret['error'] = "Failed creating site. No owner ".$user_id;
+}
+		
+$res = OCA\FilesPicoCMS\Lib::createPersonalSite($user_id, $folder, $content, $theme);
+
+switch($res){
+	case OCA\FilesPicoCMS\Lib::$OK:
+		$ret['msg'] = "Created site ".$folder;
+		$ret['site'] = $site;
+		break;
+	case OCA\FilesPicoCMS\Lib::$COPY_CONTENT_FAILED:
+		$ret['error'] = "Failed creating site: Copy failed.";
+		break;
+	case OCA\FilesPicoCMS\Lib::$SITE_NAME_EXISTS:
+		$parts = pathinfo($folder);
+		$site = $parts['basename'];
+		$ret['error'] = "Site name taken: ".$site;
+		break;
+	default:
+		$ret['error'] = "Failed creating site ".$folder;
 }
 
 OCP\JSON::encodedPrint($ret);

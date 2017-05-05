@@ -86,7 +86,7 @@ error page for your blog, you could simply create `content/blog/404.md`.
 Text files are marked up using [Markdown][] and [Markdown Extra][MarkdownExtra].
 They can also contain regular HTML.
 
-In the case of Pico for Nextcloud, we've included LaTeX support via [MathJax](www.mathjax.org),
+In the case of Pico for Nextcloud, we've included LaTeX support via [MathJax](https://www.mathjax.org),
 allowing you to directly use expressions like:
 
 ```
@@ -137,6 +137,9 @@ redirects to the slave servers holding the data. A site may e.g. have URL
 <code>%master_url%sites/mysite</code>, but be physically hosted at
 <code>https://someslave.somesite/sites/mysite</code>, and the actual file located at
 <code>https://someslave.somesite/shared/mysite/content/index.md</code>
+* <code>&#37;email&#37;</code> - The email of the owner of the page in question
+* <code>&#37;orcid&#37;</code> - The ORCID ID of the owner of the page in question -
+available only if set by the owner
 
 ## Customization
 

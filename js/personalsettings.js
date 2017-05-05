@@ -41,6 +41,11 @@ function appendSiteDiv(folder){
 function addSiteFolder(folder){
 	
 	if($("#filesPicoSiteFolders #filesPicoSiteFoldersList div.siteFolder[path='"+folder+"']").length>0){
+		alert(folder);
+		return false;
+	}
+	// When called from Personal web site wizard, don't add site
+	if($(".oc-dialog-personal_website:visible").length>0){
 		return false;
 	}
 	
@@ -64,7 +69,12 @@ function postAddSiteFolder(folder, share){
 		 },
 		 dataType:'json',
 		 success: function(s){
-			 appendSiteDiv(folder, s.folder);
+			 if(s.error){
+					OC.dialogs.alert("Error serving website: name already taken: "+folder.replace(/.*\/([^\/]+$)/, '$1'), "Serving website failed", function(){}, true);
+			 }
+			 else{
+				 appendSiteDiv(folder, s.folder);
+			 }
 		 },
 		error:function(s){
 			alert("Unexpected error! Perhaps name is taken.");
@@ -103,37 +113,82 @@ function stripTrailingSlash(str) {
 	return str;
 }
 
-function createPersonalSite() {
+function addSpinner(){
+	var spinner = '<img src="'+ OC.imagePath('core', 'loading-small.gif') +'">';
+	$('#personal_site').html(spinner);
+	$('#personal_site').css('width', '68px');
+}
+
+function createPersonalSite(callback) {
+	addSpinner();
 	$.ajax(OC.linkTo('files_picocms', 'ajax/create_personal_site.php'), {
 		type: 'GET',
-		data: {folder: $('#personal_site_folder').text(), content: $('input[name="pico_content"]').val(),
-			theme: $('input[name="pico_theme').val()},
+		data: {folder: $('#personal_site_folder').text(), content: $('input[name="pico_content"]:checked').val(),
+			theme: $('input[name="pico_theme"]:checked').val()},
 		success: function(jsondata){
-			window.location.href = OC.webroot+ '/sites/'+jsondata.site+
-			($('input[name="pico_content"]').val()=='/samplesite/content-sample_blog'?'/profile':'');
+			if(jsondata.error){
+				$('#personal_site').html('Continue');
+				OC.dialogs.alert("Error creating website: "+jsondata.error, "Creating website failed", function(){}, true);
+			}
+			else{
+				window.location.href = OC.webroot+ '/sites/'+jsondata.site+
+				($('input[name="pico_content"]:checked').val()=='/samplesite/content-sample_blog'?'/profile':'');
+			}
 		},
 		error: function(data) {
 			alert("Unexpected error!");
+			callback();
 		}
 	});
 };
+
+function chooseSiteFolder(callback1, callback2){
+  choose_site_folder_dialog.dialog('open');
+  //choose_site_folder_dialog.load("/apps/chooser/");
+  choose_site_folder_dialog.show();
+  $('.chooseSiteFolder').css('z-index', '200');
+	$('#loadSiteFolderTree').fileTree({
+		//root: '/',
+		script: '../../apps/chooser/jqueryFileTree.php',
+		//script: '../../apps/files_sharding/jqueryFileTree.php',
+		multiFolder: false,
+		selectFile: false,
+		selectFolder: true,
+		folder: '/',
+		file: ''
+	},
+	// single-click
+	function(file) {
+		callback1(stripTrailingSlash(file));
+	},
+	// double-click
+	function(file) {
+		if(file.indexOf("/", file.length-1)!=-1){// folder double-clicked
+			callback2(stripTrailingSlash(file));
+			choose_site_folder_dialog.dialog("close");
+		}
+	});
+}
 
 $(document).ready(function(){
 		
 	$("li").click(function(){
 		$(this).css("font-weight", "bold");
 	});
-
+	
 	choose_site_folder_dialog = $("#filesPicoSiteFolders div.addSiteFolder div.dialog").dialog({//create dialog, but keep it closed
 		title: "Choose new site folder",
 		autoOpen: false,
 		height: 440,
 		width: 620,
 		modal: true,
+		dialogClass: "chooseSiteFolder",
 		buttons: {
 			"Choose": function() {
-				folder = stripTrailingSlash($('#chosen_site_folder').text());
-				addSiteFolder(folder);
+				folder = $('#chosen_site_folder').text();
+				if(folder){
+					addSiteFolder(folder);
+				}
 				choose_site_folder_dialog.dialog("close");
 			},
 			"Cancel": function() {
@@ -149,39 +204,19 @@ $(document).ready(function(){
 	});
 	
 	$('.add_site_folder').live('click', function(){
-	  choose_site_folder_dialog.dialog('open');
-	  //choose_site_folder_dialog.load("/apps/chooser/");
-	  choose_site_folder_dialog.show();
-		$('#loadSiteFolderTree').fileTree({
-			//root: '/',
-			script: '../../apps/chooser/jqueryFileTree.php',
-			//script: '../../apps/files_sharding/jqueryFileTree.php',
-			multiFolder: false,
-			selectFile: false,
-			selectFolder: true,
-			folder: '/',
-			file: ''
-		},
-		// single-click
-		function(file) {
-			$('#chosen_site_folder').text(file);
-		},
-		// double-click
-		function(file) {
-			if(file.indexOf("/", file.length-1)!=-1){// folder double-clicked
-				addSiteFolder(file);
-				choose_site_folder_dialog.dialog("close");
-			}
-		});
+		chooseSiteFolder(function(file){$('#chosen_site_folder').text(file);}, addSiteFolder);
 	});
 	
-	$(".edit_personal_website").on("click", function () {
+	$(".edit_personal_website").on("click", function (ev) {
+		ev.stopPropagation();
+		ev.preventDefault();
 		if($('.sites-help').is(':visible')){
 			return false;
 		};
-		var html = "<div><h3>Personal website wizard</h3>\
+		var html = "<div><h3>Website wizard</h3>\
 				<a class='oc-dialog-close close svg'></a>\
 				<div class='sites-help'></div></div>";
+		var self = $( this );
 		$(html).dialog({
 			  dialogClass: "oc-dialog-personal_website",
 			  resizeable: true,
@@ -193,8 +228,7 @@ $(document).ready(function(){
 					"id": "personal_site",
 					"text": "Continue",
 					"click": function() {
-							createPersonalSite();
-							$( this ).dialog( "close" );
+							createPersonalSite(function(){self.dialog( "close" );});
 						}
 					},{
 						"id": "cancel",
@@ -216,6 +250,11 @@ $(document).ready(function(){
 			success: function(jsondata){
 				if(jsondata) {
 					$('.sites-help').html(jsondata.data.page);
+					$('#change_site_folder').live('click', function(ev){
+						ev.stopPropagation();
+						ev.preventDefault();
+						chooseSiteFolder(function(file){$('#personal_site_folder').text(file);}, function(file){$('#personal_site_folder').text(file);});
+					});
 				}
 			},
 			error: function(data) {

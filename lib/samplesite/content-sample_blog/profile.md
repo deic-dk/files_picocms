@@ -33,10 +33,9 @@ Comments: on
 <!-- Fill out the sections below or rewrite. Up to you.
      To format your text, use markdown and/or html:
      https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
-     
      If you don't want more than this page on your site, you can simply
-     rename it to 'index.md'.
-     -->
+     rename it to 'index.md'.-->
+
 ### Research interests
 
 ### Biography

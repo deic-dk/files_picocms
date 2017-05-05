@@ -98,6 +98,17 @@ if(!empty($_GET['path'])){
 }
 
 $siteInfo = OCA\FilesPicoCMS\Lib::lookupSiteInfo($_GET['site']);
+
+if(\OCP\App::isEnabled('files_sharding') && !empty($siteInfo['uid']) &&
+		!\OCA\FilesSharding\Lib::onServerForUser($siteInfo['uid'])){
+	$userServerUrl = \OCA\FilesSharding\Lib::getServerForUser($siteInfo['uid']);
+	if(!empty($userServerUrl)){
+		$redirect_full = $userServerUrl.$_SERVER['REQUEST_URI'];
+		header("HTTP/1.1 307 Temporary Redirect");
+		header('Location: ' . $redirect_full);
+	}
+}
+
 $sitePath = $siteInfo['uid'].
 	(empty($siteInfo['gid'])?'/files':'/user_group_admin/'.$siteInfo['gid']).
 		$siteInfo['path'];

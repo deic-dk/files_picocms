@@ -5,7 +5,8 @@ $folder = preg_replace("/[@|\.]/", "_", $user);
 $folder = $websitesFolder. "/" . $folder;
 ?>
 
-<p>Your website will be created in the folder <label id="personal_site_folder" folder="<?php print($folder);?>"><?php print($folder);?></label></p>
+<p>Your website will be created in the folder <label id="personal_site_folder" folder="<?php print($folder);?>">
+<?php print($folder);?></label>&nbsp;<a href="" id="change_site_folder" style="color: #2a6496;">change</a></p>
 
 <div>Template:</div>
 <div>

@@ -24,7 +24,13 @@ $user_id = OCP\USER::getUser();
 $tmpl->assign('site_folders', OCA\FilesPicoCMS\Lib::getSiteFoldersList($user_id));
 $sampleSitePath = OCP\Config::getAppValue('files_picocms', 'samplesitepath', 'samplesite');
 $pathArr = pathinfo($sampleSitePath);
-$sampleSiteUrl = OC::$WEBROOT . '/sites/' . $pathArr['basename'];
+if(OCP\App::isEnabled('files_sharding')){
+	$masterUrl = OCA\FilesSharding\Lib::getMasterURL();
+	$sampleSiteUrl = $masterUrl . '/sites/' . $pathArr['basename'];
+}
+else{
+	$sampleSiteUrl = OC::$WEBROOT . 'sites/' . $pathArr['basename'];
+}
 $tmpl->assign('samplesite_url', $sampleSiteUrl);
 $createPersonalSiteUrl = OC::$WEBROOT . '/apps/files_picocms/index.php';
 $tmpl->assign('create_personal_site_url', $createPersonalSiteUrl);

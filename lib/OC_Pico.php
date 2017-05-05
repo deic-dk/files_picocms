@@ -7,7 +7,7 @@ class Lib {
 	private static function copyFile($srcFile, $destFile, $destView, $srcView=null, $replacements=null,
 			$repFilePattern=null){
 		if(!empty($srcView) && $srcView===$destView){
-			$srcView->copy($srcFile, $destFile);
+			return $srcView->copy($srcFile, $destFile);
 		}
 		else{
 			if(empty($srcView)){
@@ -34,7 +34,7 @@ class Lib {
 							' in '. $destFile, \OCP\Util::WARN);
 					}
 					$destView->unlink($destFile);
-					$destView->file_put_contents($destFile, $str);
+					return $destView->file_put_contents($destFile, $str);
 				}
 			}
 			else{
@@ -42,6 +42,7 @@ class Lib {
 				return false;
 			}
 		}
+		return false;
 	}
 	
 	private static function copyRec($src, $dest, $destView, $srcView=null, $replacements=null,
@@ -79,7 +80,12 @@ class Lib {
 		else{ // copy file
 			self::copyFile($src, $dest, $destView, $srcView, $replacements, $repFilePattern);
 		}
+		return true;
 	}
+	
+	public static $OK = 0;
+	public static $SITE_NAME_EXISTS = 1;
+	public static $COPY_CONTENT_FAILED = 2;
 	
 	public static function createPersonalSite($user_id, $folder,
 			$contentFolder='/samplesite/content-sample_blog', $theme=null){
@@ -95,26 +101,38 @@ class Lib {
 		// Copy over themes
 		$themesFolder = '/samplesite/themes';
 		$themesFolder = dirname(__FILE__).$themesFolder;
-		self::copyRec($themesFolder, $folder.'/themes', $destView, $srcView);
+		\OCP\Util::writeLog('files_picocms', 'Copying themes', \OC_Log::WARN);
+		if(!self::copyRec($themesFolder, $folder.'/themes', $destView, $srcView)){
+			return $COPY_CONTENT_FAILED;
+		}
 		
 		// Add content
 		$contentFolder = dirname(__FILE__).$contentFolder;
 		if(!empty($theme)){
-			self::copyRec($contentFolder, $folder.'/content', $destView, $srcView,
+			\OCP\Util::writeLog('files_picocms', 'Copying content, fixing theme etc.', \OC_Log::WARN);
+			if(!self::copyRec($contentFolder, $folder.'/content', $destView, $srcView,
 					array('/^Theme:.*$/m'=>'Theme: '.$theme,
 								 '/^Date:.*$/m'=>'Date: '.date("j M Y"),
 								 '/^Author:.*$/m'=>'Author: '.$user_id,
-								 '/^Site:.*$/m'=>'Site: '.\OC_User::getDisplayName($user_id)),
-					'|.*\.md$|');
+								 '/^Site:.*$/m'=>'Site: '.($theme=='deic-blog'?\OC_User::getDisplayName($user_id):'Sample Site')),
+					'|.*\.md$|')){
+					return self::$COPY_CONTENT_FAILED;
+			}
 		}
 		else{
-			self::copyRec($contentFolder, $folder.'/content', $destView, $srcView);
+			\OCP\Util::writeLog('files_picocms', 'Copying content', \OC_Log::WARN);
+			if(!self::copyRec($contentFolder, $folder.'/content', $destView, $srcView)){
+				return self::$COPY_CONTENT_FAILED;
+			}
 		}
 		
 		// Serve
-		self::addSiteFolder($folder, $user_id, '');
-		
-		return true;
+		\OCP\Util::writeLog('files_picocms', 'Adding site', \OC_Log::WARN);
+		if(!self::addSiteFolder($folder, $user_id, '')){
+			return self::$SITE_NAME_EXISTS;
+		}
+		\OCP\Util::writeLog('files_picocms', 'Adding site done', \OC_Log::WARN);
+		return $OK;
 	}
 	
 	public static function addSiteFolder($folder, $user_id, $group, $shareSampleSite=false){
@@ -125,7 +143,12 @@ class Lib {
 			$ret = \OCA\FilesSharding\Lib::ws('addSiteFolder', Array('folder'=>$folder, 'user_id' =>$user_id,
 					'group'=>$group, 'share_sample_site'=>($shareSampleSite?'yes':'no')),
 					false, true, null, 'files_picocms');
-			return $ret;
+			if(!empty($ret['error'])){
+				return false;
+			}
+			else{
+				return true;
+			}
 		}
 	}
 	
