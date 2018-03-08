@@ -10,9 +10,6 @@ if(!OCA\FilesSharding\Lib::checkIP()){
 	exit;
 }
 
-$owner = isset($_GET['owner'])?$_GET['owner']:null;
-$path = isset($_GET['path'])?$_GET['path']:null;
-
-$ret = OCA\FilesPicoCMS\Lib::dbSetSampleFolder($owner, $path);
+$ret = OCA\FilesPicoCMS\Lib::dbGetSampleFolder();
 OCP\JSON::encodedPrint($ret);
 

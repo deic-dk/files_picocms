@@ -364,6 +364,12 @@ class Lib {
 		return $ret1 && $ret2;
 	}
 	
+	public static function dbGetSampleFolder(){
+		$owner = \OCP\Config::getAppValue('files_picocms', 'samplesiteowner');
+		$path = \OCP\Config::getAppValue('files_picocms', 'samplesitepath');
+		return array('owner'=>$owner, 'path'=>$path);
+	}
+	
 	public static function setSampleFolder($owner, $path){
 		if(!\OCP\App::isEnabled('files_sharding') || \OCA\FilesSharding\Lib::isMaster()){
 			return self::dbSetSampleFolder($owner, $path);
@@ -374,5 +380,17 @@ class Lib {
 			return $ret;
 		}
 	}
+	
+	public static function getSampleFolder(){
+		if(!\OCP\App::isEnabled('files_sharding') || \OCA\FilesSharding\Lib::isMaster()){
+			return self::dbGetSampleFolder();
+		}
+		else{
+			$ret = \OCA\FilesSharding\Lib::ws('getSampleFolder', Array(),
+					false, true, null, 'files_picocms');
+			return $ret;
+		}
+	}
+	
 	
 }
