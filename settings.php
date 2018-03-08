@@ -2,12 +2,16 @@
 
 OC_Util::checkAdminUser();
 
+require_once('apps/files_picocms/lib/OC_Pico.php');
+
 OCP\Util::addScript('files_picocms', 'settings');
 
 $tmpl = new OCP\Template('files_picocms', 'settings');
 
-$tmpl->assign('samplesiteowner', OCP\Config::getAppValue('files_picocms', 'samplesiteowner', ''));
-$tmpl->assign('samplesitepath', OCP\Config::getAppValue('files_picocms', 'samplesitepath', 'samplesite'));
+$folderArr = OCA\FilesPicoCMS\Lib::getSampleFolder();
+
+$tmpl->assign('samplesiteowner', $folderArr['owner']);
+$tmpl->assign('samplesitepath', $folderArr['path']);
 
 return $tmpl->fetchPage();
 
