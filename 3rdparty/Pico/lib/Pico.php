@@ -282,7 +282,7 @@ class Pico
      * @param string $themesDir  themes directory of this Pico instance
      */
 
-    public function __construct($rootDir, $configDir, $pluginsDir, $themesDir)
+    public function __construct($rootDir, $configDir, $pluginsDir, $themesDir, $owner)
     {
         $this->rootDir = rtrim($rootDir, '/\\') . '/';
         $this->configDir = $this->getAbsolutePath($configDir);
@@ -296,9 +296,9 @@ class Pico
         }
         if(\OCP\App::isEnabled('user_orcid')){
         	require_once('user_orcid/lib/lib_orcid.php');
-        	$this->orcid = \OCA\FilesOrcid\Lib::getOrcid(\OCP\User::getUser());
+        	$this->orcid = \OCA\FilesOrcid\Lib::getOrcid($owner);
         }
-        $this->ocEmail = \OCP\Config::getUserValue(\OCP\User::getUser(), 'settings', 'email');
+        $this->ocEmail = \OCP\Config::getUserValue($owner, 'settings', 'email');
         $this->indexInferred = false;
     }
 

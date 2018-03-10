@@ -192,10 +192,11 @@ $config['pagination_limit'] = 100;
 
 // instantiate Pico
 $pico = new Pico(
-		__DIR__ . '/3rdparty/Pico',    // root dir
+		__DIR__ . '/3rdparty/Pico',  // root dir
 		'config/',  // config dir
-		'plugins/', // plugins dir
-		$themesDir   // themes dir
+		'plugins/',  // plugins dir
+		$themesDir,  // themes dir
+		$siteInfo['uid'] // site owner
 );
 
 // override configuration?
