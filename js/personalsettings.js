@@ -123,7 +123,7 @@ function createPersonalSite(callback) {
 	addSpinner();
 	$.ajax(OC.linkTo('files_picocms', 'ajax/create_personal_site.php'), {
 		type: 'GET',
-		data: {folder: $('#personal_site_folder').text(), content: $('input[name="pico_content"]:checked').val(),
+		data: {folder: $('#personal_site_folder').text().trim(), content: $('input[name="pico_content"]:checked').val(),
 			theme: $('input[name="pico_theme"]:checked').val()},
 		success: function(jsondata){
 			if(jsondata.error){

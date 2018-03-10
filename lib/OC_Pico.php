@@ -101,7 +101,7 @@ class Lib {
 		// Copy over themes
 		$themesFolder = '/samplesite/themes';
 		$themesFolder = dirname(__FILE__).$themesFolder;
-		\OCP\Util::writeLog('files_picocms', 'Copying themes', \OC_Log::WARN);
+		\OCP\Util::writeLog('files_picocms', 'Copying themes'.$themesFolder.'-->'.$folder.'/themes', \OC_Log::WARN);
 		if(!self::copyRec($themesFolder, $folder.'/themes', $destView, $srcView)){
 			return $COPY_CONTENT_FAILED;
 		}
@@ -109,7 +109,8 @@ class Lib {
 		// Add content
 		$contentFolder = dirname(__FILE__).$contentFolder;
 		if(!empty($theme)){
-			\OCP\Util::writeLog('files_picocms', 'Copying content, fixing theme etc.', \OC_Log::WARN);
+			\OCP\Util::writeLog('files_picocms', 'Copying content, fixing theme etc. '.$contentFolder.
+					'-->'.$folder.'/content', \OC_Log::WARN);
 			if(!self::copyRec($contentFolder, $folder.'/content', $destView, $srcView,
 					array('/^Theme:.*$/m'=>'Theme: '.$theme,
 								 '/^Date:.*$/m'=>'Date: '.date("j M Y"),
