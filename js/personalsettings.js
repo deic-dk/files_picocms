@@ -170,12 +170,25 @@ function chooseSiteFolder(callback1, callback2){
 	});
 }
 
+var choose_site_folder_dialog;
+
 $(document).ready(function(){
 		
 	$("li").click(function(){
 		$(this).css("font-weight", "bold");
 	});
 	
+	var buttons = {};
+	buttons[t("files_picocms", "Choose")] = function() {
+		folder = $('#chosen_site_folder').text();
+		if(folder){
+			addSiteFolder(folder);
+		}
+		choose_site_folder_dialog.dialog("close");
+ 	};
+ 	buttons[t("files_picocms", "Cancel")] = function() {
+		choose_site_folder_dialog.dialog("close");
+	};
 	choose_site_folder_dialog = $("#filesPicoSiteFolders div.addSiteFolder div.dialog").dialog({//create dialog, but keep it closed
 		title: "Choose new site folder",
 		autoOpen: false,
@@ -183,18 +196,7 @@ $(document).ready(function(){
 		width: 620,
 		modal: true,
 		dialogClass: "chooseSiteFolder",
-		buttons: {
-			"Choose": function() {
-				folder = $('#chosen_site_folder').text();
-				if(folder){
-					addSiteFolder(folder);
-				}
-				choose_site_folder_dialog.dialog("close");
-			},
-			"Cancel": function() {
-				choose_site_folder_dialog.dialog("close");
-			}
-		}
+		buttons: buttons
 	});
 
 	$('#filesPicoSiteFolders div#filesPicoSiteFoldersList div.siteFolder .remove_site_folder').live('click', function(e){
