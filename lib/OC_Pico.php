@@ -141,8 +141,8 @@ class Lib {
 			return self::dbAddSiteFolder($folder, $user_id, $group, $shareSampleSite);
 		}
 		else{
-			$ret = \OCA\FilesSharding\Lib::ws('addSiteFolder', Array('folder'=>$folder, 'user_id' =>$user_id,
-					'group'=>$group, 'share_sample_site'=>($shareSampleSite?'yes':'no')),
+			$ret = \OCA\FilesSharding\Lib::ws('addSiteFolder', Array('folder'=>urlencode($folder), 'user_id' =>$user_id,
+					'group'=>urlencode($group), 'share_sample_site'=>($shareSampleSite?'yes':'no')),
 					false, true, null, 'files_picocms');
 			if(!empty($ret['error'])){
 				return false;
@@ -314,7 +314,7 @@ class Lib {
 			return self::dbRemoveSiteFolder($folder, $user_id);
 		}
 		else{
-			$ret = \OCA\FilesSharding\Lib::ws('removeSiteFolder', Array('folder'=>$folder, 'user_id' =>$user_id),
+			$ret = \OCA\FilesSharding\Lib::ws('removeSiteFolder', Array('folder'=>urlencode($folder), 'user_id' =>$user_id),
 					false, true, null, 'files_picocms');
 			return $ret;
 		}
@@ -353,7 +353,7 @@ class Lib {
 			return self::dbLookupSiteInfo($site);
 		}
 		else{
-			$ret = \OCA\FilesSharding\Lib::ws('lookupSiteInfo', Array('site'=>$site),
+			$ret = \OCA\FilesSharding\Lib::ws('lookupSiteInfo', Array('site'=>urlencode($site)),
 					false, true, null, 'files_picocms');
 			return $ret;
 		}
@@ -376,7 +376,7 @@ class Lib {
 			return self::dbSetSampleFolder($owner, $path);
 		}
 		else{
-			$ret = \OCA\FilesSharding\Lib::ws('setSampleFolder', Array('owner'=>$owner, 'path'=>$path),
+			$ret = \OCA\FilesSharding\Lib::ws('setSampleFolder', Array('owner'=>$owner, 'path'=>urlencode($path)),
 					false, true, null, 'files_picocms');
 			return $ret;
 		}

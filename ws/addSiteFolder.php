@@ -16,7 +16,6 @@ $shareSampleSite = isset($_GET['share_sample_site'])?$_GET['share_sample_site']=
 
 if(OCA\FilesPicoCMS\Lib::dbAddSiteFolder($folder, $user_id)){
 	$ret['msg'] = "Added site ".$folder;
-	$ret['site'] = $site;
 }
 else{
 	$ret['error'] = "Failed serving site ".$folder;
