@@ -1,27 +1,26 @@
 <?php 
 $user = \OCP\USER::getUser();
-$websitesFolder = "/websites";
-$folder = preg_replace("/[@|\.]/", "_", $user);
-$folder = $websitesFolder. "/" . $folder;
+//$websitesFolder = "/websites";
+//$folder = "/websites/" . preg_replace("/[@|\.]/", "_", $user);
+$websiteFolder = "/websites/" . $user;
+$publicFolder = "/public";
+$email = \OCP\Config::getUserValue($user, 'settings', 'email');
+$master = \OCA\FilesSharding\Lib::getMasterURL();
+$publicUrl = $master."users/".$email."/";
 ?>
-
-<p>Your website will be created in the folder <label id="personal_site_folder" folder="<?php print($folder);?>">
-<?php print($folder);?></label>&nbsp;<a href="" id="change_site_folder" style="color: #2a6496;">change</a></p>
-
-<div>Template:</div>
+<p>Click "Continue" to create your website be redirected to
+your new site. Notice that any existing site/files will be overwritten.
+If you choose type "Blog" type, you can edit pages by clicking "Show file".</p>
+<!--<p>Notice that if any file (e.g. "my_file.md") in the folder "/public/" (which you can simply create), with a
+name ending in ".md" or ".html" will be served under <?php print($publicUrl);?> (as e.g. <?php print($publicUrl);?>my_file).</p>-->
+<div>Type:</div>
 <div>
-	<input type="radio" name="pico_content" value="/samplesite/content-sample_blog" checked />Profile/blog<br />
-	<input type="radio" name="pico_content" value="/samplesite/content" />PicoCMS
+	<input type="radio" name="pico_type" theme="deic-blog" copyThemes="no" content="/samplesite/content-sample_blog/profile.md" destination="index.md" folder="<?php print($publicFolder);?>" checked />Single public profile page<br />
+	<input type="radio" name="pico_type" theme="deic-blog" copyThemes="yes" content="/samplesite/content-sample_blog" destination="content" folder="<?php print($websiteFolder);?>" />Blog (includes profile page)<br />
+	<input type="radio" name="pico_type" theme="deic-doc" copyThemes="yes" content="/samplesite/content" destination="content" folder="<?php print($websiteFolder);?>" />Documentation<br />
+	<input type="radio" name="pico_type" theme="default"copyThemes="yes"  content="/samplesite/content" destination="content" folder="<?php print($websiteFolder);?>" />PicoCMS default
 </div>
 <br />
-<div>Theme:</div>
-<div>
-	<input type="radio" name="pico_theme" value="deic-blog" checked />Blog<br />
-	<input type="radio" name="pico_theme" value="deic-doc" />Documentation<br />
-	<input type="radio" name="pico_theme" value="default" />PicoCMS
-</div>
+<p>Your website will be created in <label id="personal_site_folder"><?php print($publicFolder);?></label>&nbsp;<a href="" id="change_site_folder" style="color: #2a6496;">change</a></p>
 <br />
-<p>After clicking "Continue", your website will be created and you will be redirected to
-your new site. If you choose "Profile/blog" as your template, you can edit pages by clicking
-"Show file".</p>
 

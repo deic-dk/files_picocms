@@ -69,6 +69,7 @@
 							</div>
 						{% endif %}
             <!-- /.navbar-collapse -->
+            {% if has_search_page %}
 							<form class = "navbar-search" id="search_form" action="{{ base_url  }}/search">
 								<input type="search" id="search_input" name="q" placeholder="Search" />
 								<!--<input type="submit" id="search_submit" value="Search" />-->
@@ -76,6 +77,7 @@
 							<div class="navbar-header page-scroll navbar-right">
 									<a class="navbar-brand search" href="{{ base_url }}/search">Search</a>
 							</div>
+						{% endif %}
         </div>
         <!-- /.container -->
     </nav>
@@ -111,7 +113,9 @@
 			{% for page in paged_pages|sort_by("time")|reverse %}
       {% set i = i + 1 %}
 				<div class="post-preview">
+									{% if has_search_page %}
                    <a href="{{ base_url }}/search/author:{{ page.author }}"><div class="avatardiv" author="{{ page.author }}"></div></a><a href="{{ page.url }}">
+                  {% endif %}
                         <h2 class="post-title">
 							{{ page.title }}
                         </h2>
@@ -119,12 +123,14 @@
 							{{ page.description }}
                         </h3>
                     </a>
+                    {% if num_pages>1 %}
                     <p class="post-meta">Posted by {{ page.meta.displayname }} on {{ page.date }}</p>
+                    {% endif %} 
                 </div>
 							{% if i < num_pages %}
                 <hr>
-							{% endif %}   
-            {% endfor %}   
+							{% endif %}
+            {% endfor %}
                 <!-- Pager -->
                 <ul class="pager">
 					{% if page_number > 1 %}

@@ -7,12 +7,13 @@ class Lib {
 	private static function copyFile($srcFile, $destFile, $destView, $srcView=null, $replacements=null,
 			$repFilePattern=null){
 		if(!empty($srcView) && $srcView===$destView){
-			return $srcView->copy($srcFile, $destFile);
+			$srcView->copy($srcFile, $destFile);
 		}
 		else{
 			if(empty($srcView)){
 				// empty srcView means we're copying an absolute path
 				$tmpFile = tempnam(sys_get_temp_dir(), 'files_picocms_');
+				\OCP\Util::writeLog('files_picocms', 'Copying '.$srcFile.' to '.$tmpFile, \OCP\Util::WARN);
 				copy($srcFile, $tmpFile);
 			}
 			else{
@@ -34,15 +35,16 @@ class Lib {
 							' in '. $destFile, \OCP\Util::WARN);
 					}
 					$destView->unlink($destFile);
-					return $destView->file_put_contents($destFile, $str);
+					\OCP\Util::writeLog('files_picocms', 'Writing '.$str.' with '.serialize($destView), \OCP\Util::WARN);
+					$destView->file_put_contents($destFile, $str);
 				}
 			}
 			else{
-				\OCP\Util::writeLog('files_picocms', 'ERROR: Cannot copy to remote server'.$destFile, \OCP\Util::ERROR);
+				\OCP\Util::writeLog('files_picocms', 'ERROR: Cannot copy to remote server '.$destFile, \OCP\Util::ERROR);
 				return false;
 			}
 		}
-		return false;
+		return true;
 	}
 	
 	private static function copyRec($src, $dest, $destView, $srcView=null, $replacements=null,
@@ -63,6 +65,7 @@ class Lib {
 					return false;
 				}
 				while($dh!==false && $dh!==true && ($file = readdir($dh))!==false){
+					\OCP\Util::writeLog('files_picocms', 'Copying file '.$file, \OC_Log::ERROR);
 					if(empty($file) || in_array($file, array('.', '..'))){
 						continue;
 					}
@@ -87,8 +90,12 @@ class Lib {
 	public static $SITE_NAME_EXISTS = 1;
 	public static $COPY_CONTENT_FAILED = 2;
 	
-	public static function createPersonalSite($user_id, $folder,
-			$contentFolder='/samplesite/content-sample_blog', $theme=null){
+	public static function createPersonalSite($user_id, $folder, $content=null, $destination=null, $theme=null, $copy_themes=false){
+		// Serve
+		if($folder!='/public' && !self::addSiteFolder($folder, $user_id, '')){
+			\OCP\Util::writeLog('files_picocms', 'Adding site '.$folder, \OC_Log::WARN);
+			return self::$SITE_NAME_EXISTS;
+		}
 		// Create directory
 		if(!\OC\Files\Filesystem::file_exists($folder)){
 			\OC\Files\Filesystem::mkdir($folder);
@@ -99,41 +106,48 @@ class Lib {
 		$destView = new \OC\Files\View('/'.$user_id.'/files');
 	
 		// Copy over themes
-		$themesFolder = '/samplesite/themes';
-		$themesFolder = dirname(__FILE__).$themesFolder;
-		\OCP\Util::writeLog('files_picocms', 'Copying themes'.$themesFolder.'-->'.$folder.'/themes', \OC_Log::WARN);
-		if(!self::copyRec($themesFolder, $folder.'/themes', $destView, $srcView)){
-			return $COPY_CONTENT_FAILED;
+		if($copy_themes && !empty($theme)){
+			$themesFolder = '/samplesite/themes';
+			$themesFolder = dirname(__FILE__).$themesFolder;
+			\OCP\Util::writeLog('files_picocms', 'Copying themes'.$themesFolder.'-->'.$folder.'/themes', \OC_Log::WARN);
+			self::copyRec($themesFolder, $folder.'/themes', $destView, $srcView);
 		}
 		
 		// Add content
-		$contentFolder = dirname(__FILE__).$contentFolder;
-		if(!empty($theme)){
-			\OCP\Util::writeLog('files_picocms', 'Copying content, fixing theme etc. '.$contentFolder.
-					'-->'.$folder.'/content', \OC_Log::WARN);
-			if(!self::copyRec($contentFolder, $folder.'/content', $destView, $srcView,
-					array('/^Theme:.*$/m'=>'Theme: '.$theme,
-								 '/^Date:.*$/m'=>'Date: '.date("j M Y"),
-								 '/^Author:.*$/m'=>'Author: '.$user_id,
-								 '/^Site:.*$/m'=>'Site: '.($theme=='deic-blog'?\OC_User::getDisplayName($user_id):'Sample Site')),
-					'|.*\.md$|')){
+		if(!empty($content) && (strlen($content)<3 || substr($content, -3)!='.md')){
+			$content = dirname(__FILE__).$content;
+			if(!empty($theme)){
+				\OCP\Util::writeLog('files_picocms', 'Copying content, fixing theme etc. '.$content.
+						'-->'.$folder.'/content', \OC_Log::WARN);
+				if(!self::copyRec($content, $folder.(empty($destination)?'':'/'.$destination), $destView, $srcView,
+						array('/^Theme:.*$/m'=>'Theme: '.$theme,
+								'/^Date:.*$/m'=>'Date: '.date("j M Y"),
+								'/^Author:.*$/m'=>'Author: '.$user_id,
+								'/^Site:.*$/m'=>'Site: '.($theme=='deic-blog'?\OC_User::getDisplayName($user_id):'Sample Site')),
+						'|.*\.md$|')){
 					return self::$COPY_CONTENT_FAILED;
+				}
+			}
+			else{
+				\OCP\Util::writeLog('files_picocms', 'Copying content', \OC_Log::WARN);
+				if(!self::copyRec($content, $folder.(empty($destination)?'':'/'.$destination), $destView, $srcView)){
+					return self::$COPY_CONTENT_FAILED;
+				}
 			}
 		}
-		else{
-			\OCP\Util::writeLog('files_picocms', 'Copying content', \OC_Log::WARN);
-			if(!self::copyRec($contentFolder, $folder.'/content', $destView, $srcView)){
-				return self::$COPY_CONTENT_FAILED;
-			}
-		}
-		
-		// Serve
-		\OCP\Util::writeLog('files_picocms', 'Adding site', \OC_Log::WARN);
-		if(!self::addSiteFolder($folder, $user_id, '')){
-			return self::$SITE_NAME_EXISTS;
+		elseif(!empty($theme) && strlen($content)>3 && substr($content, -3)=='.md'){
+			$srcName = basename($content);
+			if(!self::copyFile(dirname(__FILE__).$content, $folder.'/'.(empty($destination)?$srcName:$destination), $destView, $srcView,
+					array('/^Theme:.*$/m'=>'Theme: '.$theme,
+							'/^Date:.*$/m'=>'Date: '.date("j M Y"),
+							'/^Author:.*$/m'=>'Author: '.$user_id,
+							'/^Site:.*$/m'=>'Site: '.($theme=='deic-blog'?\OC_User::getDisplayName($user_id):'Sample Site')),
+					'|.*\.md$|')){
+						return self::$COPY_CONTENT_FAILED;
+					}
 		}
 		\OCP\Util::writeLog('files_picocms', 'Adding site done', \OC_Log::WARN);
-		return $OK;
+		return self::$OK;
 	}
 	
 	public static function addSiteFolder($folder, $user_id, $group, $shareSampleSite=false){
@@ -393,5 +407,36 @@ class Lib {
 		}
 	}
 	
+	public static function getServePublicUrl($user){
+		if(!\OCP\App::isEnabled('files_sharding') || \OCA\FilesSharding\Lib::isMaster()){
+			return self::dbGetServePublicUrl($user)=='yes';
+		}
+		else{
+			$ret = \OCA\FilesSharding\Lib::ws('getServePublicUrl', Array('user'=>$user),
+					false, true, null, 'files_picocms');
+			return $ret=='yes';
+		}
+	}
+	
+	public static function dbGetServePublicUrl($user){
+		$ret = \OCP\Config::getUserValue($user, 'files_picocms', 'servepublicurl');
+		return $ret;
+	}
+	
+	public static function setServePublicUrl($user, $serve){
+		if(!\OCP\App::isEnabled('files_sharding') || \OCA\FilesSharding\Lib::isMaster()){
+			return self::dbSetServePublicUrl($user, $serve);
+		}
+		else{
+			$ret = \OCA\FilesSharding\Lib::ws('setServePublicUrl', Array('user'=>$user, 'serve'=>$serve?'yes':'no'),
+					false, true, null, 'files_picocms');
+			return $ret;
+		}
+	}
+	
+	public static function dbSetServePublicUrl($user, $serve){
+		$ret = \OCP\Config::setUserValue($user, 'files_picocms', 'servepublicurl', $serve?'yes':'no');
+		return $ret;
+	}
 	
 }

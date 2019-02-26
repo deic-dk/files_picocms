@@ -7,8 +7,10 @@ require_once('apps/files_picocms/lib/OC_Pico.php');
 
 $folder = $_GET['folder'];
 $content = $_GET['content'];
+$destination = $_GET['destination'];
 $theme = $_GET['theme'];
 $user_id = OCP\USER::getUser();
+$copy_themes = !empty($_GET['copy_themes']) && $_GET['copy_themes']=='yes';
 
 $parts = pathinfo($folder);
 $site = $parts['basename'];
@@ -23,7 +25,7 @@ if(empty($user_id)){
 	$ret['error'] = "Failed creating site. No owner ".$user_id;
 }
 		
-$res = OCA\FilesPicoCMS\Lib::createPersonalSite($user_id, $folder, $content, $theme);
+$res = OCA\FilesPicoCMS\Lib::createPersonalSite($user_id, $folder, $content, $destination, $theme, $copy_themes);
 
 switch($res){
 	case OCA\FilesPicoCMS\Lib::$OK:

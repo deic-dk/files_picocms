@@ -15,8 +15,6 @@ OCP\Util::addStyle('files_sharding', 'personalsettings');
 
 require_once('apps/files_picocms/lib/OC_Pico.php');
 
-$errors = Array();
-
 $tmpl = new OCP\Template('files_picocms', 'personalsettings');
 
 $user_id = OCP\USER::getUser();
@@ -34,5 +32,7 @@ else{
 $tmpl->assign('samplesite_url', $sampleSiteUrl);
 $createPersonalSiteUrl = OC::$WEBROOT . '/apps/files_picocms/index.php';
 $tmpl->assign('create_personal_site_url', $createPersonalSiteUrl);
+
+$tmpl->assign('serve_public_url', OCA\FilesPicoCMS\Lib::getServePublicUrl($user_id));
 
 return $tmpl->fetchPage();

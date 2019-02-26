@@ -1,4 +1,10 @@
-<fieldset id="filesPicoSiteFolders" class="section">
+	<?php 
+		$user = \OCP\USER::getUser();
+		$email = \OCP\Config::getUserValue($user, 'settings', 'email');
+		$master = \OCA\FilesSharding\Lib::getMasterURL();
+		$publicUrl = $master."users/".$email."/";
+	?>
+	<fieldset id="filesPicoSiteFolders" class="section">
 	<a href="<?php print_unescaped($_['samplesite_url']);?>" class="right-info-link"><?php p($l->t('More info'));?> &raquo;</a>
 	<?php print_unescaped("<h2>".$l->t('Site folders')."</h2>".
 	$l->t("Site folders must contain files in markdown format - with extension 'md'.
@@ -15,15 +21,18 @@
 	<?php p($l->t("Website wizard"));?></div></div>
 	<br />
 	<div id="filesPicoSiteFoldersList">
-	<?php foreach($_['site_folders'] as $p){
-		$parts = pathinfo($p['path']);
-		$site = $parts['basename'];
-		?>
+	<?php foreach($_['site_folders'] as $p){ ?>
 		<div class="siteFolder nowrap" path="<?php print($p['path']);?>">
-			<span style="float:left;width:92%;">
-			<a href="<?php print(OC::$WEBROOT);?>/sites/<?php print($site);?>">
-			<label><?php print($p['path']);?></label></a></span>
-			<label class="remove_site_folder btn btn-flat">-</label>
+			<span style="float:left;width:46%;">
+				<a href="<?php print(OC::$WEBROOT);?>/index.php/apps/files/?dir=<?php print($p['path']);?>">
+					<label><?php print($p['path']);?></label>
+				</a>
+			</span>
+			<span style="float:left;width:46%;">
+				<a class="site_url" href="<?php print($master);?>sites/<?php print($p['site']);?>">
+					<label><?php print($master."sites/".$p['site']);?></label>
+				</a>
+			</span>			<label class="remove_site_folder btn btn-flat">-</label>
 			<div class="dialog" display="none"></div>
 		</div>
 	<?php } ?>
@@ -35,5 +44,10 @@
 		<div class="dialog" display="none">
 			<div id="loadSiteFolderTree"></div>
 		</div>
+	</div>
+	<div>
+		<span>Serve <a href="<?php print(OC::$WEBROOT);?>/index.php/apps/files/?dir=/public">/public</a> as <?php echo "<a id='public_site_url' href='".$publicUrl."'>".$publicUrl;?></a></span>
+		<span id="serve_public_url_checkbox">&nbsp;&nbsp;<input id="serve_public_url" type="checkbox" original-title="Serve public folder"
+			<?php echo($_['serve_public_url']?"checked='checked'":"");?>></span>
 	</div>
 </fieldset>

@@ -70,11 +70,13 @@
     <!-- Set your background image for this header on the line below. -->
     <header class="post-header profile-header">
     
+			{% if has_search_page %}
 			<div id="displayavatar">
 				<a href="{{ base_url }}/search/author:{{ meta.author }}">
 					<div class="avatardiv" author="{{ meta.author }}"></div>
 				</a>
 			</div>
+			{% endif %}
         <div class="container">
             <div class="row col-md-offset-1">
                     <div class="post-heading">
@@ -95,7 +97,7 @@
             group="{{ oc_group }}">Show file</button>
         {% endif %}
         
-        {% if paged_pages > 1 %}
+        {% if num_pages > 1 %}
 	        <div class="home-link">
 	                <a class="navbar-brand-post" href="{{ base_url }}">Home</a>
 	        </div>

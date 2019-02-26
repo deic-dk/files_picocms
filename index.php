@@ -4,11 +4,12 @@ require_once __DIR__ . '/../../lib/base.php';
 require_once('apps/chooser/appinfo/apache_note_user.php');
 
 
-if(empty($_GET['site'])){
+if(empty($_GET['site']) && empty($_GET['user'])){
+	header("HTTP/1.1 404 Not Found");
 	exit;
 }
 
-\OCP\Util::writeLog('files_picocms', 'Firing up '.$_GET['site'].":".$_SERVER['QUERY_STRING'], \OCP\Util::WARN);
+\OCP\Util::writeLog('files_picocms', 'Firing up '.$_SERVER['QUERY_STRING'], \OCP\Util::WARN);
 
 // If redirected by mod_rewrite with site_name set, serve the site	
 require_once('apps/files_picocms/3rdparty/symfony/component/yaml/Parser.php');
@@ -97,7 +98,19 @@ if(!empty($_GET['path'])){
 	$_SERVER['QUERY_STRING'] = $_GET['path'];
 }
 
-$siteInfo = OCA\FilesPicoCMS\Lib::lookupSiteInfo($_GET['site']);
+if(!empty($_GET['user'])){
+	$ret = OCA\FilesPicoCMS\Lib::getServePublicUrl($_GET['user']);
+	if($ret!='yes'){
+		header("HTTP/1.1 404 Not Found");
+		exit;
+	}
+	$siteInfo = array('uid'=>$_GET['user'], 'path'=>'/public', 'site'=>'Public page of '.\OC_User::getDisplayName($_GET['user']));
+	$config['base_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT."/users/".$_GET['user'];
+}
+elseif(!empty($_GET['site'])){
+	$siteInfo = OCA\FilesPicoCMS\Lib::lookupSiteInfo($_GET['site']);
+	$config['base_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT."/sites/".$siteInfo['site'];
+}
 
 if(\OCP\App::isEnabled('files_sharding') && !empty($siteInfo['uid']) &&
 		!\OCA\FilesSharding\Lib::onServerForUser($siteInfo['uid'])){
@@ -118,25 +131,45 @@ if(empty($dataDir)){
 	exit;
 }
 
-$config['group'] = $siteInfo['gid'];
+$config['group'] = empty($siteInfo['gid'])?'':$siteInfo['gid'];
 $config['user'] = $siteInfo['uid'];
 $config['rewrite_url'] = true;
 
-$config['site_title'] = $_GET['site'];
-$config['base_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT."/sites/".$_GET['site'];
+$config['site_title'] = $siteInfo['site'];
 /*$config['master_url'] = $_SERVER['HTTP_HOST'];
 
 if(\OCP\App::isEnabled('files_sharding') ){
 	$config['master_url'] = \OCA\FilesSharding\Lib::getMasterURL();
 }*/
 
-$extension = pathinfo($_GET['path'], PATHINFO_EXTENSION);
+if(empty($_GET['path']) &&
+		!file_exists($dataDir.'/'.$sitePath.'/content/index.md') &&
+		!file_exists($dataDir.'/'.$sitePath.'/index.md') &&
+		(file_exists($dataDir.'/'.$sitePath.'/content/index.html') ||
+		file_exists($dataDir.'/'.$sitePath.'/index.html'))){
+			$_GET['path'] = 'index.html';
+}
+
+$extension = empty($_GET['path'])?'':pathinfo($_GET['path'], PATHINFO_EXTENSION);
 if(!empty($extension) && ($extension=='png'||$extension=='jpg'||$extension=='svg')){
 	header("Content-type: image/".$extension);
 }
-if(!empty($extension) && ($extension=='pdf')){
+elseif(!empty($extension) && ($extension=='pdf')){
 	header("Content-type: application/".$extension);
-	echo file_get_contents($dataDir.'/'.$sitePath.'/content/'.$_GET['path']);
+	$filePath = $dataDir.'/'.$sitePath.'/'.$_GET['path'];
+	if(!file_exists($filePath)){
+		$filePath = $dataDir.'/'.$sitePath.'/content/'.$_GET['path'];
+	}
+	echo file_get_contents($filePath);
+	exit;
+}
+elseif(!empty($extension) && ($extension=='html')){
+	header("Content-type: text/html");
+	$filePath = $dataDir.'/'.$sitePath.'/'.$_GET['path'];
+	if(!file_exists($filePath)){
+		$filePath = $dataDir.'/'.$sitePath.'/content/'.$_GET['path'];
+	}
+	echo file_get_contents($filePath);
 	exit;
 }
 
@@ -164,19 +197,22 @@ elseif(is_dir($dataDir.'/'.$sitePath)){
 		"/apps/files_picocms/lib/samplesite/themes";
 }
 else{
-	echo("Site does not exist");
+	echo("Site does not exist. ".$dataDir.'::'.$sitePath);
 	exit;
 }
 
 \OCP\Util::writeLog('files_picocms', 'Themes dir: '.$themesDir, \OC_Log::WARN);
 
 if(empty($sitePath) ||
-		(!file_exists($dataDir.'/'.$sitePath.'/content/index.md') &&
-				!file_exists($dataDir.'/'.$sitePath.'/content/index.html'))){
+		!file_exists($dataDir.'/'.$sitePath.'/content/index.md') &&
+		!file_exists($dataDir.'/'.$sitePath.'/index.md')){
 	$config['content_dir'] = __DIR__ . '/lib/samplesite/content';
 }
-else{
+elseif(file_exists($dataDir.'/'.$sitePath.'/content') && is_dir($dataDir.'/'.$sitePath.'/content')){
 	$config['content_dir'] = $dataDir.'/'.$sitePath.'/content';
+}
+else{
+	$config['content_dir'] = $dataDir.'/'.$sitePath;
 }
 
 // requesttoken is needed to get avatars

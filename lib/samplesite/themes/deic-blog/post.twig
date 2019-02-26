@@ -65,9 +65,11 @@
     <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
         <div class="container-fluid">
             <!-- Brand and toggle get grouped for better mobile display -->
+            {% if num_pages>1 %}
             <div class="navbar-header page-scroll">
                 <a class="navbar-brand-post" href="{{ base_url }}">Home</a>
             </div>
+            {% endif %}
 
             <!-- /.navbar-collapse -->
         </div>
@@ -77,18 +79,22 @@
     <!-- Page Header -->
     <!-- Set your background image for this header on the line below. -->
     <header class="post-header">
+			{% if has_search_page %}
 			<div id="displayavatar">
-				<a href="{{ base_url }}/search/author:{{ meta.author }}">
+ 				<a href="{{ base_url }}/search/author:{{ meta.author }}">
 					<div class="avatardiv" author="{{ meta.author }}"></div>
 				</a>
 			</div>
+			{% endif %}
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                     <div class="post-heading">
                         <h1>{{ meta.title }}</h1>
                         <h2 class="subheading">{{ meta.description }}</h2>
+												{% if has_search_page %}
                         <span class="meta">Posted by <a href="{{ base_url }}/search/author:{{ meta.author }}">{{ meta.displayname }}</a> on {{ meta.date }}</span>
+												{% endif %}
                     </div>
                 </div>
             </div>
