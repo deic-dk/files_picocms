@@ -14,7 +14,7 @@ class PicoSearch extends AbstractPicoPlugin
     private $search_area;
     private $search_terms;
     private $search_fields;
-    public $has_search_file;
+    public $has_search_page;
     
     /**
      * Parses the requested URL to determine if a search has been requested. The search may be
@@ -94,7 +94,7 @@ class PicoSearch extends AbstractPicoPlugin
         	return;
         }
 	    	$pico = $this->getPico();
-	    	$this->has_search_file = file_exists($pico->getConfig('content_dir').'/search.md');
+	    	$this->has_search_page = file_exists($pico->getConfig('content_dir').'/search.md');
 	    	$excludes = array('403', '404', 'search');
 	    	$confExcludes = $pico->getConfig('search_excludes');
 	    	if (!empty($confExcludes)) {
