@@ -246,7 +246,7 @@ class Pico
      * 
      * @var string
      */
-    protected $ocOwner;
+    public $ocOwner;
 
     /**
      * URL of the master in a sharded setup.

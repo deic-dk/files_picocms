@@ -15,7 +15,7 @@ class PicoSearch extends AbstractPicoPlugin
     private $search_terms;
     private $search_fields;
     public $has_search_page;
-    
+
     /**
      * Parses the requested URL to determine if a search has been requested. The search may be
      * scoped to a folder. An example URL: yourdomain.com/blog/search/foobar/page/2,
@@ -29,6 +29,9 @@ class PicoSearch extends AbstractPicoPlugin
      */
     public function onRequestUrl(&$url)
     {
+    		$pico = $this->getPico();
+    		$this->has_search_page = file_exists($pico->getConfig('content_dir').'/search.md');
+
     		// If form was submitted without being intercepted by JavaScript, redirect to the canonical search URL.
         if (preg_match('~^(.+/)?search$~', $url) && !empty($_GET['q'])) {
             header('Location: ' . $this->getPico()->getBaseUrl() . $url . '/' . urlencode($_GET['q']));
@@ -42,6 +45,13 @@ class PicoSearch extends AbstractPicoPlugin
                 $this->search_area = $matches[1];
             }
         }
+    }
+    
+    public function onPageRendering(&$twig, &$twigVariables, &$templateName)
+    {
+    	if ($this->has_search_page){
+    		$twigVariables['has_search_page'] = $this->has_search_page;
+    	}
     }
 
     /**
@@ -94,7 +104,6 @@ class PicoSearch extends AbstractPicoPlugin
         	return;
         }
 	    	$pico = $this->getPico();
-	    	$this->has_search_page = file_exists($pico->getConfig('content_dir').'/search.md');
 	    	$excludes = array('403', '404', 'search');
 	    	$confExcludes = $pico->getConfig('search_excludes');
 	    	if (!empty($confExcludes)) {

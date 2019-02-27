@@ -237,6 +237,7 @@ $pico = new Pico(
 
 // override configuration?
 $pico->setConfig($config);
+$pico->ocOwner = $siteInfo['uid'];
 
 // run application
 echo $pico->run();
