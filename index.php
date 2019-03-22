@@ -223,6 +223,7 @@ $config['pages_order_by'] = 'date';
 //$config['pages_order'] = 'asc';
 $config['pagination'] = -1;
 $config['pagination_limit'] = 100;
+$config['toc_top_txt'] = '';
 
 \OCP\Util::writeLog('files_picocms', 'Content dir: '.$config['content_dir'], \OC_Log::WARN);
 

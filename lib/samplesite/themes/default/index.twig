@@ -49,7 +49,7 @@
             {% endif %}
         </div>
         {% if meta.access == 'private' and meta.permissions != 'none' %}
-            <button class="edit-button btn btn-primary btn-flat" path="{{  oc_path }}" id="{{  oc_id }}" user="{{  oc_user }}" group="{{  oc_group }}">Show file</button>
+            <button class="edit-button btn btn-primary btn-flat" path="{{  oc_path }}" id="{{  oc_id }}" parentid="{{  oc_parent_id }}" user="{{  oc_user }}" owner="{{  oc_owner }}" group="{{  oc_group }}">Show file</button>
         {% endif %}
     </header>
 

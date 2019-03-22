@@ -844,6 +844,16 @@ class Pico
     		return true;
     	}
     	$user_id = \OCP\User::getUser();
+    	\OCP\Util::writeLog('files_picocms', 'user_id '.$user_id, \OC_Log::WARN);
+    	if(\OCP\App::isEnabled('files_sharding') && (empty($user_id) || !\OCA\FilesSharding\Lib::onServerForUser($user_id))){
+    		$instanceId = \OC_Config::getValue('instanceid', null);
+    		if(!empty($_COOKIE[$instanceId])){
+    			\OCP\Util::writeLog('files_picocms', 'Getting session from master '.$instanceId, \OC_Log::WARN);
+    			$session = \OCA\FilesSharding\Lib::getUserSession($_COOKIE[$instanceId]);
+    			$user_id = $session['user_id'];
+    		}
+    	}
+    	
     	if(empty($user_id)){
     		\OCP\Util::writeLog('files_picocms', 'No user '.$user_id, \OC_Log::ERROR);
     		return false;
