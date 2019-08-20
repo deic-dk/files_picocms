@@ -1124,6 +1124,10 @@ class Pico
             . "(?:(.*?)(?:\r)?\n)?(?(2)\*\/|---)[[:blank:]]*(?:(?:\r)?\n|$)/s";
         $content = preg_replace($metaHeaderPattern, '', $rawContent, 1);
 
+        // Allow escaping %
+        $tmpid = ''.md5(uniqid(mt_rand(), true));
+        $content = str_replace('\%', $tmpid, $content);
+
         // replace %site_title%
         $content = str_replace('%site_title%', $this->getConfig('site_title'), $content);
 
@@ -1175,6 +1179,8 @@ class Pico
         if(!empty($this->ocEmail)){
         	$content = str_replace('%email%', $this->ocEmail, $content);
         }        //
+
+        $content = str_replace($tmpid, '%', $content);
 
         return $content;
     }
