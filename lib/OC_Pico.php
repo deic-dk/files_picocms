@@ -150,13 +150,16 @@ class Lib {
 		return self::$OK;
 	}
 	
-	public static function addSiteFolder($folder, $user_id, $group, $shareSampleSite=false){
+	public static function addSite($folder, $name, $user_id, $group,
+			$shareSampleSite=false, $rename=false){
 		if(!\OCP\App::isEnabled('files_sharding') || \OCA\FilesSharding\Lib::isMaster()){
-			return self::dbAddSiteFolder($folder, $user_id, $group, $shareSampleSite);
+			return self::dbAddSite($folder, $name, $user_id, $group, $shareSampleSite, $rename);
 		}
 		else{
-			$ret = \OCA\FilesSharding\Lib::ws('addSiteFolder', Array('folder'=>urlencode($folder), 'user_id' =>$user_id,
-					'group'=>urlencode($group), 'share_sample_site'=>($shareSampleSite?'yes':'no')),
+			$ret = \OCA\FilesSharding\Lib::ws('addSite', Array('folder'=>urlencode($folder),
+					'name'=>urlencode($name), 'user_id' =>$user_id,
+					'group'=>urlencode($group), 'share_sample_site'=>($shareSampleSite?'yes':'no'),
+					'rename'=>($rename?'yes':'no')),
 					false, true, null, 'files_picocms');
 			if(!empty($ret['error'])){
 				return false;
@@ -167,17 +170,23 @@ class Lib {
 		}
 	}
 	
-	public static function dbAddSiteFolder($folder, $user_id, $group='', $shareSampleSite=false){
-		$parts = pathinfo($folder);
-		$site = $parts['basename'];
+	public static function dbAddSite($folder, $name, $user_id, $group='',
+			$shareSampleSite=false, $rename=false){
 		// Site is just the top-level element of folder (a path).
 		// Check if site name is taken
-		if(self::dbLookupSiteInfo($site)){
+		if(!$rename && self::dbLookupSiteInfo($name)){
 			return false;
 		}
-		$query = \OC_DB::prepare(
-				'INSERT INTO `*PREFIX*files_picocms` (`uid`, `site`, `path`, `gid`) VALUES (?, ?, ?, ?)');
-		$result = $query->execute(Array($user_id, $site, $folder, $group));
+		if(!$rename){
+			$query = \OC_DB::prepare(
+					'INSERT INTO `*PREFIX*files_picocms` (`uid`, `site`, `path`, `gid`) VALUES (?, ?, ?, ?)');
+			$result = $query->execute(Array($user_id, $name, $folder, $group));
+		}
+		else{
+			$query = \OC_DB::prepare(
+					'UPDATE `*PREFIX*files_picocms` SET `site` = ?  WHERE `uid` = ? AND `path` = ?');
+			$result = $query->execute(Array($name, $user_id, $folder));
+		}
 		if(\OCP\DB::isError($result)){
 			\OCP\Util::writeLog('files_picocms', \OC_DB::getErrorMessage($result), \OC_Log::ERROR);
 			return false;

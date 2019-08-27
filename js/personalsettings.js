@@ -42,61 +42,69 @@ function getMasterURL(callback){
 	});
 }
 
-function appendSiteDiv(folder){
-	var name = folder.substring(folder.lastIndexOf('/') + 1);
+function addSiteDiv(folder, name, rename){
 	getMasterURL(function(url){
-		$('#filesPicoSiteFolders #filesPicoSiteFoldersList').append('<div class="siteFolder nowrap" path="'+folder+'">\
-	   		<span style="float:left;width:46%;">\
-	   		<a href="/index.php/apps/files/?dir='+folder+'"><label>'+folder+'</label></a>\
-	   		</span>\
-	   		<span style="float:left;width:46%;">\
-	   		<a class="site_url" href="'+url+'sites/'+name+'"><label>'+url+'sites/'+name+'</label></a>\
-	   		</span>\
-	   		<label class="remove_site_folder btn btn-flat">-</label>\
-	   		<div class="dialog" display="none"></div>\
-	   		</div>');
+		if(rename){
+			$('#filesPicoSiteFolders #filesPicoSiteFoldersList div.siteFolder[path="'+folder+'"] a.site_url').attr('href', url+'sites/'+name);
+		}
+		else{
+			$('#filesPicoSiteFolders #filesPicoSiteFoldersList').append('<div class="siteFolder nowrap" path="'+folder+'">\
+		   		<span style="float:left;width:46%;">\
+		   		<a href="/index.php/apps/files/?dir='+folder+'"><label class="folder" style="margin-top: 6px;">'+folder+'</label></a>\
+		   		</span>\
+		   		<span style="float:left;width:46%;">\
+		   		<a class="site_url" href="'+url+'sites/'+name+'"><label>'+url+'sites/</label></a><input type="text" value="'+name+'">\
+		   		</span>\
+		   		<label class="remove_site_folder btn btn-flat" style="margin: 5.7px 0 0 0;">-</label>\
+		   		<div class="dialog" display="none"></div>\
+		   		</div>');
+		}
+
 	});
 }
 
-function addSiteFolder(folder){
-	
+function addSiteFolder(folder, name){
+	if(typeof(name)==='undefined'){
+		name = folder.substring(folder.lastIndexOf('/') + 1);
+	}
+	var rename = false;
 	if($("#filesPicoSiteFolders #filesPicoSiteFoldersList div.siteFolder[path='"+folder+"']").length>0){
-		return false;
+		rename = true;
 	}
 	// When called from Personal web site wizard, don't add site
 	if($(".oc-dialog-personal_website:visible").length>0){
 		return false;
 	}
-	
 	var sites = $("#filesPicoSiteFolders #filesPicoSiteFoldersList div.siteFolder");
-	
 	if(sites.length>0){
 		// If sites already exist, we have already shared the sample site with this user
-		postAddSiteFolder(folder, false);
+		postAddSite(folder, name, false, rename);
 	}
 	else{
-		postAddSiteFolder(folder, true);
+		postAddSite(folder, name, true, rename);
 	}
 }
 
-function postAddSiteFolder(folder, share){
-	$.ajax(OC.linkTo('files_picocms','ajax/add_site_folder.php'), {
+function postAddSite(folder, name, share, rename){
+	$.ajax(OC.linkTo('files_picocms','ajax/add_site.php'), {
 		 type:'POST',
 		  data:{
 			  folder: folder,
-			  share_sample_site: (share?'yes':'no')
+			  name: name,
+			  share_sample_site: (share?'yes':'no'),
+			  rename: (rename?'yes':'no')
 		 },
 		 dataType:'json',
 		 success: function(s){
-			 if(s.error){
-					OC.dialogs.alert("Error serving website: name already taken: "+folder.replace(/.*\/([^\/]+$)/, '$1'), "Serving website failed", function(){}, true);
-			 }
-			 else{
-				 appendSiteDiv(folder, s.folder);
-			 }
-		 },
+			if(s.error){
+				addSiteDiv(folder, '', false);
+					OC.dialogs.alert(t("files_picocms", "Name already taken")+": "+folder.replace(/.*\/([^\/]+$)/, '$1')+
+							t("files_picocms", "Please choose another")+".", t("files_picocms", "Serving website failed"), function(){}, true);
+			}
+			addSiteDiv(folder, name, rename);
+		},
 		error:function(s){
-			alert("Unexpected error! Perhaps name is taken.");
+			alert(t("files_picocms","Unexpected error! Perhaps name is taken."));
 		}
 	});
 }
@@ -327,6 +335,12 @@ $(document).ready(function(){
 				alert("Unexpected error!");
 			}
 		});
+	});
+	
+	$(document).on('change', '.siteFolder input', function(ev) {
+		var name = $(ev.target).val();
+		var folder = $(ev.target).closest('div.siteFolder').find('label.folder').first().text();
+		addSiteFolder(folder, name);
 	});
 	
 	/*getMasterURL(function(url){

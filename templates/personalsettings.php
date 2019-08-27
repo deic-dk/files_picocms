@@ -20,19 +20,32 @@
 	<div style="text-align: center;"><div  class="edit_personal_website btn btn-primary btn-flat">
 	<?php p($l->t("Website wizard"));?></div></div>
 	<br />
+	<div class="siteFolder nowrap">
+		<span style="float:left;width:46%;">
+			<label><?php p($l->t("Folder"));?></label>
+		</span>
+		<span style="float:left;width:46%;">
+			<label><?php p($l->t("URL"));?></label>
+		</span>
+		<span>
+			<label><?php p($l->t("Remove"));?></label>
+		</span>
+	</div>
 	<div id="filesPicoSiteFoldersList">
 	<?php foreach($_['site_folders'] as $p){ ?>
 		<div class="siteFolder nowrap" path="<?php print($p['path']);?>">
 			<span style="float:left;width:46%;">
 				<a href="<?php print(OC::$WEBROOT);?>/index.php/apps/files/?dir=<?php print($p['path']);?>">
-					<label><?php print($p['path']);?></label>
+					<label class="folder" style="margin-top: 6px;"><?php print($p['path']);?></label>
 				</a>
 			</span>
 			<span style="float:left;width:46%;">
 				<a class="site_url" href="<?php print($master);?>sites/<?php print($p['site']);?>">
-					<label><?php print($master."sites/".$p['site']);?></label>
+					<label><?php print($master."sites/");?></label>
 				</a>
-			</span>			<label class="remove_site_folder btn btn-flat">-</label>
+				<input type="text" autocomplete="off" value="<?php print($p['site']);?>" />
+			</span>
+			<label class="remove_site_folder btn btn-flat" style="margin: 5.7px 0 0 0;">-</label>
 			<div class="dialog" display="none"></div>
 		</div>
 	<?php } ?>

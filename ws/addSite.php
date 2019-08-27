@@ -11,10 +11,15 @@ if(!OCA\FilesSharding\Lib::checkIP()){
 }
 
 $folder = isset($_GET['folder'])?$_GET['folder']:null;
+$name = isset($_GET['name'])?$_GET['name']:null;
+$group = isset($_GET['group'])?$_GET['group']:null;
 $user_id = isset($_GET['user_id'])?$_GET['user_id']:null;
 $shareSampleSite = isset($_GET['share_sample_site'])?$_GET['share_sample_site']=='yes':false;
+$rename = isset($_GET['rename'])?$_GET['rename']=='yes':false;
 
-if(OCA\FilesPicoCMS\Lib::dbAddSiteFolder($folder, $user_id)){
+$ret = [];
+
+if(OCA\FilesPicoCMS\Lib::dbAddSite($folder, $name, $user_id, $group, $shareSampleSite, $rename)){
 	$ret['msg'] = "Added site ".$folder;
 }
 else{

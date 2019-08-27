@@ -1123,6 +1123,32 @@ class Pico
         $metaHeaderPattern = "/^(\/(\*)|---)[[:blank:]]*(?:\r)?\n"
             . "(?:(.*?)(?:\r)?\n)?(?(2)\*\/|---)[[:blank:]]*(?:(?:\r)?\n|$)/s";
         $content = preg_replace($metaHeaderPattern, '', $rawContent, 1);
+        
+        // NC change
+        // remove Joplin meta footer
+        if(\OCP\App::isEnabled('notes') ){
+        	$joplinPattern = "|^([^\n]+)(\n\n)?(.*)\n((\n.+: .+)*)$|s";
+        	// TODO: perhaps use Joplin metadata.
+        	$content = preg_replace($joplinPattern, "$3", $content);
+        	// Support Joplin images
+        	if(preg_match_all('|\!\[([^\[\]]+)\]\(\:/([^\(\)]+)\)|s', $content, $matches)) {
+        		require_once('notes/lib/libnotes.php');
+        		$i = 0;
+        		foreach($matches[0] as $fullMatch){
+        			$datadir = OC_Config::getValue( 'datadirectory' );
+        			$imageFile = $datadir.'/'.$this->ocOwner.'/files/'.\OCA\Notes\Lib::$NOTES_DIR.".resource/".
+        				$matches[2][$i];
+        			$mime = mime_content_type($imageFile);
+        			$imageData = file_get_contents($imageFile);
+        			\OCP\Util::writeLog('files_picocms', 'Fixing image '.
+        					'!['.$matches[1][$i].'](:/'.$matches[2][$i].')'
+        					, \OC_Log::WARN);
+        			$content = str_replace('!['.$matches[1][$i].'](:/'.$matches[2][$i].')',
+        					'<img src="data:'.$mime.';base64,'.base64_encode($imageData).'">', $content);
+        			++$i;
+        		}
+        	}
+        }
 
         // Allow escaping %
         $tmpid = ''.md5(uniqid(mt_rand(), true));
