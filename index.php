@@ -205,7 +205,9 @@ else{
 
 if(empty($sitePath) ||
 		!file_exists($dataDir.'/'.$sitePath.'/content/index.md') &&
-		!file_exists($dataDir.'/'.$sitePath.'/index.md')){
+		!file_exists($dataDir.'/'.$sitePath.'/index.md') &&
+		// Joplin notebook - let the default theme generate a file listing
+		empty(glob($dataDir.'/'.$sitePath.'/.*.md'))){
 	$config['content_dir'] = __DIR__ . '/lib/samplesite/content';
 }
 elseif(file_exists($dataDir.'/'.$sitePath.'/content') && is_dir($dataDir.'/'.$sitePath.'/content')){

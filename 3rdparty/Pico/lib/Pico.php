@@ -386,12 +386,13 @@ class Pico
             $this->rawContent = $this->loadFileContent($this->requestFile);
             // NC change
             // Why is this necessary? Why aren't images served...?
-            //$pathInfo = pathinfo(array_pop((array_slice($requestFileParts, -1))));
-            //if(empty($pathInfo['extension'])){
+            $pathInfo = pathinfo($this->requestFile);
+            if(empty($pathInfo['extension']) || in_array(strtolower($pathInfo['extension']),
+            		['png', 'jpg', 'jpeg', 'gif'])){
             	if(getimagesize($this->requestFile)){
             		return $this->rawContent;
             	}
-            //}
+            }
         } else {
         		\OCP\Util::writeLog('files_picocms', 'No such file '.$this->requestFile, \OC_Log::ERROR);
 
@@ -722,8 +723,14 @@ class Pico
     protected function discoverRequestFile()
     {
         if (empty($this->requestUrl)) {
-            $this->requestFile = $this->getConfig('content_dir') . 'index' . $this->getConfig('content_ext');
-            $this->indexInferred = true;
+        		$this->indexInferred = true;
+        		$joplinHiddenFiles = glob($this->getConfig('content_dir').'/.*.md');
+        		if(!empty($joplinHiddenFiles) && count($joplinHiddenFiles)==1){
+        			$this->requestFile = $joplinHiddenFiles[0];
+        		}
+        		else{
+            	$this->requestFile = $this->getConfig('content_dir') . 'index' . $this->getConfig('content_ext');
+        		}
         } else {
             // prevent content_dir breakouts using malicious request URLs
             // we don't use realpath() here because we neither want to check for file existance

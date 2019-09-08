@@ -30,7 +30,7 @@
     <header id="header">
         <div class="inner clearfix">
             <h1>
-            <a href="{{ "index"|link }}" id="logo">{{ site_title }}</a>
+            <a href="{{ ""|link }}" id="logo">{{ site_title }}</a>
             </h1>
             {% if meta.image and pages | length == 1 %}
             <img class="menu-image" src="{{ meta.image }}" />
@@ -53,12 +53,27 @@
         {% endif %}
     </header>
 
-
-    <section id="content">
-        <div class="inner">
+<!-- If this is a Joplin directory/notebook with no index file, show a list of md files -->
+		{% if pages and not current_page.id %}
+		<div id="nav" class="inner">
+			<ul>
+				{% set len = '0' %}
+				{% for page in pages|sort_by("date") %}
+					{% set arr = page.id|split('/') %}
+					{% set len = arr|length %}
+						<li class="toc{{ len }}">
+							<a href="{{ page.url }}">{{ page.id }}</a>
+						</li>
+				{% endfor %}
+			</ul>
+		</div>
+		{% else %}
+		    <section id="content">
+        	<div class="inner">
             {{ content }}
-        </div>
-    </section>
+        	</div>
+    		</section>
+		{% endif %}
 
     <footer id="footer">
         <div class="inner">
