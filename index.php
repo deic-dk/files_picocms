@@ -13,6 +13,9 @@ if(empty($_GET['site']) && empty($_GET['user'])){
 
 // If redirected by mod_rewrite with site_name set, serve the site	
 require_once('apps/files_picocms/3rdparty/symfony/component/yaml/Parser.php');
+require_once('apps/files_picocms/3rdparty/symfony/component/yaml/Dumper.php');
+require_once('apps/files_picocms/3rdparty/symfony/component/yaml/Unescaper.php');
+require_once('apps/files_picocms/3rdparty/symfony/component/yaml/Escaper.php');
 require_once('apps/files_picocms/3rdparty/symfony/component/yaml/Inline.php');
 require_once('apps/files_picocms/3rdparty/symfony/component/yaml/Yaml.php');
 require_once('apps/files_picocms/3rdparty/symfony/component/yaml/Exception/ExceptionInterface.php');
