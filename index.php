@@ -157,20 +157,20 @@ $extension = empty($_GET['path'])?'':pathinfo($_GET['path'], PATHINFO_EXTENSION)
 if(!empty($extension) && ($extension=='png'||$extension=='jpg'||$extension=='svg')){
 	header("Content-type: image/".$extension);
 }
-elseif(!empty($extension) && ($extension=='pdf')){
-	header("Content-type: application/".$extension);
+elseif(!empty($extension) && ($extension!='md')){
 	$filePath = $dataDir.'/'.$sitePath.'/'.$_GET['path'];
 	if(!file_exists($filePath)){
 		$filePath = $dataDir.'/'.$sitePath.'/content/'.$_GET['path'];
 	}
-	echo file_get_contents($filePath);
-	exit;
-}
-elseif(!empty($extension) && ($extension=='html')){
-	header("Content-type: text/html");
-	$filePath = $dataDir.'/'.$sitePath.'/'.$_GET['path'];
-	if(!file_exists($filePath)){
-		$filePath = $dataDir.'/'.$sitePath.'/content/'.$_GET['path'];
+	if($extension=='pdf'){
+		header("Content-type: application/".$extension);
+	}
+	elseif($extension=='html'){
+		header("Content-type: text/html");
+	}
+	elseif(!empty($filePath)){
+		$mimetype = \OC_Helper::getFileNameMimeType($filePath);
+		header("Content-type: $mimetype");
 	}
 	echo file_get_contents($filePath);
 	exit;
