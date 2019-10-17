@@ -324,3 +324,9 @@ img {
 	margin-top: 4px;
 	margin-bottom: 4px;
 }
+
+sup {
+	top: -.2em;
+	left: -.1em;
+}
+
