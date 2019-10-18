@@ -382,7 +382,10 @@ class Pico
         $this->triggerEvent('onContentLoading', array(&$this->requestFile));
 
         $notFoundFile = '404' . $this->getConfig('content_ext');
-        if (file_exists($this->requestFile) && (basename($this->requestFile) !== $notFoundFile)) {
+        if($this->requestFile===null){
+        	// Let the theme generate directory listing.
+        }
+        elseif (file_exists($this->requestFile) && (basename($this->requestFile) !== $notFoundFile)) {
             $this->rawContent = $this->loadFileContent($this->requestFile);
             // NC change
             // Why is this necessary? Why aren't images served...?
@@ -724,16 +727,15 @@ class Pico
     {
         if (empty($this->requestUrl)) {
         		$this->indexInferred = true;
-        		$joplinHiddenFiles = glob($this->getConfig('content_dir').'/.*.md');
-        		if(!empty($joplinHiddenFiles) && count($joplinHiddenFiles)==1){
-        			$this->requestFile = $joplinHiddenFiles[0];
-        		}
-        		else{
-            	$this->requestFile = $this->getConfig('content_dir') . 'index' . $this->getConfig('content_ext');
+        		// If a top-level directory is requested and no index file is present,
+        		// just set it to null and let the theme decide what to do.
+        		$this->requestFile = $this->getConfig('content_dir') . 'index' . $this->getConfig('content_ext');
+        		if(!file_exists($this->requestFile)){
+        			$this->requestFile = null;
         		}
         } else {
             // prevent content_dir breakouts using malicious request URLs
-            // we don't use realpath() here because we neither want to check for file existance
+            // we don't use realpath() here because we neither want to check for file existence
             // nor prohibit symlinks which intentionally point to somewhere outside the content_dir
             // it is STRONGLY RECOMMENDED to use open_basedir - always, not just with Pico!
             $requestUrl = str_replace('\\', '/', $this->requestUrl);
