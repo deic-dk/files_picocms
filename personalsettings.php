@@ -15,6 +15,8 @@ OCP\Util::addStyle('files_sharding', 'personalsettings');
 
 require_once('apps/files_picocms/lib/OC_Pico.php');
 
+OCP\Util::addStyle('files_picocms', 'personalsettings');
+
 $tmpl = new OCP\Template('files_picocms', 'personalsettings');
 
 $user_id = OCP\USER::getUser();

@@ -1,0 +1,39 @@
+.siteFolder span.folder, .siteFolder span.url {
+	float:left;
+	width:46%;
+	position: relative;
+}
+
+.siteFolder span.folder {
+	top: 6px;
+}
+
+.siteFolder .remove {
+	margin-left: -4px;
+}
+
+#filesPicoSiteFoldersList .siteFolder {
+	height: 42px;
+}
+
+#filesPicoSiteFoldersList .siteFolder .remove_site_folder {
+	margin: 5.7px 0 0 0;
+}
+
+fieldset#filesPicoSiteFolders div#filesPicoSiteFoldersList {
+	margin-top: 10px;
+}
+
+.edit_personal_website {
+	text-align: center;
+}
+
+.addSiteFolder .extraSpan{
+	float:left;
+	width:92%;s
+}
+
+.addSiteFolder #chosen_site_folder{
+	visibility:hidden;
+	display:none;
+}

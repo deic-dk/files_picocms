@@ -17,43 +17,43 @@
 	<br /><br />
 	<?php p($l->t("Or use the website wizard to create a simple site."));?>
 	<br /><br />
-	<div style="text-align: center;"><div  class="edit_personal_website btn btn-primary btn-flat">
+	<div><div  class="edit_personal_website btn btn-primary btn-flat">
 	<?php p($l->t("Website wizard"));?></div></div>
 	<br />
 	<div class="siteFolder nowrap">
-		<span style="float:left;width:46%;">
+		<span class="folder">
 			<label><?php p($l->t("Folder"));?></label>
 		</span>
-		<span style="float:left;width:46%;">
+		<span class="url">
 			<label><?php p($l->t("URL"));?></label>
 		</span>
 		<span>
-			<label><?php p($l->t("Remove"));?></label>
+			<label class="remove"><?php p($l->t("Remove"));?></label>
 		</span>
 	</div>
 	<div id="filesPicoSiteFoldersList">
 	<?php foreach($_['site_folders'] as $p){ ?>
 		<div class="siteFolder nowrap" path="<?php print($p['path']);?>">
-			<span style="float:left;width:46%;">
+			<span class="folder">
 				<a href="<?php print(OC::$WEBROOT);?>/index.php/apps/files/?dir=<?php print($p['path']);?>">
-					<label class="folder" style="margin-top: 6px;"><?php print($p['path']);?></label>
+					<label class="folder"><?php print($p['path']);?></label>
 				</a>
 			</span>
-			<span style="float:left;width:46%;">
+			<span class="url">
 				<a class="site_url" href="<?php print($master);?>sites/<?php print($p['site']);?>">
 					<label><?php print($master."sites/");?></label>
 				</a>
 				<input type="text" autocomplete="off" value="<?php print($p['site']);?>" />
 			</span>
-			<label class="remove_site_folder btn btn-flat" style="margin: 5.7px 0 0 0;">-</label>
+			<label class="remove_site_folder btn btn-flat">-</label>
 			<div class="dialog" display="none"></div>
 		</div>
 	<?php } ?>
 	</div>
 	<br />
 	<div class="nowrap addSiteFolder">
-		<span style="float:left;width:92%;"><label></label></span><label class="add_site_folder btn btn-flat">+</label>
-		<div id="chosen_site_folder" style="visibility:hidden;display:none;"></div>
+		<span class="extraSpan"><label></label></span><label class="add_site_folder btn btn-flat">+</label>
+		<div id="chosen_site_folder"></div>
 		<div class="dialog" display="none">
 			<div id="loadSiteFolderTree"></div>
 		</div>
