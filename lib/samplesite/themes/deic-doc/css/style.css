@@ -330,3 +330,14 @@ sup {
 	left: -.1em;
 }
 
+.inline-end-image {
+	height: 42px;
+	position: absolute;
+	right: 24px;
+	margin-top: -55px;
+}
+
+section#content div.inner li input[type=checkbox] {
+	margin: 0;
+}
+

@@ -445,3 +445,8 @@ dd {
     text-align: center;
     vertical-align: middle;
 }
+
+section#content div.inner li input[type=checkbox] {
+	margin: 0;
+}
+

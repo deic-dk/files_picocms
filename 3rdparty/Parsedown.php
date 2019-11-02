@@ -514,12 +514,14 @@ class Parsedown
                     'handler' => 'elements',
                 ),
             );
-
+            // Replace [ ] with checkbox and [x] with checked checkbox
+            $text = preg_replace('|^\[ \]|', '<input disabled type="checkbox" />', $matches[2]);
+            $text = preg_replace('|^\[x\]|', '<input disabled checked type="checkbox" />', $text);
             $Block['li'] = array(
                 'name' => 'li',
                 'handler' => 'li',
                 'text' => array(
-                    $matches[2],
+                	  $text,
                 ),
             );
 
@@ -544,6 +546,10 @@ class Parsedown
 
             $text = isset($matches[1]) ? $matches[1] : '';
 
+            // Replace [ ] with checkbox and [x] with checked checkbox
+            $text = preg_replace('|^\[ \]|', '<input disabled type="checkbox" />', $text);
+            $text = preg_replace('|^\[x\]|', '<input disabled checked type="checkbox" />', $text);
+            
             $Block['li'] = array(
                 'name' => 'li',
                 'handler' => 'li',
