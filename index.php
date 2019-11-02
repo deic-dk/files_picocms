@@ -109,11 +109,15 @@ if(!empty($_GET['user'])){
 	}
 	$siteInfo = array('uid'=>$_GET['user'], 'path'=>'/public', 'site'=>'Public page of '.\OC_User::getDisplayName($_GET['user']));
 	$config['base_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT."/users/".$_GET['user'];
+	$config['base_uri'] = \OC::$WEBROOT."/users/".$_GET['user'];
 }
 elseif(!empty($_GET['site'])){
 	$siteInfo = OCA\FilesPicoCMS\Lib::lookupSiteInfo($_GET['site']);
 	$config['base_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT."/sites/".$siteInfo['site'];
+	$config['base_uri'] = \OC::$WEBROOT."/sites/".$siteInfo['site'];
 }
+
+\OCP\Util::writeLog('files_picocms', 'Site INFO: '.serialize($siteInfo), \OC_Log::WARN);
 
 if(\OCP\App::isEnabled('files_sharding') && !empty($siteInfo['uid']) &&
 		!\OCA\FilesSharding\Lib::onServerForUser($siteInfo['uid'])){
@@ -122,6 +126,7 @@ if(\OCP\App::isEnabled('files_sharding') && !empty($siteInfo['uid']) &&
 		$redirect_full = $userServerUrl.$_SERVER['REQUEST_URI'];
 		header("HTTP/1.1 307 Temporary Redirect");
 		header('Location: ' . $redirect_full);
+		exit();
 	}
 }
 

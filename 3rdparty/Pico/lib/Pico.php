@@ -256,6 +256,13 @@ class Pico
     protected $ocMasterUrl;
 
     /**
+     * URL of the home server of the current user in a sharded setup.
+     *
+     * @var string
+     */
+    protected $ocUserHomeUrl;
+    
+    /**
      * ORCID if set and user_orcid is enabled.
      * 
      * @var string
@@ -290,9 +297,12 @@ class Pico
         $this->themesDir = $this->getAbsolutePath($themesDir);
         if(\OCP\App::isEnabled('files_sharding') ){
         	$this->ocMasterUrl = \OCA\FilesSharding\Lib::getMasterURL();
+        	$user_id = \OCP\User::getUser();
+        	$this->ocUserHomeUrl = empty($user_id)?$this->ocMasterUrl:OCA\FilesSharding\Lib::getServerForUser($user_id);
         }
         else{
         	$this->ocMasterUrl = $_SERVER['HTTP_HOST'];
+        	$this->ocUserHomeUrl = $_SERVER['HTTP_HOST'];
         }
         if(\OCP\App::isEnabled('user_orcid')){
         	require_once('user_orcid/lib/lib_orcid.php');
@@ -1176,7 +1186,9 @@ class Pico
             $content = str_replace('%base_url%?', $this->getBaseUrl() . '?', $content);
         }
         $content = str_replace('%base_url%', rtrim($this->getBaseUrl(), '/'), $content);
-
+        
+        $content = str_replace('%base_uri%', $this->getConfig('base_uri'), $content);
+        
         // replace %theme_url%
         $themeUrl = $this->getBaseUrl() . basename($this->getThemesDir()) . '/' . (!empty($this->meta['theme'])?
         				$this->meta['theme']:$this->getConfig('theme'));
@@ -1207,6 +1219,9 @@ class Pico
         }
         if(!empty($this->ocMasterUrl)){
         	$content = str_replace('%master_url%', $this->ocMasterUrl, $content);
+        }
+        if(!empty($this->ocUserHomeUrl)){
+        	$content = str_replace('%user_home_url%', $this->ocUserHomeUrl, $content);
         }
         if(!empty($this->orcid)){
         	$content = str_replace('%orcid%', $this->orcid, $content);
@@ -1572,7 +1587,8 @@ class Pico
         		'oc_group' => $this->getConfig('group'),
             'oc_owner' => $this->ocOwner,
             'oc_master_url' => $this->ocMasterUrl,
-            'orcid' => $this->orcid,
+        		'oc_user_home_url' => $this->ocUserHomeUrl,
+        		'orcid' => $this->orcid,
             'oc_email' => $this->ocEmail,
         		//
         		'meta' => $this->meta,

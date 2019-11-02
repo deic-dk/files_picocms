@@ -139,7 +139,7 @@ h3 {
 }
 
 p, table, ol, ul, pre, blockquote, dl {
-    margin-bottom: 1em;
+    margin-bottom: .7em;
 }
 
 ol, ul {
@@ -447,6 +447,8 @@ dd {
 }
 
 section#content div.inner li input[type=checkbox] {
-	margin: 0;
+	margin: 0 2px 0 0;
+	position: relative;
+	top: 1.6px;
 }
 
