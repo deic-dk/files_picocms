@@ -262,16 +262,17 @@ class Lib {
 	
 	private static function doShareSampleSite($path, $owner, $user_id){
 		if(\OCP\App::isEnabled('files_sharding') && !\OCA\FilesSharding\Lib::onServerForUser($owner)){
-			$arr = array('user_id' => $loggedin_user, 'path'=>urlencode('/'.$path), 'owner'=>$owner);
+			$arr = array('user_id' => $user_id, 'path'=>urlencode('/'.$path), 'owner'=>$owner);
 			$dataServer = \OCA\FilesSharding\Lib::getServerForUser($owner, true);
-			$fileInfo = \OCA\FilesSharding\Lib::ws('getFileInfoData', $arr, false, true, $dataServer);
+			$fileInfoData = \OCA\FilesSharding\Lib::ws('getFileInfoData', $arr, false, true, $dataServer);
 		}
 		else{
 			$fileInfo = \OC\Files\Filesystem::getFileInfo('/'.$path);
+			$fileInfoData = $fileInfo->getData();
 		}
 		
-		$sampleFolderId = $fileInfo['fileid'];
-		\OCP\Util::writeLog('files_picocms', 'INFO: '.$path.':'.$fileInfo['fileid'], \OC_Log::WARN);
+		$sampleFolderId = $fileInfoData['fileid'];
+		\OCP\Util::writeLog('files_picocms', 'INFO: '.$path.':'.$fileInfoData['fileid'], \OC_Log::WARN);
 		
 		if(\OCP\App::isEnabled('files_sharding') && !\OCA\FilesSharding\Lib::onServerForUser($owner)){
 			$alreadySharedItem = \OCP\Share::getItemShared('file', $sampleFolderId);
