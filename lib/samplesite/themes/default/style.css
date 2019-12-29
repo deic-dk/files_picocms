@@ -123,6 +123,7 @@ h1, h2, h3, h4, h5, h6 {
     color: #000;
     line-height: 1.2em;
     margin-bottom: 0.6em;
+    margin-top: 0.5em;
 }
 
 h1 {
@@ -135,7 +136,7 @@ h2 {
 
 h3 {
     font-size: 1.5em;
-    margin-top: 2em;
+    margin-top: 0.7em;
 }
 
 p, table, ol, ul, pre, blockquote, dl {
@@ -223,7 +224,7 @@ dd {
 #header {
     background: #006b93;
     padding: 60px 0;
-    margin-bottom: 80px;
+    margin-bottom: 60px;
     color: #afe1da;
 }
 #header a {
@@ -452,3 +453,9 @@ section#content div.inner li input[type=checkbox] {
 	top: -1px;
 }
 
+.inline-end-image {
+	height: 36px;
+	position: absolute;
+	right: 152px;
+	margin-top: -45px;
+}
