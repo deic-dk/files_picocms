@@ -1335,6 +1335,8 @@ class Pico
                 'author' => &$meta['author'],
             		// NC change
                 'displayname' => &$meta['displayname'],
+            		'folder' => dirname($file),
+            		'filename' => basename($file),
             		//
             		'time' => &$meta['time'],
                 'date' => &$meta['date'],

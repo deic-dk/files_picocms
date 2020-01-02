@@ -14,7 +14,8 @@ class Pagination extends AbstractPicoPlugin {
 	public $page_number = 0;
 	public $total_pages = 1;
 	public $paged_pages = array();
-
+	public $paged_folders = array();
+	
 	public function __construct(Pico $pico)
 	{
 		parent::__construct($pico);
@@ -56,6 +57,7 @@ class Pagination extends AbstractPicoPlugin {
 	{
 		// Filter the pages returned based on the pagination options
 		$this->offset = ($this->page_number-1) * $this->config['limit'];
+		$show_folders = array();
 		// if filter_date is true, it filters so only dated items are returned.
 		if ($this->config['filter_date']) {
 			$show_pages = array();
@@ -67,12 +69,19 @@ class Pagination extends AbstractPicoPlugin {
 		} else {
 			$show_pages = $pages;
 		}
+		foreach($pages as $key=>$page) {
+			if(!empty($page['folder']) && !in_array($page['folder'], $show_folders)){
+				$show_folders[] = $page['folder'];
+			}
+		}
+		\OCP\Util::writeLog('files_piocms', "Folders: ".implode($show_folders, ":"), \OC_Log::WARN);
 		// get total pages before show_pages is sliced
 		$this->total_pages = ceil(count($show_pages) / $this->config['limit']);
 		// slice show_pages to the limit
 		$show_pages = array_slice($show_pages, $this->offset, $this->config['limit']);
 		// set filtered pages to paged_pages
 		$this->paged_pages = $show_pages;
+		$this->paged_folders = $show_folders;
 	}
 
 	public function onPageRendering(&$twig, &$twigVariables, &$templateName)
@@ -82,7 +91,8 @@ class Pagination extends AbstractPicoPlugin {
 		// send the paged pages in separate var
 		if ($this->paged_pages)
 			$twigVariables['paged_pages'] = $this->paged_pages;
-
+			$twigVariables['paged_folders'] = $this->paged_folders;
+			
 		// set var for page_number
 		if ($this->page_number)
 			$twigVariables['page_number'] = $this->page_number;

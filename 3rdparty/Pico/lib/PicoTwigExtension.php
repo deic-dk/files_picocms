@@ -170,6 +170,15 @@ class PicoTwigExtension extends Twig_Extension
                 }
             } elseif (!$aSortValueNull && !$bSortValueNull) {
                 if ($aSortValue != $bSortValue) {
+                	if($sortKeyPath=="date"){
+                		$dateA = DateTime::createFromFormat('d F Y', $aSortValue);
+                		$dateB = DateTime::createFromFormat('d F Y', $bSortValue);
+                		\OCP\Util::writeLog('TWIG', "Comparing: ".$aSortValue." : ".
+                				$bSortValue." --> ".$dateA->format('U')." : ".$dateB->format('U'), \OC_Log::INFO);
+                		if(!empty($dateA) && !empty($dateB)){
+                			return ($dateA->format('U') > $dateB->format('U')) ? 1 : -1;
+                		}
+                	}
                     return ($aSortValue > $bSortValue) ? 1 : -1;
                 }
             }

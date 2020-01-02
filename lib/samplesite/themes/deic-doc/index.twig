@@ -55,25 +55,29 @@
 				<div id="nav">
 					<ul>
 						{% set len = '0' %}
-						{% for page in paged_pages|sort_by("date") %}
-							{% set arr = page.id|split('/') %}
-							{% set len = arr|length %}
-							{% if arr|last == 'index' and len > 0 %}
-								{% set len = len - 1 %}
-							{% endif %}
-							{% if meta.title == page.title %}
-								<li class="current toc{{ len }}">
-									{% if toc %}
-										{{ toc }}
-									{% else %}
-										<a href="{{ page.url }}">{{ page.title }}</a>
+						{% for folder in paged_folders|sort %}
+							{% for page in paged_pages|sort_by("date") %}
+								{% if page.folder == folder  %}
+									{% set arr = page.id|split('/') %}
+									{% set len = arr|length %}
+									{% if arr|last == 'index' and len > 0 %}
+										{% set len = len - 1 %}
 									{% endif %}
-								</li>
-							{% else %}
-								<li class="toc{{ len }}">
-									<a href="{{ page.url }}">{{ page.title }}</a>
-								</li>
-							{% endif %}
+									{% if meta.title == page.title %}
+										<li class="current toc{{ len }}">
+											{% if toc %}
+												{{ toc }}
+											{% else %}
+												<a href="{{ page.url }}">{{ page.title }}</a>
+											{% endif %}
+										</li>
+									{% else %}
+										<li class="toc{{ len }}">
+											<a href="{{ page.url }}">{{ page.title }}</a>
+										</li>
+									{% endif %}
+								{% endif %}
+							{% endfor %}
 						{% endfor %}
 					</ul>
 				</div>
