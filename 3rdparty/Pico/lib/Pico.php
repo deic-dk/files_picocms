@@ -429,7 +429,6 @@ class Pico
         if(!empty($this->meta['access'])){
         	if(!$this->checkPermissions($this->requestFile, $this->meta['access'],
         			$this->getConfig('user'), $this->getConfig('group'))){
-        		$this->meta['permissions'] = 'none';
         		header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden');
         		$this->rawContent = $this->loadStatusContent($this->requestFile, 403);
         	}
@@ -449,12 +448,6 @@ class Pico
 
         $this->content = $this->parseFileContent($this->content);
         $this->triggerEvent('onContentParsed', array(&$this->content));
-
-        // NC change
-        if( empty($config['pages_order']) && !empty($this->meta['theme']) &&
-        		$this->meta['theme'] == 'clean-blog'){
-        	$config['pages_order'] = 'desc';
-        }
 
         // read pages
         $this->triggerEvent('onPagesLoading');
@@ -852,30 +845,44 @@ class Pico
      * If the meta attribute 'Access' is set to 'private',
      * this function is called to check Nextcloud access rights.
      * It also sets the variables $ocPath, $ocShare, $ocId and $ocParentId.
-     * @param unknown $file absolute path of the file
-     * @param unknown $access Pico ACL defined by file's meta attribute 'Access'
-     * @param unknown $owner the owner of the file
-     * @param unknown $group possible name of group folder holding the file
+     * @param string $file absolute path of the file
+     * @param string $access Pico ACL defined by file's meta attribute 'Access'.
+     * 				If set to 'private' or 'shared', NC access rights are checked.
+     * 				If set to 'public' they are not.
+     * @param string $owner the owner of the file
+     * @param string $group possible name of group folder holding the file
      */
     public function checkPermissions($file, $access, $owner, $group=null)
     {
-    	if(trim(strtolower($access))!=='private'){
+    	if(empty($access) || trim(strtolower($access))=='public'){
+    		$this->meta['permissions'] = 'none';
     		return true;
     	}
+    	if(trim(strtolower($access))!='shared' && trim(strtolower($access))!='private'){
+    		// Unknown value of access - better bail out
+    		return false;
+    	}
+    	// $access = 'private' or 'shared'
     	$user_id = \OCP\User::getUser();
     	\OCP\Util::writeLog('files_picocms', 'user_id '.$user_id, \OC_Log::WARN);
-    	if(\OCP\App::isEnabled('files_sharding') && (empty($user_id) || !\OCA\FilesSharding\Lib::onServerForUser($user_id))){
+    	if(\OCP\App::isEnabled('files_sharding') && (empty($user_id) ||
+    			!\OCA\FilesSharding\Lib::onServerForUser($user_id))){
     		$instanceId = \OC_Config::getValue('instanceid', null);
     		if(!empty($_COOKIE[$instanceId])){
     			\OCP\Util::writeLog('files_picocms', 'Getting session from master '.$instanceId, \OC_Log::WARN);
-    			$session = \OCA\FilesSharding\Lib::getUserSession($_COOKIE[$instanceId]);
+    			$session = \OCA\FilesSharding\Lib::getUserSession($_COOKIE[$instanceId], false);
     			$user_id = $session['user_id'];
     		}
     	}
-    	
     	if(empty($user_id)){
     		\OCP\Util::writeLog('files_picocms', 'No user '.$user_id, \OC_Log::ERROR);
-    		return false;
+    		$this->meta['permissions'] = 'none';
+    		if(trim(strtolower($access))=='private'){
+    			return false;
+    		}
+    		if(trim(strtolower($access))=='shared'){
+    			return true;
+    		}
     	}
     	if(!empty($group)){
     		$view = new \OC\Files\View('/'.$owner.'/user_group_admin/'.$group);
@@ -888,6 +895,7 @@ class Pico
     			$ownerRoot, \OC_Log::WARN);
     	if(strpos($file, $ownerRoot)!==0){
     		\OCP\Util::writeLog('files_picocms', 'Trying to access file outside of user dir', \OC_Log::ERROR);
+    		$this->meta['permissions'] = 'none';
     		return false;
     	}
     	$ocPath = substr($file, strlen($ownerRoot));
@@ -895,6 +903,7 @@ class Pico
     	// First check if I own the file
     	if($user_id===$owner){
     		$this->ocShare = '';
+    		$this->meta['permissions'] = 'mine';
     		return true;
     	}
     	else{
@@ -905,7 +914,7 @@ class Pico
     		// Next check if the file or one of its parent folders is shared with me.
     		$folderId = null;
     		$i = 0;
-    		while($ocPath!=='.'){
+    		while(!empty($ocPath) && $ocPath!=='.'){
     			$view = new \OC\Files\View($baseDir);
     			$pathInfo = $view->getFileInfo($ocPath);
     			$fileInfo = \OC\Files\Filesystem::getFileInfo($ocPath);
@@ -940,7 +949,14 @@ class Pico
     		\OC_Util::teardownFS();
     		\OC_User::setUserId($user_id);
     		\OC_Util::setupFS('/'.$user_id.'/files');
-    		return $ocPath!=='.';
+    		if(!empty($ocPath) && $ocPath!=='.'){
+    			$this->meta['permissions'] = 'shared_with_me';
+    			return true;
+    		}
+    		else{
+    			$this->meta['permissions'] = 'none';
+    			return false;
+    		}
     	}
     	return false;
     }
@@ -1217,6 +1233,9 @@ class Pico
         if(!empty($this->ocOwner)){
         	$content = str_replace('%owner%', $this->ocOwner, $content);
         }
+        if(!empty($this->requestUrl)){
+        	$content = str_replace('%url%', $this->requestUrl, $content);
+        }
         if(!empty($this->ocMasterUrl)){
         	$content = str_replace('%master_url%', $this->ocMasterUrl, $content);
         }
@@ -1335,8 +1354,9 @@ class Pico
                 'author' => &$meta['author'],
             		// NC change
                 'displayname' => &$meta['displayname'],
-            		'folder' => dirname($file),
+            		'folder' => preg_replace("|^".$this->getConfig('content_dir')."|", "", dirname($file)),
             		'filename' => basename($file),
+            		'template' => &$meta['template'],
             		//
             		'time' => &$meta['time'],
                 'date' => &$meta['date'],
