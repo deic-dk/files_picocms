@@ -1233,9 +1233,7 @@ class Pico
         if(!empty($this->ocOwner)){
         	$content = str_replace('%owner%', $this->ocOwner, $content);
         }
-        if(!empty($this->requestUrl)){
-        	$content = str_replace('%url%', $this->requestUrl, $content);
-        }
+        $content = str_replace('%url%', $this->requestUrl, $content);
         if(!empty($this->ocMasterUrl)){
         	$content = str_replace('%master_url%', $this->ocMasterUrl, $content);
         }
