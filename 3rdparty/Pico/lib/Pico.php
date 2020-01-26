@@ -1342,8 +1342,10 @@ class Pico
                 $meta = &$this->meta;
             }
             $content = $this->prepareFileContent($rawContent, $meta);
+            $excerptLength = empty($meta['excerpt_length'])?$this->getConfig('excerpt_length'):
+            	$meta['excerpt_length'];
             $excerpt = $this->parseFileContent(
-            		substr($content, 0, $this->getConfig('excerpt_length'))."<span class='readmore'></span>"
+            		substr($content, 0, $excerptLength)."<span class='readmore'></span>"
             		);
 
             // build page data
