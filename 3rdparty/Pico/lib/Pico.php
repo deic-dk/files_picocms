@@ -584,8 +584,9 @@ class Pico
             'twig_config' => array('cache' => false, 'autoescape' => false, 'debug' => false),
             'pages_order_by' => 'alpha',
             'pages_order' => 'asc',
-            'content_dir' => null,
-            'content_ext' => '.md',
+            'excerpt_length' => 300,
+        		'content_dir' => null,
+        		'content_ext' => '.md',
             'timezone' => ''
         );
 
@@ -1340,10 +1341,15 @@ class Pico
                 $rawContent = &$this->rawContent;
                 $meta = &$this->meta;
             }
+            $content = $this->prepareFileContent($rawContent, $meta);
+            $excerpt = $this->parseFileContent(
+            		substr($content, 0, $this->getConfig('excerpt_length'))."<span class='readmore'></span>"
+            		);
 
             // build page data
             // title, description, author and date are assumed to be pretty basic data
             // everything else is accessible through $page['meta']
+            $folder = preg_replace("|^".$this->getConfig('content_dir')."|", "", dirname($file)."/");
             $page = array(
                 'id' => $id,
                 'url' => $url,
@@ -1352,7 +1358,7 @@ class Pico
                 'author' => &$meta['author'],
             		// NC change
                 'displayname' => &$meta['displayname'],
-            		'folder' => preg_replace("|^".$this->getConfig('content_dir')."|", "", dirname($file)),
+            		'folder' => empty($folder)?"/":$folder,
             		'filename' => basename($file),
             		'template' => &$meta['template'],
             		//
@@ -1360,7 +1366,8 @@ class Pico
                 'date' => &$meta['date'],
                 'date_formatted' => &$meta['date_formatted'],
                 'raw_content' => &$rawContent,
-                'meta' => &$meta
+            		'excerpt' => $excerpt,
+            		'meta' => &$meta
             );
 
             if ($file === $this->requestFile) {

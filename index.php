@@ -162,6 +162,9 @@ $extension = empty($_GET['path'])?'':pathinfo($_GET['path'], PATHINFO_EXTENSION)
 if(!empty($extension) && ($extension=='png'||$extension=='jpg'||$extension=='svg')){
 	header("Content-type: image/".$extension);
 }
+elseif($extension!=='md' && basename($_GET['path'])=="feed"){
+	header("Content-type: application/rss+xml");
+}
 elseif(!empty($extension) && ($extension!='md')){
 	$filePath = $dataDir.'/'.$sitePath.'/'.$_GET['path'];
 	if(!file_exists($filePath)){
