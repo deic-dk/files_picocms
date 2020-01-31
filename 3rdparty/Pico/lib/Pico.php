@@ -1166,14 +1166,36 @@ class Pico
         	$joplinPattern = "|^([^\n]+)(\n\n)?(.*)\n((\n.+: .+)*)$|s";
         	// TODO: perhaps use Joplin metadata.
         	$content = preg_replace($joplinPattern, "$3", $content);
+        	// Support files_markdown images
+        	if(preg_match_all('|\!\[([^\[\]]+)\]\(/([^\(\)]+)\)|s', $content, $matches)) {
+        		$i = 0;
+        		foreach($matches[0] as $fullMatch){
+        			$datadir = OC_Config::getValue( 'datadirectory' );
+        			$imageFile = $datadir.'/'.$this->ocOwner.'/files/'.$matches[2][$i];
+        			if(!file_exists($imageFile)){
+        				continue;
+        			}
+        			$mime = mime_content_type($imageFile);
+          			$imageData = file_get_contents($imageFile);
+          			\OCP\Util::writeLog('files_picocms', 'Fixing image '.
+          					'!['.$matches[1][$i].'](:/'.$matches[2][$i].')'
+          					, \OC_Log::WARN);
+          			$content = str_replace('!['.$matches[1][$i].'](/'.$matches[2][$i].')',
+          					'<img src="data:'.$mime.';base64,'.base64_encode($imageData).'">', $content);
+          			++$i;
+        		}
+        	}
         	// Support Joplin images
         	if(preg_match_all('|\!\[([^\[\]]+)\]\(\:/([^\(\)]+)\)|s', $content, $matches)) {
         		require_once('notes/lib/libnotes.php');
         		$i = 0;
         		foreach($matches[0] as $fullMatch){
         			$datadir = OC_Config::getValue( 'datadirectory' );
-        			$imageFile = $datadir.'/'.$this->ocOwner.'/files/'.\OCA\Notes\Lib::$NOTES_DIR.".resource/".
+        			$imageFile = $datadir.'/'.$this->ocOwner.'/files/'.\OCA\Notes\Lib::getNotesFolder().".resource/".
         				$matches[2][$i];
+        			if(!file_exists($imageFile)){
+        				continue;
+        			}
         			$mime = mime_content_type($imageFile);
         			$imageData = file_get_contents($imageFile);
         			\OCP\Util::writeLog('files_picocms', 'Fixing image '.
