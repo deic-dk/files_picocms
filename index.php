@@ -159,8 +159,11 @@ if(empty($_GET['path']) &&
 }
 
 $extension = empty($_GET['path'])?'':pathinfo($_GET['path'], PATHINFO_EXTENSION);
-if(!empty($extension) && ($extension=='png'||$extension=='jpg'||$extension=='svg')){
+if(!empty($extension) && ($extension=='png'||$extension=='jpg')){
 	header("Content-type: image/".$extension);
+}
+elseif(!empty($extension) && ($$extension=='svg')){
+	header("Content-type: image/svg+xml");
 }
 elseif($extension!=='md' && basename($_GET['path'])=="feed"){
 	header("Content-type: application/rss+xml");

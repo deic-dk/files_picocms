@@ -401,8 +401,8 @@ class Pico
             // Why is this necessary? Why aren't images served...?
             $pathInfo = pathinfo($this->requestFile);
             if(empty($pathInfo['extension']) || in_array(strtolower($pathInfo['extension']),
-            		['png', 'jpg', 'jpeg', 'gif'])){
-            	if(getimagesize($this->requestFile)){
+            		['png', 'jpg', 'jpeg', 'gif', 'svg'])){
+            	if(strtolower($pathInfo['extension'])=='svg' || getimagesize($this->requestFile)){
             		return $this->rawContent;
             	}
             }
