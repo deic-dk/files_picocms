@@ -50,13 +50,13 @@
         </div>
         {% if meta.access == 'private' and meta.permissions != 'none' %}
             <button class="edit-button btn btn-primary btn-flat" path="{{  oc_path }}"
-            id="{{  oc_id }}" parentid="{{  oc_parent_id }}" user="{{  oc_user }}"
+            id="{{  oc_id }}" dir_id="{{  oc_parent_id }}" user="{{  oc_user }}"
             owner="{{  oc_owner }}" group="{{  oc_group }}" host="{{  oc_user_home_url }}">Show file</button>
         {% endif %}
     </header>
 
 <!-- If this is a Joplin directory/notebook with no index file, show a list of md files -->
-		{% if pages and not current_page.id %}
+	{% if not forbidden and not current_page.id %}
 		<div id="nav" class="inner">
 			<ul>
 				{% set len = '0' %}
@@ -64,7 +64,11 @@
 					{% set arr = page.id|split('/') %}
 					{% set len = arr|length %}
 						<li class="toc{{ len }}">
-							<a href="{{ page.url }}">{{ page.id }}</a>
+							{% if page.id matches '{.*\/index$}' %}
+								<a href="{{ page.url }}">{{ page.id[0:-5] }}</a>
+							{% else %}
+								<a href="{{ page.url }}">{{ page.id }}</a>
+							{% endif %}
 						</li>
 				{% endfor %}
 			</ul>

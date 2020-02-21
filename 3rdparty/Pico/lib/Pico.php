@@ -393,9 +393,9 @@ class Pico
 
         $notFoundFile = '404' . $this->getConfig('content_ext');
         if($this->requestFile===null){
-        	// Let the theme generate directory listing.
+        	// Let the theme generate directory listing for sharees.
         }
-        elseif (file_exists($this->requestFile) && (basename($this->requestFile) !== $notFoundFile)) {
+        elseif(file_exists($this->requestFile) && (basename($this->requestFile) !== $notFoundFile)){
             $this->rawContent = $this->loadFileContent($this->requestFile);
             // NC change
             // Why is this necessary? Why aren't images served...?
@@ -406,7 +406,8 @@ class Pico
             		return $this->rawContent;
             	}
             }
-        } else {
+        }
+        else{
         		\OCP\Util::writeLog('files_picocms', 'No such file '.$this->requestFile, \OC_Log::ERROR);
 
         		$this->triggerEvent('on404ContentLoading', array(&$this->requestFile));
@@ -425,12 +426,19 @@ class Pico
         $this->triggerEvent('onMetaParsing', array(&$this->rawContent, &$headers));
         $this->meta = $this->parseFileMeta($this->rawContent, $headers);
 
+        if($this->requestFile===null){
+        	$this->meta['access'] = 'private';
+        	\OCP\Util::writeLog('files_picocms', 'Generating index '.$this->requestFile, \OC_Log::WARN);
+        }
+
         // NC change
+        $forbidden = false;
         if(!empty($this->meta['access'])){
         	if(!$this->checkPermissions($this->requestFile, $this->meta['access'],
         			$this->getConfig('user'), $this->getConfig('group'))){
         		header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden');
         		$this->rawContent = $this->loadStatusContent($this->requestFile, 403);
+        		$forbidden = true;
         	}
         }
 
@@ -469,15 +477,20 @@ class Pico
 
         // render template
         $this->twigVariables = $this->getTwigVariables();
-        if (isset($this->meta['template']) && $this->meta['template']) {
+        if($forbidden){
+        	$this->twigVariables['forbidden'] = true;
+        }
+        if(isset($this->meta['template']) && $this->meta['template']) {
             $templateName = $this->meta['template'];
-        } else {
+        }
+        else{
             $templateName = 'index';
         }
         if (file_exists($this->getThemesDir() . (!empty($this->meta['theme'])?
-        				$this->meta['theme']:$this->getConfig('theme')) . '/' . $templateName . '.twig')) {
+        	$this->meta['theme']:$this->getConfig('theme')) . '/' . $templateName . '.twig')) {
             $templateName .= '.twig';
-        } else {
+        }
+        else {
             $templateName .= '.html';
         }
 
@@ -876,7 +889,7 @@ class Pico
     		}
     	}
     	if(empty($user_id)){
-    		\OCP\Util::writeLog('files_picocms', 'No user '.$user_id, \OC_Log::ERROR);
+    		\OCP\Util::writeLog('files_picocms', 'No user '.$user_id.', '.$access, \OC_Log::ERROR);
     		$this->meta['permissions'] = 'none';
     		if(trim(strtolower($access))=='private'){
     			return false;
@@ -892,19 +905,25 @@ class Pico
     		$view = new \OC\Files\View('/'.$owner.'/files');
     	}
     	$ownerRoot = $view->getLocalFile('/');
-    	\OCP\Util::writeLog('files_picocms', 'Checking permissions: '.$access.' for file '.$file. ' in '.
-    			$ownerRoot, \OC_Log::WARN);
-    	if(strpos($file, $ownerRoot)!==0){
+    	if($file!==null && strpos($file, $ownerRoot)!==0){
     		\OCP\Util::writeLog('files_picocms', 'Trying to access file outside of user dir', \OC_Log::ERROR);
     		$this->meta['permissions'] = 'none';
     		return false;
     	}
     	$ocPath = substr($file, strlen($ownerRoot));
+    	$contentDir = $this->getConfig('content_dir');
+    	$ocRootPath = substr($contentDir, strlen($ownerRoot));
+    	$ocPath = !empty($ocPath)?$ocPath:$ocRootPath;
     	$this->ocPath = $ocPath;
+    	\OCP\Util::writeLog('files_picocms', 'Checking permissions: '.$access.' for file '.$file. ' in '.
+    			$ownerRoot, \OC_Log::WARN);
     	// First check if I own the file
     	if($user_id===$owner){
     		$this->ocShare = '';
     		$this->meta['permissions'] = 'mine';
+    		if(empty($file)){
+    			$this->ocParentId = $view->getFileInfo($ocRootPath)->getId();
+    		}
     		return true;
     	}
     	else{
@@ -947,6 +966,9 @@ class Pico
     			$ocPath = dirname($ocPath);
     			++$i;
     		}
+    		if(empty($file)){
+    			$this->ocParentId = $view->getFileInfo($ocRootPath)->getId();
+    		}
     		\OC_Util::teardownFS();
     		\OC_User::setUserId($user_id);
     		\OC_Util::setupFS('/'.$user_id.'/files');
@@ -965,14 +987,11 @@ class Pico
     /**
      * NC change: load arbitratry status document
      */
-    public function loadStatusContent($file, $code)
-    {
+    public function loadStatusContent($file, $code){
     	$contentDir = $this->getConfig('content_dir');
     	$contentDirLength = strlen($contentDir);
-    
     	if (substr($file, 0, $contentDirLength) === $contentDir) {
     		$errorFileDir = substr($file, $contentDirLength);
-    
     		while ($errorFileDir !== '.') {
     			$errorFileDir = dirname($errorFileDir);
     			$errorFile = $errorFileDir . '/' . $code . $this->getConfig('content_ext');
@@ -981,16 +1000,16 @@ class Pico
     				return $this->loadFileContent($this->getConfig('content_dir') . $errorFile);
     			}
     		}
-    	} elseif (file_exists($this->getConfig('content_dir') . $code . $this->getConfig('content_ext'))) {
+    	}
+    	elseif(file_exists($this->getConfig('content_dir') . $code . $this->getConfig('content_ext'))){
     		// provided that the requested file is not in the regular
     		// content directory, fallback to Pico's global status doc for the given code
     		return $this->loadFileContent($this->getConfig('content_dir') . $code . $this->getConfig('content_ext'));
     	}
-    
-    				$errorFile = $this->getConfig('content_dir') . $code . $this->getConfig('content_ext');
-    				throw new RuntimeException('Required "' . $errorFile . '" not found');
+    	$errorFile = $this->getConfig('content_dir') . $code . $this->getConfig('content_ext');
+    	throw new RuntimeException('Required "' . $errorFile . '" not found');
     }
-    
+
 
     /**
      * Returns the raw contents, either of the requested or the 404 file
