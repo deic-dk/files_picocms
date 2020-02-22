@@ -42,13 +42,13 @@ function getMasterURL(callback){
 	});
 }
 
-function addSiteDiv(folder, name, rename){
+function addSiteDiv(folder, name, rename, placeholder){
 	getMasterURL(function(url){
 		if(rename){
 			$('#filesPicoSiteFolders #filesPicoSiteFoldersList div.siteFolder[path="'+folder+'"] a.site_url').attr('href', url+'sites/'+name);
 		}
 		else{
-			$('#filesPicoSiteFolders #filesPicoSiteFoldersList').append('<div class="siteFolder nowrap" path="'+folder+'">\
+			$('#filesPicoSiteFolders #filesPicoSiteFoldersList').append('<div class="siteFolder nowrap'+(placeholder?' placeholder':'')+'" path="'+folder+'">\
 		   		<span style="float:left;width:46%;">\
 		   		<a href="/index.php/apps/files/?dir='+folder+'"><label class="folder" style="margin-top: 6px;">'+folder+'</label></a>\
 		   		</span>\
@@ -68,7 +68,7 @@ function addSiteFolder(folder, name){
 		name = folder.substring(folder.lastIndexOf('/') + 1);
 	}
 	var rename = false;
-	if($("#filesPicoSiteFolders #filesPicoSiteFoldersList div.siteFolder[path='"+folder+"']").length>0){
+	if($("#filesPicoSiteFolders #filesPicoSiteFoldersList div.siteFolder[path='"+folder+"']").not('.placeholder').length>0){
 		rename = true;
 	}
 	// When called from Personal web site wizard, don't add site
@@ -97,11 +97,14 @@ function postAddSite(folder, name, share, rename){
 		 dataType:'json',
 		 success: function(s){
 			if(s.error){
-				addSiteDiv(folder, '', false);
-					OC.dialogs.alert(t("files_picocms", "Name already taken")+": "+folder.replace(/.*\/([^\/]+$)/, '$1')+
+				addSiteDiv(folder, '', false, true);
+					OC.dialogs.alert(t("files_picocms", "Name already taken")+": "+folder.replace(/.*\/([^\/]+$)/, '$1')+". "+
 							t("files_picocms", "Please choose another")+".", t("files_picocms", "Serving website failed"), function(){}, true);
 			}
-			addSiteDiv(folder, name, rename);
+			else{
+				addSiteDiv(folder, name, rename, false);
+				$("#filesPicoSiteFolders #filesPicoSiteFoldersList div.siteFolder.placeholder[path='"+folder+"']").remove();
+			}
 		},
 		error:function(s){
 			alert(t("files_picocms","Unexpected error! Perhaps name is taken."));

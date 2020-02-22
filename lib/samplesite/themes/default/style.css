@@ -306,6 +306,12 @@ dd {
 	margin-right: 42px;
 	margin-top: 96px;
 }
+.up-button {
+	position: absolute;
+	float: right;
+	right: 42px;
+	top: 224px;
+}
 
 /* Media Queries
 /*---------------------------------------------*/

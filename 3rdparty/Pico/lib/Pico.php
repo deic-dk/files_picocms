@@ -407,6 +407,8 @@ class Pico
             	}
             }
         }
+        elseif($this->indexInferred){
+        }
         else{
         		\OCP\Util::writeLog('files_picocms', 'No such file '.$this->requestFile, \OC_Log::ERROR);
 
@@ -426,7 +428,7 @@ class Pico
         $this->triggerEvent('onMetaParsing', array(&$this->rawContent, &$headers));
         $this->meta = $this->parseFileMeta($this->rawContent, $headers);
 
-        if($this->requestFile===null){
+        if($this->requestFile===null || empty($this->rawContent)){
         	$this->meta['access'] = 'private';
         	\OCP\Util::writeLog('files_picocms', 'Generating index '.$this->requestFile, \OC_Log::WARN);
         }
@@ -1631,6 +1633,8 @@ class Pico
             'base_dir' => rtrim($this->getRootDir(), '/'),
             'base_url' => rtrim($this->getBaseUrl(), '/'),
         		// NC change
+        		'folder' => preg_replace("|^".$this->getConfig('content_dir')."|", "",
+        				dirname($this->requestFile)."/"),
             //'theme_dir' => $this->getThemesDir() . $this->getConfig('theme'),
         		'theme_dir' => $this->getThemesDir() . (!empty($this->meta['theme'])?
         				$this->meta['theme']:$this->getConfig('theme')),

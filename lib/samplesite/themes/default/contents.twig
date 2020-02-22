@@ -52,69 +52,31 @@
             <button class="edit-button btn btn-primary btn-flat" path="{{  oc_path }}"
             id="{{  oc_id }}" dir_id="{{  oc_parent_id }}" user="{{  oc_user }}"
             owner="{{  oc_owner }}" group="{{  oc_group }}" host="{{  oc_user_home_url }}">
-            Show file{% if not current_page.id %}s{% endif %}</button>
+            Show files</button>
         {% endif %}
     </header>
-    {% if not forbidden and meta.access == 'private' and meta.permissions != 'none' and
-    (not current_page.id) and folder!="/" %}
+    {% if not forbidden and meta.access == 'private' and meta.permissions != 'none' and folder!="/" %}
     	<div class="up-button btn btn-primary btn-flat">
 				<a href="../">⤴</a>
 			</div>
-		{% elseif not forbidden and meta.access == 'private' and meta.permissions != 'none' and
-    	 current_page.id and folder!="/" %}
-    	<div class="up-button btn btn-primary btn-flat">
-				<a href="./">×</a>
-			</div>
 		{% endif %}
 
-<!-- If this is a Joplin directory/notebook with no index file, show a list of md files -->
-	{% if not forbidden and not current_page.id %}
 		<div id="nav" class="inner">
 			<ul>
-				{% for fol in paged_folders|sort %}
-					{% if (fol starts with folder and fol != folder or folder == "/")  and fol != "/" %}
-						{% if folder == "/" %}
-							{% set folderlen = 0 %}
-						{% else %}
-							{% set folderlen = folder|length %}
-						{% endif %}
-						{% set folid = fol[folderlen:] %}
-						{% set arr = folid|split('/') %}
-						{% set len = arr|length %}
-						{% if len == 2 %}
-						<li class="toc{{ len }}">
-							<a href="{{ folid }}">{{ folid }}</a>
-						</li>
-						{% endif %}
-					{% endif %}
-				{% endfor %}
-				{% set len = '0' %}
-				{% for page in pages|sort_by("date") %}
-					{% if not (page.id matches '{.*\/index$}') and (page.id starts with folder or folder == "/") %}
-						{% if folder == "/" %}
-							{% set folderlen = 0 %}
-						{% else %}
-							{% set folderlen = folder|length %}
-						{% endif %}
-						{% set pageid = page.id[folderlen:] %}
-						{% set arr = pageid|split('/') %}
-						{% set len = arr|length %}
-						{% if len == 1 %}
-						<li class="toc{{ len }}">
-							<a href="{{ page.url }}">{{ pageid }}</a>
-						</li>
-						{% endif %}
-					{% endif %}
+				{% for file in contents |sort %}
+					<li class="toc1">
+						<a href="{{ file }}">{{ file }}</a>
+					</li>
 				{% endfor %}
 			</ul>
 		</div>
-		{% else %}
-		    <section id="content">
-        	<div class="inner">
-            {{ content }}
-        	</div>
-    		</section>
-		{% endif %}
+		
+		<!-- If this is a Joplin directory/notebook with no index file, show a list of md files -->
+    <section id="content">
+    	<div class="inner">
+        {{ content }}
+    	</div>
+		</section>
 
     <footer id="footer">
         <div class="inner">

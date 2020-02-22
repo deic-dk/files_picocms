@@ -15,6 +15,7 @@ class Pagination extends AbstractPicoPlugin {
 	public $total_pages = 1;
 	public $paged_pages = array();
 	public $paged_folders = array();
+	public $contents = array();
 	
 	public function __construct(Pico $pico)
 	{
@@ -51,6 +52,8 @@ class Pagination extends AbstractPicoPlugin {
 			$this->config['output_format'] = $settings['pagination_output_format'];
 		if (isset($settings['pagination_sub_page']))
 			$this->config['sub_page'] = $settings['pagination_sub_page'];
+		if (isset($settings['content_dir']))
+				$this->config['content_dir'] = $settings['content_dir'];
 	}
 
 	public function onPagesLoaded(&$pages, &$currentPage, &$previousPage, &$nextPage)
@@ -58,6 +61,8 @@ class Pagination extends AbstractPicoPlugin {
 		// Filter the pages returned based on the pagination options
 		$this->offset = ($this->page_number-1) * $this->config['limit'];
 		$show_folders = array();
+		$contents = array_diff(scandir($this->config['content_dir']."/".$currentPage['folder']),
+				array(".", "..", "index.md"));
 		// if filter_date is true, it filters so only dated items are returned.
 		if ($this->config['filter_date']) {
 			$show_pages = array();
@@ -66,15 +71,24 @@ class Pagination extends AbstractPicoPlugin {
 					$show_pages[$key] = $page;
 				}
 			}
-		} else {
+		}
+		else {
 			$show_pages = $pages;
 		}
 		foreach($pages as $key=>$page) {
 			if(!empty($page['folder']) && !in_array($page['folder'], $show_folders)){
 				$show_folders[] = $page['folder'];
+				$subfolders = explode('/', $page['folder']);
+				$fullSubfolder = '';
+				foreach($subfolders as $subfolder){
+					$fullSubfolder = trim($fullSubfolder.$subfolder, '/').'/';
+					if(!empty($fullSubfolder) && !in_array($fullSubfolder, $show_folders)){
+						$show_folders[] = $fullSubfolder;
+					}
+				}
 			}
 		}
-		\OCP\Util::writeLog('files_piocms', "Folders: ".implode($show_folders, ":"), \OC_Log::WARN);
+		\OCP\Util::writeLog('files_piocms', "Folders: ".implode(":", $show_folders), \OC_Log::WARN);
 		// get total pages before show_pages is sliced
 		$this->total_pages = ceil(count($show_pages) / $this->config['limit']);
 		// slice show_pages to the limit
@@ -82,6 +96,7 @@ class Pagination extends AbstractPicoPlugin {
 		// set filtered pages to paged_pages
 		$this->paged_pages = $show_pages;
 		$this->paged_folders = $show_folders;
+		$this->contents = $contents;
 	}
 
 	public function onPageRendering(&$twig, &$twigVariables, &$templateName)
@@ -92,6 +107,7 @@ class Pagination extends AbstractPicoPlugin {
 		if ($this->paged_pages)
 			$twigVariables['paged_pages'] = $this->paged_pages;
 			$twigVariables['paged_folders'] = $this->paged_folders;
+			$twigVariables['contents'] = $this->contents;
 			
 		// set var for page_number
 		if ($this->page_number)
