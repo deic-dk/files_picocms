@@ -27,7 +27,7 @@
 </head>
 <body>
 
-    <header id="header">
+    <header id="header" class="noprint">
         <div class="inner clearfix">
             <h1>
             <a href="{{ ""|link }}" id="logo">{{ site_title }}</a>
@@ -57,15 +57,19 @@
     </header>
     {% if not forbidden and meta.access == 'private' and meta.permissions != 'none' and
     (not current_page.id) and folder!="/" %}
-    	<div class="up-button btn btn-primary btn-flat">
+    	<div class="up-button btn btn-primary btn-flat noprint">
 				<a href="../">⤴</a>
 			</div>
 		{% elseif not forbidden and meta.access == 'private' and meta.permissions != 'none' and
     	 current_page.id and folder!="/" %}
-    	<div class="up-button btn btn-primary btn-flat">
+    	<div class="up-button btn btn-primary btn-flat noprint">
 				<a href="./">×</a>
 			</div>
 		{% endif %}
+		
+	{% if meta.toc %}
+		{{ toc }}
+	{% endif %}
 
 <!-- If this is a Joplin directory/notebook with no index file, show a list of md files -->
 	{% if not forbidden and not current_page.id %}

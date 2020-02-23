@@ -26,10 +26,20 @@ class TableOfContents extends AbstractPicoPlugin {
    private function makeToc(&$content)
    {
       //get the headings
-      if(preg_match_all('/<h[1-'.$this->depth.']{1,1}[^>]*>.*?<\/h[1-'.$this->depth.']>/s',$content,$headers) === false)
+      if(preg_match_all('/<(h[1-9]|toc) *.*?>.*?<\/(h[1-'.$this->depth.']|toc)>/s',$content,$headers) === false)
          return "";
 
+      //$this->depth
       //create the toc
+       if(preg_match('/<(toc) *.*?>.*?<\/(toc)>/s', $content)){
+      	foreach($headers[0] as $i=>$head){
+      		unset($headers[0][$i]);
+      		if(strpos($head, '<toc')!==false){
+      			break;
+      		}
+      	}
+      }
+
       $heads = implode("\n",$headers[0]);
       $heads = preg_replace('/<a.+?\/a>/','',$heads);
       $heads = preg_replace('/<h([1-6]) id="?/','<li class="toc$1"><a href="#',$heads);

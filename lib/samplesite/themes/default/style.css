@@ -325,7 +325,7 @@ dd {
         width: 85%;
     }
     .inner img {
-        width:100%;
+        max-width:100%;
     }
     #header {
         margin-bottom: 40px;
@@ -465,3 +465,88 @@ section#content div.inner li input[type=checkbox] {
 	right: 152px;
 	margin-top: -45px;
 }
+
+.header-image {
+	height: 56px;
+	position: relative;
+	margin-bottom: 45px;
+}
+
+.small-image {
+	width: 50%;
+	position: relative;
+	display: block;
+	margin: 24px auto;
+	border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px;
+}
+
+.header-image-right {
+	height: 56px;
+	position: relative;
+	margin-bottom: 45px;
+	float: right;
+}
+
+.header-image-center {
+	margin: 0 auto;
+	margin-top: 0px;
+	width: 100%;
+	text-align: center;
+	margin-top: -116px;
+	margin-bottom: 57.3px
+}
+
+.header-image-center img {
+	height: 56px;
+}
+
+pagebreak, .pagebreak {
+	page-break-after: always;
+	margin: 36px auto;
+}
+
+#toc>ul>li.toc1 {
+	font-weight: bold;
+}
+
+#toc>ul>li.toc2 {
+	margin-left: 12px;
+	font-weight: bold;
+}
+
+#toc>ul>li.toc3 {
+	margin-left: 24px;
+}
+
+#toc>ul>li.toc4 {
+	margin-left: 36px;
+}
+
+#toc>ul>li.toc5 {
+	margin-left: 48px;
+}
+
+#toc>ul>li.toc6 {
+	margin-left: 60px;
+}
+
+.center {
+	text-aligen: center;
+}
+
+@media print{
+	pagebreak.noprint, .pagebreak.noprint {
+		display: block;
+		width: 0;
+		opacity: 0;
+	}
+	.noprint, .noprint * {
+		display: none;
+	}
+	
+	a, a:visited {
+    color: #444;
+}
+
