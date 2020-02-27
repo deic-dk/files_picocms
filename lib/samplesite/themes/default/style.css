@@ -502,6 +502,11 @@ section#content div.inner li input[type=checkbox] {
 	height: 56px;
 }
 
+.footer-image {
+	height: 32px;
+	margin-right: 8px;
+}
+
 pagebreak, .pagebreak {
 	page-break-after: always;
 	margin: 36px auto;
