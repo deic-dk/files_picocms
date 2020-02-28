@@ -55,12 +55,13 @@
             Show file{% if not current_page.id %}s{% endif %}</button>
         {% endif %}
     </header>
-    {% if not forbidden and meta.access == 'private' and meta.permissions != 'none' and
+    {% if not forbidden and (meta.access == 'private' or  meta.access == 'shared' ) and
+    	meta.permissions != 'none' and
     (not current_page.id) and folder!="/" and folder!="" %}
     	<div class="up-button btn btn-primary btn-flat noprint">
 				<a href="../">⤴</a>
 			</div>
-		{% elseif not forbidden and meta.access == 'private' and meta.permissions != 'none' and
+		{% elseif not forbidden and (meta.access == 'private' or  meta.access == 'shared') and meta.permissions != 'none' and
     	 current_page.id and folder!="/" %}
     	<div class="up-button btn btn-primary btn-flat noprint">
 				<a href="./">×</a>
@@ -72,7 +73,8 @@
 	{% endif %}
 
 <!-- If this is a Joplin directory/notebook with no index file, show a list of md files -->
-	{% if not forbidden and not current_page.id %}
+	{% if not forbidden and (meta.access == 'private' or  meta.access == 'shared') and
+    	meta.permissions != 'none' and not current_page.id %}
 		<div id="nav" class="inner">
 			<ul>
 				{% for fol in paged_folders|sort %}

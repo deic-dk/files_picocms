@@ -48,29 +48,34 @@
             </nav>
             {% endif %}
         </div>
-        {% if not forbidden and meta.access == 'private' and meta.permissions != 'none' %}
+        {% if not forbidden and (meta.access == 'private' or  meta.access == 'shared') and
+        		meta.permissions != 'none' %}
             <button class="edit-button btn btn-primary btn-flat" path="{{  oc_path }}"
             id="{{  oc_id }}" dir_id="{{  oc_parent_id }}" user="{{  oc_user }}"
             owner="{{  oc_owner }}" group="{{  oc_group }}" host="{{  oc_user_home_url }}">
             Show files</button>
         {% endif %}
     </header>
-    {% if not forbidden and meta.access == 'private' and meta.permissions != 'none' and
+    {% if not forbidden and (meta.access == 'private' or  meta.access == 'shared') and
+    	meta.permissions != 'none' and
     folder!="/" and folder!="" %}
     	<div class="up-button btn btn-primary btn-flat">
 				<a href="../">⤴</a>
 			</div>
 		{% endif %}
 
-		<div id="nav" class="inner">
-			<ul>
-				{% for file in contents |sort %}
-					<li class="toc1">
-						<a href="{{ file }}">{{ file }}</a>
-					</li>
-				{% endfor %}
-			</ul>
-		</div>
+		{% if not forbidden and (meta.access == 'private' or  meta.access == 'shared') and
+    	meta.permissions != 'none' %}
+			<div id="nav" class="inner">
+				<ul>
+					{% for file in contents | sort %}
+						<li class="toc1">
+							<a href="{{ file }}">{{ file }}</a>
+						</li>
+					{% endfor %}
+				</ul>
+			</div>
+		{% endif %}
 		
 		<!-- If this is a Joplin directory/notebook with no index file, show a list of md files -->
     <section id="content">
