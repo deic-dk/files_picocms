@@ -61,8 +61,10 @@ class Pagination extends AbstractPicoPlugin {
 		// Filter the pages returned based on the pagination options
 		$this->offset = ($this->page_number-1) * $this->config['limit'];
 		$show_folders = array();
-		$contents = array_diff(scandir($this->config['content_dir']."/".$currentPage['folder']),
-				array(".", "..", "index.md"));
+		$path = $this->config['content_dir']."/".$currentPage['folder'];
+		$contents = array_diff(scandir($path),
+				array(".", "..", "index.md", "403.md", "404.md"));
+		$contents = array_map(function($name) use ($path) {return $name.(is_dir($path."/".$name)?"/":"");}, $contents);
 		// if filter_date is true, it filters so only dated items are returned.
 		if ($this->config['filter_date']) {
 			$show_pages = array();

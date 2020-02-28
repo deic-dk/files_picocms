@@ -55,7 +55,8 @@
             Show files</button>
         {% endif %}
     </header>
-    {% if not forbidden and meta.access == 'private' and meta.permissions != 'none' and folder!="/" %}
+    {% if not forbidden and meta.access == 'private' and meta.permissions != 'none' and
+    folder!="/" and folder!="" %}
     	<div class="up-button btn btn-primary btn-flat">
 				<a href="../">⤴</a>
 			</div>
@@ -64,11 +65,9 @@
 		<div id="nav" class="inner">
 			<ul>
 				{% for file in contents |sort %}
-					{% if file!="403.md" and file!="404.md" %}
-						<li class="toc1">
-							<a href="{{ folder }}{{ file }}">{{ file }}</a>
-						</li>
-					{% endif %}
+					<li class="toc1">
+						<a href="{{ file }}">{{ file }}</a>
+					</li>
 				{% endfor %}
 			</ul>
 		</div>

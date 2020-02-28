@@ -56,7 +56,7 @@
         {% endif %}
     </header>
     {% if not forbidden and meta.access == 'private' and meta.permissions != 'none' and
-    (not current_page.id) and folder!="/" %}
+    (not current_page.id) and folder!="/" and folder!="" %}
     	<div class="up-button btn btn-primary btn-flat noprint">
 				<a href="../">⤴</a>
 			</div>
