@@ -63,7 +63,7 @@ class Pagination extends AbstractPicoPlugin {
 		$show_folders = array();
 		$path = $this->config['content_dir']."/".$currentPage['folder'];
 		$contents = array_diff(scandir($path),
-				array(".", "..", "index.md", "403.md", "404.md"));
+				array(".", "..", "index.md", "403.md", "404.md", ".DS_Store"));
 		$contents = array_map(function($name) use ($path) {return $name.(is_dir($path."/".$name)?"/":"");}, $contents);
 		// if filter_date is true, it filters so only dated items are returned.
 		if ($this->config['filter_date']) {

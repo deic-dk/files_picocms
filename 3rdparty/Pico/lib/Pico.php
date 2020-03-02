@@ -310,6 +310,21 @@ class Pico
         }
         $this->ocEmail = \OCP\Config::getUserValue($owner, 'settings', 'email');
         $this->indexInferred = false;
+        
+        //register_shutdown_function(function(){
+        header_register_callback(function(){
+        		Pico::shutDownFunction();
+        });
+    }
+    
+    public static function shutDownFunction() {
+    	$error = error_get_last();
+    	// fatal error, E_ERROR === 1
+    	if ($error['type'] === E_ERROR) {
+    		\OCP\Util::writeLog('files_picocms', 'FATAL ERROR. Shutting down.', \OC_Log::ERROR);
+    		header('Location: ' . \OCA\FilesSharding\Lib::getMasterURL()."index.php?logout=true&requesttoken=".
+    				\OC_Util::callRegister());
+    	}
     }
 
     /**
@@ -917,7 +932,7 @@ class Pico
     	$ocRootPath = substr($contentDir, strlen($ownerRoot));
     	$ocPath = !empty($ocPath)?$ocPath:$ocRootPath;
     	$this->ocPath = $ocPath;
-    	\OCP\Util::writeLog('files_picocms', 'Checking permissions: '.$access.' for file '.$file. ' in '.
+    	\OCP\Util::writeLog('files_picocms', 'Checking permissions: '.$access.' to '.$ocPath. ' in '.
     			$ownerRoot, \OC_Log::WARN);
     	// First check if I own the file
     	if($user_id===$owner){
@@ -932,48 +947,60 @@ class Pico
     		\OC\Files\Filesystem::tearDown();
     		\OC_User::setUserId($owner);
     		$baseDir = '/'.$owner.(!empty($group)?'/user_group_admin/'.$group:'/files');
-    		\OC\Files\Filesystem::init($owner, $baseDir);
-    		// Next check if the file or one of its parent folders is shared with me.
-    		$folderId = null;
-    		$i = 0;
-    		while(!empty($ocPath) && $ocPath!=='.'){
-    			$view = new \OC\Files\View($baseDir);
-    			$pathInfo = $view->getFileInfo($ocPath);
-    			$fileInfo = \OC\Files\Filesystem::getFileInfo($ocPath);
-    			if($i==1){
-    				$folderId = $fileInfo->getId();
+    		try{
+    			\OC\Files\Filesystem::init($owner, $baseDir);
+    			// Next check if the file or one of its parent folders is shared with me.
+    			$folderId = null;
+    			$i = 0;
+    			while(!empty($ocPath) && $ocPath!=='.'){
+    				$view = new \OC\Files\View($baseDir);
+    				$pathInfo = $view->getFileInfo($ocPath);
+    				$fileInfo = \OC\Files\Filesystem::getFileInfo($ocPath);
+    				if($this->indexInferred && empty($fileInfo)){
+    					$ocPath = dirname($ocPath);
+    					++$i;
+    					continue;
+    				}
+    				if($i==1){
+    					$folderId = $fileInfo->getId();
+    				}
+    				if(empty($this->ocId)){
+    					$this->ocId = $fileInfo->getId();
+    					$this->ocParentId = $pathInfo['parent'];
+    					$this->ocOwner = $owner;
+    				}
+    				$fileType = $fileInfo->getType()===\OCP\Files\FileInfo::TYPE_FOLDER?'folder':'file';
+    				if(!\OCP\App::isEnabled('files_sharding') || \OCA\FilesSharding\Lib::isMaster()){
+    					$itemShared = \OCP\Share::getItemSharedWithUser(
+    							$fileType, $fileInfo->getId(), $user_id);
+    				}
+    				else{
+    					$itemShared = \OCA\FilesSharding\Lib::checkReadAccess($user_id, $fileInfo->getId(), $fileType);
+    				}
+    				\OCP\Util::writeLog('files_picocms', 'Checking sharing of: '.$ocPath.':'.$fileInfo->getId().':'.
+    						$fileInfo->getType().':'.serialize($itemShared), \OC_Log::INFO);
+    				if(!empty($itemShared)){
+    					//$this->ocShare = $fileInfo->getId();
+    					$this->ocShare = $folderId;
+    					// This sets $this->ocPath to the path relative to the parent of the shared folder
+    					$this->ocPath = substr($this->ocPath, strlen(dirname($ocPath)));
+    					break;
+    				}
+    				$ocPath = dirname($ocPath);
+    				++$i;
     			}
-    			if(empty($this->ocId)){
-    				$this->ocId = $fileInfo->getId();
-    				$this->ocParentId = $pathInfo['parent'];
-    				$this->ocOwner = $owner;
+    			if(empty($file)){
+    				$this->ocParentId = $view->getFileInfo($ocRootPath)->getId();
     			}
-    			$fileType = $fileInfo->getType()===\OCP\Files\FileInfo::TYPE_FOLDER?'folder':'file';
-    			if(!\OCP\App::isEnabled('files_sharding') || \OCA\FilesSharding\Lib::isMaster()){
-    				$itemShared = \OCP\Share::getItemSharedWithUser(
-    						$fileType, $fileInfo->getId(), $user_id);
-    			}
-    			else{
-    				$itemShared = \OCA\FilesSharding\Lib::checkReadAccess($user_id, $fileInfo->getId(), $fileType);
-    			}
-    			\OCP\Util::writeLog('files_picocms', 'Checking sharing of: '.$ocPath.':'.$fileInfo->getId().':'.
-    					$fileInfo->getType().':'.serialize($itemShared), \OC_Log::INFO);
-    			if(!empty($itemShared)){
-    				//$this->ocShare = $fileInfo->getId();
-    				$this->ocShare = $folderId;
-    				// This sets $this->ocPath to the path relative to the parent of the shared folder
-    				$this->ocPath = substr($this->ocPath, strlen(dirname($ocPath)));
-    				break;
-    			}
-    			$ocPath = dirname($ocPath);
-    			++$i;
     		}
-    		if(empty($file)){
-    			$this->ocParentId = $view->getFileInfo($ocRootPath)->getId();
+    		catch(\Exception $e){
+    			\OCP\Util::writeLog('files_picocms', 'ERROR: exception thrown '.$e.getMessage(), \OC_Log::ERROR);
     		}
-    		\OC_Util::teardownFS();
-    		\OC_User::setUserId($user_id);
-    		\OC_Util::setupFS('/'.$user_id.'/files');
+    		finally {
+    			\OC_Util::teardownFS();
+    			\OC_User::setUserId($user_id);
+    			\OC_Util::setupFS('/'.$user_id.'/files');
+    		}
     		if(!empty($ocPath) && $ocPath!=='.'){
     			$this->meta['permissions'] = 'shared_with_me';
     			return true;
@@ -1277,7 +1304,7 @@ class Pico
         if(!empty($this->ocOwner)){
         	$content = str_replace('%owner%', $this->ocOwner, $content);
         }
-        $content = str_replace('%url%', $this->requestUrl, $content);
+        $content = str_replace('%url%', rawurlencode($this->requestUrl), $content);
         if(!empty($this->ocMasterUrl)){
         	$content = str_replace('%master_url%', $this->ocMasterUrl, $content);
         }
