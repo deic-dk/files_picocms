@@ -931,7 +931,7 @@ class Pico
     	$contentDir = $this->getConfig('content_dir');
     	$ocRootPath = substr($contentDir, strlen($ownerRoot));
     	$ocPath = !empty($ocPath)?$ocPath:$ocRootPath;
-    	$this->ocPath = $ocPath;
+    	$this->ocPath = $this->indexInferred?(dirname($ocPath)."/"):$ocPath;
     	\OCP\Util::writeLog('files_picocms', 'Checking permissions: '.$access.' to '.$ocPath. ' in '.
     			$ownerRoot, \OC_Log::WARN);
     	// First check if I own the file
@@ -965,8 +965,18 @@ class Pico
     					$folderId = $fileInfo->getId();
     				}
     				if(empty($this->ocId)){
-    					$this->ocId = $fileInfo->getId();
-    					$this->ocParentId = $pathInfo['parent'];
+    					if(empty($this->ocParentId)){
+    						if($this->indexInferred){
+    							if($i>0){
+    								$this->ocParentId = $fileInfo->getId();
+    								$folderId = $fileInfo->getId();
+    							}
+    						}
+    						else{
+    							$this->ocParentId = $pathInfo['parent'];
+    							$this->ocId = $fileInfo->getId();
+    						}
+    					}
     					$this->ocOwner = $owner;
     				}
     				$fileType = $fileInfo->getType()===\OCP\Files\FileInfo::TYPE_FOLDER?'folder':'file';
