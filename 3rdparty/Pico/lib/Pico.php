@@ -277,6 +277,7 @@ class Pico
     protected $ocEmail;
     
     private $site;
+    public $forbidden;
 
     /**
      * Constructs a new Pico instance
@@ -315,6 +316,7 @@ class Pico
         header_register_callback(function(){
         		Pico::shutDownFunction();
         });
+        $this->forbidden = false;
     }
     
     public static function shutDownFunction() {
@@ -449,13 +451,12 @@ class Pico
         }
 
         // NC change
-        $forbidden = false;
         if(!empty($this->meta['access'])){
         	if(!$this->checkPermissions($this->requestFile, $this->meta['access'],
         			$this->getConfig('user'), $this->getConfig('group'))){
         		header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden');
         		$this->rawContent = $this->loadStatusContent($this->requestFile, 403);
-        		$forbidden = true;
+        		$this->forbidden = true;
         	}
         }
 
@@ -468,7 +469,7 @@ class Pico
         // parse file content
         $this->triggerEvent('onContentParsing', array(&$this->rawContent));
 
-        $this->content = $this->prepareFileContent($this->rawContent, $this->meta);
+        $this->content = $this->prepareFileContent($this->rawContent, $this->forbidden?[]:$this->meta);
         $this->triggerEvent('onContentPrepared', array(&$this->content));
 
         $this->content = $this->parseFileContent($this->content);
@@ -494,7 +495,7 @@ class Pico
 
         // render template
         $this->twigVariables = $this->getTwigVariables();
-        if($forbidden){
+        if($this->forbidden){
         	$this->twigVariables['forbidden'] = true;
         }
         if(isset($this->meta['template']) && $this->meta['template']) {
@@ -897,11 +898,13 @@ class Pico
     	$user_id = \OCP\User::getUser();
     	\OCP\Util::writeLog('files_picocms', 'user_id '.$user_id, \OC_Log::WARN);
     	if(\OCP\App::isEnabled('files_sharding') && (empty($user_id) ||
-    			!\OCA\FilesSharding\Lib::onServerForUser($user_id))){
+    			!\OCA\FilesSharding\Lib::onServerForUser($user_id)) &&
+    			!\OCA\FilesSharding\Lib::isMaster()){
     		$instanceId = \OC_Config::getValue('instanceid', null);
     		if(!empty($_COOKIE[$instanceId])){
-    			\OCP\Util::writeLog('files_picocms', 'Getting session from master '.$instanceId, \OC_Log::WARN);
+    			\OCP\Util::writeLog('files_picocms', 'Getting session from master '.$_COOKIE[$instanceId], \OC_Log::WARN);
     			$session = \OCA\FilesSharding\Lib::getUserSession($_COOKIE[$instanceId], false);
+    			\OC_Log::write('files_sharding', 'got session '.serialize($session), \OC_Log::WARN);
     			$user_id = $session['user_id'];
     		}
     	}
