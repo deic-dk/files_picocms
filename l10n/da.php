@@ -20,5 +20,6 @@ $TRANSLATIONS = array(
 	\"web_mappe\" er navnet på web-mappen.",
 		"Or use the website wizard to create a simple site." => "Eller vælg website-wizarden for at skabe et simpelt site.",
 		"Website wizard" => "Website-guide",
+	"Remove/Add"=>"Fjern/Tilføj"
 );
 $PLURAL_FORMS = "nplurals=2; plural=(n != 1);";

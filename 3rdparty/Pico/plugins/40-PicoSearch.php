@@ -127,7 +127,8 @@ class PicoSearch extends AbstractPicoPlugin
             		// Search only page field specified by field:search_string, e.g. author:test@user.org
             		if(preg_match('~([^:]+):([^:]+)~', $this->search_terms, $this->search_fields)){
             			$pages = array_filter($pages, function ($page) {
-            				return (stripos($page[$this->search_fields[1]], $this->search_fields[2]) !== false);
+            				return (stripos($page[$this->search_fields[1]], $this->search_fields[2]) !== false ||
+            						stripos($page['meta'][$this->search_fields[1]], $this->search_fields[2]) !== false);
             			});
             		}
             		else{

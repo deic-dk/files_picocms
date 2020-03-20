@@ -22,23 +22,16 @@
     <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
   </head>
-  
+
  <body>
- 
+
      <!-- Navigation -->
     <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
-        <div class="container-fluid">
-            <!-- Brand and toggle get grouped for better mobile display -->
-            <div class="navbar-header page-scroll">
-                <a class="navbar-brand" href="{{ base_url }}">Home</a>
-            </div>
-
-            <!-- /.navbar-collapse -->
-        </div>
-        <!-- /.container -->
+      <a class="navbar-brand navbar-right" href="{{ base_url }}">Home</a>
     </nav>
 
-    <header class="intro-header" style="background-image: {% if meta.img %} url({{ meta.img }}) {% else %} url('{{ theme_url }}/img/home.jpg'){% endif %};">
+    <header class="intro-header" style="{% if meta.img %}background-image:  url({{ meta.img }})
+    {% else %}background: #006286;{% endif %};">
 			<div class="site-heading" style="color: gray;">
 				<div class="span2 navigation">
 					<form id="search_form" action="{{ base_url  }}/search">
@@ -53,14 +46,14 @@
 									e.preventDefault();
 							});
 					</script>
-				</div>                    
+				</div>
 			</div>
     </header>
-    
+
     <div class="container-fluid">
     <div class="row-fluid">
 			<div class="span9 main">
-				{% for page in pages %}
+				{% for page in pages | reverse %}
 					<div class="search_result">
 						<h2><a href="{{ page.url }}">{{ page.title }}</a></h2>
 						{% if page.description %}<p>{{ page.description }}</p>{% endif %}

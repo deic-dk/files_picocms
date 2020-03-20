@@ -77,6 +77,7 @@ hr {
   width: 100%;
   z-index: 3;
   font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  padding: 10px 12px;
 }
 .navbar-custom .navbar-brand {
   font-weight: 800;
@@ -92,7 +93,6 @@ hr {
 	position: absolute;
 	right: 26px;
 	top: 23px;
-	z-index: 10;
 }
 
 .edit-button+.home-link {
@@ -134,9 +134,10 @@ hr {
 
 #search_form  {
 	margin-left: 20px;
+	font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-.navbar-right {
+.navbar .navbar-right {
 	float: right;
 }
 
@@ -201,6 +202,12 @@ article .container .row div {
 	color: black;
 }
 
+@media only screen and (max-width: 1170px) {
+		a.popout {
+		top: 76px;
+	}
+}
+	
 @media only screen and (max-width: 768px) {
   .write-post {
 		display: none;
@@ -208,9 +215,23 @@ article .container .row div {
 	#write_post {
 		display: none;
 	}
+	.site-heading h1 .header-icon {
+		height: 60px;
+		margin-left: 24px;
+	}
+	
+	.intro-header .row .page-heading h1 {
+	  font-size: 42px;
+	}
+	.intro-header .row .site-heading h1 {
+	  font-size: 34px;
+	}
+	.navbar-header .search, .navbar-header .about {
+	display: none;
+	}
 }
 
-@media only screen and (min-width: 768px) {
+/*@media only screen and (min-width: 768px) {*/
   .navbar-custom {
     background: transparent;
     border-bottom: 1px solid transparent;
@@ -231,7 +252,8 @@ article .container .row div {
   .navbar-custom .nav li a:focus {
     color: rgba(255, 255, 255, 0.8);
   }
-}
+/*}*/
+
 @media only screen and (min-width: 1170px) {
   .navbar-custom {
     -webkit-transition: background-color 0.3s;
@@ -249,7 +271,7 @@ article .container .row div {
   .navbar-custom.is-fixed {
     /* when the user scrolls down, we hide the header right above the viewport */
     position: fixed;
-    top: -61px;
+    top: -176px;
     background-color: rgba(255, 255, 255, 0.9);
     border-bottom: 1px solid #f2f2f2;
     -webkit-transition: -webkit-transform 0.3s;
@@ -289,20 +311,23 @@ article .container .row div {
   -o-background-size: cover;
   margin-bottom: 8px;
 }
-.intro-header .site-heading,
 .intro-header .post-heading,
 .intro-header .page-heading {
   padding: 64px 0 50px;
+  color: white;
+}
+.intro-header .site-heading {
+  padding: 24px 0;
   color: white;
 }
 @media only screen and (min-width: 768px) {
   .intro-header .site-heading,
   .intro-header .post-heading,
   .intro-header .page-heading {
-    padding: 64px 0;
+    padding: 24px 0;
   }
 }
-.intro-header .site-heading,
+/*.intro-header .site-heading,*/
 .intro-header .page-heading {
   text-align: justify;
 }
@@ -313,8 +338,8 @@ article .container .row div {
 }
 .intro-header .site-heading .subheading,
 .intro-header .page-heading .subheading {
-  font-size: 46px;
-  line-height: 1.1;
+  font-size: 24px;
+  line-height: 1.2;
   display: block;
   font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-weight: 300;
@@ -323,7 +348,7 @@ article .container .row div {
 @media only screen and (min-width: 768px) {
   .intro-header .site-heading h1,
   .intro-header .page-heading h1 {
-    font-size: 80px;
+    font-size: 56px;
   }
 }
 .intro-header .post-heading h1 {
@@ -380,7 +405,7 @@ article .container .row div {
   font-size: 18px;
   font-style: italic;
   margin-top: 0;
-	margin-bottom: 36px;
+	margin-bottom: 14px;
 }
 .post-preview > .post-meta:last-child {
 	margin-bottom: 0;
@@ -624,7 +649,110 @@ comment {
 	margin-top: -64px;
 }
 
+.header-icon {
+	height: 60px;
+	margin-left: 56px;
+}
+
+.header-icon:hover {
+	cursor: pointer;
+}
+
 section#content div.inner li input[type=checkbox] {
 	margin: 0;
 }
+
+.navbar-header .about {
+	margin: 147px 0 0 7px;
+	display: none;
+}
+
+.about a {
+	color: white;
+	font-weight: 800;
+	text-decoration: none;
+}
+
+  .about a:hover,
+  .about a:focus {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+.label {
+	color: #fff;
+	background-color: rgba(150, 150, 150, 0.6);
+	padding: 8px 12px 8px 12px;
+	margin-right: 6px;
+	display: inline-block;
+	margin-top: 0;
+}
+
+.indexImage {
+	margin: 24px auto 0 auto;
+	max-width: 80%;
+	max-height: 156px;
+	display: block;
+}
+
+.indexImage:hover {
+	cursor: pointer;
+}
+
+article img {
+	display: block;
+	margin: 56px auto;
+
+}
+
+.popout {
+	position: absolute;
+	top: 24px;
+	right: 16px;
+}
+
+[class^="icon-"],
+[class*=" icon-"] {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-top: 1px;
+  *margin-right: .3em;
+  line-height: 14px;
+  vertical-align: text-top;
+  background-image: url("../img/glyphicons-halflings.png");
+  background-position: 14px 14px;
+  background-repeat: no-repeat;
+}
+
+/* White icons with optional class, or on hover/focus/active states of certain elements */
+
+.icon-white,
+.nav-pills > .active > a > [class^="icon-"],
+.nav-pills > .active > a > [class*=" icon-"],
+.nav-list > .active > a > [class^="icon-"],
+.nav-list > .active > a > [class*=" icon-"],
+.navbar-inverse .nav > .active > a > [class^="icon-"],
+.navbar-inverse .nav > .active > a > [class*=" icon-"],
+.dropdown-menu > li > a:hover > [class^="icon-"],
+.dropdown-menu > li > a:focus > [class^="icon-"],
+.dropdown-menu > li > a:hover > [class*=" icon-"],
+.dropdown-menu > li > a:focus > [class*=" icon-"],
+.dropdown-menu > .active > a > [class^="icon-"],
+.dropdown-menu > .active > a > [class*=" icon-"],
+.dropdown-submenu:hover > a > [class^="icon-"],
+.dropdown-submenu:focus > a > [class^="icon-"],
+.dropdown-submenu:hover > a > [class*=" icon-"],
+.dropdown-submenu:focus > a > [class*=" icon-"] {
+  background-image: url("../img/glyphicons-halflings-white.png");
+}
+
+.icon-fullscreen {
+    background-position: -455px -143px;
+    width: 16px
+}
+
+nav.navbar-fixed-top {
+	z-index: 0;
+}
+
 

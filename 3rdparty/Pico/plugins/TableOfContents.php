@@ -26,7 +26,7 @@ class TableOfContents extends AbstractPicoPlugin {
    private function makeToc(&$content)
    {
       //get the headings
-      if(preg_match_all('/<(h[1-9]|toc) *.*?>.*?<\/(h[1-'.$this->depth.']|toc)>/s',$content,$headers) === false)
+      if(preg_match_all('/<(h[1-'.$this->depth.']|toc) *.*?>.*?<\/(h[1-'.$this->depth.']|toc)>/s',$content,$headers) === false)
          return "";
 
       //$this->depth
@@ -42,8 +42,8 @@ class TableOfContents extends AbstractPicoPlugin {
 
       $heads = implode("\n",$headers[0]);
       $heads = preg_replace('/<a.+?\/a>/','',$heads);
-      $heads = preg_replace('/<h([1-6]) id="?/','<li class="toc$1"><a href="#',$heads);
-      $heads = preg_replace('/<\/h[1-6]>/','</a></li>',$heads);
+      $heads = preg_replace('/<h([1-'.$this->depth.']) id="?/','<li class="toc$1"><a href="#',$heads);
+      $heads = preg_replace('/<\/h[1-'.$this->depth.']>/','</a></li>',$heads);
 
       $cap = $this->caption =='' ? "" :  '<p id="toc-header">'.$this->caption.'</p>';
 

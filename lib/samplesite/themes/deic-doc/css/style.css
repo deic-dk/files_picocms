@@ -277,6 +277,10 @@ form#search_form input#search_submit {
     vertical-align: top;
     width: 16px
 }
+.icon-fullscreen {
+    background-position: -455px -143px;
+    width: 16px
+}
 
 thead th:empty {
   font-size: 0px;
@@ -339,5 +343,11 @@ sup {
 
 section#content div.inner li input[type=checkbox] {
 	margin: 0;
+}
+
+.popout {
+	position: absolute;
+	top: 12px;
+	right: 32px;
 }
 

@@ -28,7 +28,7 @@
 			<label><?php p($l->t("URL"));?></label>
 		</span>
 		<span>
-			<label class="remove"><?php p($l->t("Remove"));?></label>
+			<label class="remove"><?php p($l->t("Remove/Add"));?></label>
 		</span>
 	</div>
 	<div id="filesPicoSiteFoldersList">

@@ -13,14 +13,14 @@
 	<meta content='{{ site_title }}' property='og:title'/>
 	<meta content='website' property='og:type'/>
 	<meta content='{{ current_page.url }}' property='og:url'/>
-	<meta content='{% if meta.img %}{{ meta.img }}{% else %}{{ theme_url }}/img/home.jpg{% endif %}' property='og:image'/>
+	<meta content='{% if meta.icon %}{{ meta.icon }}{% endif %}' property='og:image'/>
 	<meta content="{{ meta.description|striptags }}" property='og:description'/>
 	<meta content='{{ site_title }}' property='og:site_name'/>
 	<meta content='en_US' property='og:locale'/>
 	<meta content='summary_large_image' name='twitter:card'/>
 	<meta content='{{ site_title }}' name='twitter:title'/>
 	<meta content='{{ meta.description|striptags }}' name='twitter:description'/>
-	<meta content='{% if meta.img %}{{ meta.img }}{% else %}{{ theme_url }}/img/home.jpg{% endif %}' name='twitter:image'/>
+	<meta content='{% if meta.icon %}{{ meta.icon }}{% endif %}' name='twitter:image'/>
     <!-- Bootstrap Core CSS -->
     <link href="{{ theme_url }}/css/bootstrap.min.css" rel="stylesheet">
 
@@ -76,6 +76,7 @@
 							</form>
 							<div class="navbar-header page-scroll navbar-right">
 									<a class="navbar-brand search" href="{{ base_url }}/search">Search</a>
+									<div class="about"><a href="about">About</a></div>
 							</div>
 						{% endif %}
         </div>
@@ -83,12 +84,21 @@
     </nav>
     <!-- Page Header -->
     <!-- Set your background image for this header on the line below. -->
-    <header class="intro-header" style="background-image: {% if meta.img %} url({{ meta.img }}) {% else %} url('{{ theme_url }}/img/home.jpg'){% endif %};">
+    <header class="intro-header" style="{% if meta.img %}background-image: url({{ meta.img }});
+    {% else %}background: #006286;{% endif %}">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                     <div class="site-heading">
-                        <h1><a href="{{ base_url }}">{{ site_title }}</a></h1>
+                        <h1>
+                        <a href="{{ base_url }}">
+                        {{ site_title }}
+                        {% if meta.icon %}<img class="header-icon" src="{{ meta.icon }}" />{% endif %}
+                        </a>
+                        <a href="{{ base_url }}" target="_top" class="popout hidden">
+                        	<i title="Pop out" class="icon icon-fullscreen icon-white"></i>
+                        </a>
+                        </h1>
                         <hr class="thin">
                         <span class="subheading">{{ meta.tagline }}</span>
                     </div>
@@ -116,7 +126,8 @@
       {% set i = i + 1 %}
 				<div class="post-preview">
 									{% if has_search_page %}
-                   <a href="{{ base_url }}/search/author:{{ page.author }}"><div class="avatardiv" author="{{ page.author }}"></div></a><a href="{{ page.url }}">
+                   <a href="{{ base_url }}/search/author:{{ page.author }}"><div class="avatardiv" author="{{ page.author }}"></div></a>
+                   <a href="{{ page.url }}">
                   {% endif %}
                         <h2 class="post-title">
 							{{ page.title }}
@@ -126,8 +137,22 @@
                         </h3>
                     </a>
                     {% if num_pages>1 %}
-                    <p class="post-meta">Posted by {{ page.meta.displayname }} on {{ page.date }}</p>
-                    {% endif %} 
+                    <p class="post-meta">Posted by
+                    <a href="{{ base_url }}/search/author:{{ page.author }}">{{ page.meta.displayname }}</a> on {{ page.date }}</p>
+                    {% endif %}
+                    {% if page.meta.labels and has_search_page %}
+                    <div class="labels">
+                    	{% set labels = page.meta.labels|split(',') %}
+                    	{% for label in labels %}
+   									 		<a href="{{ base_url }}/search/labels:{{ label }}"><span class="label">{{ label }}</span></a>
+											{% endfor %}
+                    </div>
+                    {% endif %}
+                    {% if page.meta.index_image %}
+                    <a href="{{ page.url }}">
+                    <img class="indexImage" src="{{ page.meta.index_image }}"/>
+                    </a>
+                    {% endif %}
                 </div>
 							{% if i < num_pages %}
                 <hr>

@@ -37,8 +37,13 @@
 		<div class="row-fluid">
 			<div class="span2 navigation">
 				<form id="search_form" action="{{ base_url  }}/search">
-					<label id="search_label" for="search_input"><a href="{{ base_url  }}">
-					<i class="icon icon-home icon-white"></i>{{ (pages|first).meta.site }}</a></label>
+					<label id="search_label" for="search_input">
+					<a href="{{ base_url  }}">
+					<i class="icon icon-home icon-white"></i>{{ (pages|first).meta.site }}
+					</a>
+					<a href="{{ base_url }}" target="_top" class="popout hidden">
+					<i title="Pop out" class="icon icon-fullscreen icon-white"></i>
+					</a></label>
 					<input type="search" id="search_input" name="q" placeholder="Search the docs" />
 					<!--<input type="submit" id="search_submit" value="Search" />-->
 				</form>

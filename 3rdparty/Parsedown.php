@@ -1193,6 +1193,7 @@ class Parsedown
             'attributes' => array(
                 'href' => null,
                 'title' => null,
+            		'target' => null,
             ),
         );
 
@@ -1251,6 +1252,10 @@ class Parsedown
 
         $Element['attributes']['href'] = str_replace(array('&', '<'), array('&amp;', '&lt;'), $Element['attributes']['href']);
 
+        if(preg_match('|^https?://.*|', $Element['attributes']['href'])){
+        	$Element['attributes']['target'] = '_top';
+        }
+        
         return array(
             'extent' => $extent,
             'element' => $Element,
