@@ -48,7 +48,8 @@
             </nav>
             {% endif %}
         </div>
-        {% if not forbidden and meta.access == 'private' and meta.permissions != 'none' %}
+        {% if not forbidden and (meta.access == 'private' or  meta.access == 'shared') and
+        		meta.permissions != 'none' %}
             <button class="edit-button btn btn-primary btn-flat" path="{{  oc_path }}"
             id="{{  oc_id }}" dir_id="{{  oc_parent_id }}" user="{{  oc_user }}"
             owner="{{  oc_owner }}" group="{{  oc_group }}" host="{{  oc_user_home_url }}">
@@ -61,8 +62,9 @@
     	<div class="up-button btn btn-primary btn-flat noprint">
 				<a href="../">⤴</a>
 			</div>
-		{% elseif not forbidden and (meta.access == 'private' or  meta.access == 'shared') and meta.permissions != 'none' and
-    	 current_page.id and folder!="/" %}
+		{% elseif not forbidden and (meta.access == 'private' or  meta.access == 'shared') and
+			not (current_page.id == 'index' or current_page.id matches '{.*\/index$}') and
+			meta.permissions != 'none' and current_page.id and folder!="/" %}
     	<div class="up-button btn btn-primary btn-flat noprint">
 				<a href="./">×</a>
 			</div>
@@ -96,7 +98,7 @@
 				{% endfor %}
 				{% set len = '0' %}
 				{% for page in pages|sort_by("date") %}
-					{% if not (page.id matches '{.*\/index$}') and (page.id starts with folder or folder == "/") %}
+					{% if not (page.id == 'index' or page.id matches '{.*\/index$}') and (page.id starts with folder or folder == "/") %}
 						{% if folder == "/" %}
 							{% set folderlen = 0 %}
 						{% else %}
@@ -132,6 +134,14 @@
             {{ meta.footer }}
         </div>
     </footer>
+
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+	 		tex2jax: {ignoreClass: 'ace_content',  inlineMath: [['$','$'], ['\\(','\\)']] },
+	 		TeX: {extensions: ['mhchem.js']}
+		});
+	</script>
+	<script src="/apps/files_markdown/js/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 
 </body>
 </html>

@@ -102,14 +102,16 @@ if(!empty($_GET['path'])){
 }
 
 if(!empty($_GET['user'])){
-	$ret = OCA\FilesPicoCMS\Lib::getServePublicUrl($_GET['user']);
-	if($ret!='yes'){
+	// user is actually the email address. Look up the actual uid
+	$user = OCA\FilesPicoCMS\Lib::dbGetUseridFromEmail($_GET['user']);
+	if(!OCA\FilesPicoCMS\Lib::getServePublicUrl($user)){
+		\OCP\Util::writeLog('files_picocms', 'ERROR: not serving public for '.$user, \OC_Log::WARN);
 		header("HTTP/1.1 404 Not Found");
 		exit;
 	}
-	$siteInfo = array('uid'=>$_GET['user'], 'path'=>'/public', 'site'=>'Public page of '.\OC_User::getDisplayName($_GET['user']));
-	$config['base_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT."/users/".$_GET['user'];
-	$config['base_uri'] = \OC::$WEBROOT."/users/".$_GET['user'];
+	$siteInfo = array('uid'=>$user, 'path'=>'/public', 'site'=>'Public page of '.\OC_User::getDisplayName($user));
+	$config['base_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT."/users/".$user;
+	$config['base_uri'] = \OC::$WEBROOT."/users/".$user;
 }
 elseif(!empty($_GET['site'])){
 	$siteInfo = OCA\FilesPicoCMS\Lib::lookupSiteInfo($_GET['site']);

@@ -105,15 +105,17 @@
                 </div>
             </div>
         </div>
-        
-        
-        <a class="navbar-left write-post" share="{{  oc_share }}" path="{{  oc_path }}"
-        {% if (meta.access != 'private' or meta.permissions == 'none') and 
+
+        <a class="navbar-left write-post" share="{{ oc_share }}" path="{{ oc_path }}"
+        dir_id="{{ oc_parent_id }}" id="{{ oc_id }}"
+        {% if (meta.access == 'public' or meta.permissions == 'none') and 
         (oc_user is not defined  or oc_owner is not defined or oc_owner != oc_user) %}
         	style="display:none;"
         {% endif %}
-            owner="{{  oc_owner }}" user="{{  oc_user }}" group="{{  oc_group }}">Write</a>
+            owner="{{  oc_owner }}" user="{{ oc_user }}" group="{{ oc_group }}"
+            host="{{ oc_user_home_url }}">Write</a>
             <input type="search" id="write_post" name="q" placeholder="Title" />
+
     </header>
 
     <!-- Main Content -->
@@ -200,5 +202,14 @@
             </div>
         </div>
     </footer>
+
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+	 		tex2jax: {ignoreClass: 'ace_content',  inlineMath: [['$','$'], ['\\(','\\)']] },
+	 		TeX: {extensions: ['mhchem.js']}
+		});
+	</script>
+	<script src="/apps/files_markdown/js/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
 </body>
 </html>

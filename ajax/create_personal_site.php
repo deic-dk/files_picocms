@@ -9,11 +9,12 @@ $folder = $_GET['folder'];
 $content = $_GET['content'];
 $destination = $_GET['destination'];
 $theme = $_GET['theme'];
+$name = $_GET['name'];
 $user_id = OCP\USER::getUser();
 $copy_themes = !empty($_GET['copy_themes']) && $_GET['copy_themes']=='yes';
 
 $parts = pathinfo($folder);
-$site = $parts['basename'];
+$site = empty($name)?$parts['basename']:$name;
 // Site is just the top-level element of folder (a path).
 
 OC_Log::write('files_picocms',"Creating personal site: ".$folder, OC_Log::WARN);
@@ -24,8 +25,8 @@ if(empty($folder)){
 if(empty($user_id)){
 	$ret['error'] = "Failed creating site. No owner ".$user_id;
 }
-		
-$res = OCA\FilesPicoCMS\Lib::createPersonalSite($user_id, $folder, $content, $destination, $theme, $copy_themes);
+
+$res = OCA\FilesPicoCMS\Lib::createPersonalSite($user_id, $folder, $name, $content, $destination, $theme, $copy_themes);
 
 switch($res){
 	case OCA\FilesPicoCMS\Lib::$OK:
@@ -36,8 +37,6 @@ switch($res){
 		$ret['error'] = "Failed creating site: Copy failed.";
 		break;
 	case OCA\FilesPicoCMS\Lib::$SITE_NAME_EXISTS:
-		$parts = pathinfo($folder);
-		$site = $parts['basename'];
 		$ret['error'] = "Site name taken: ".$site;
 		break;
 	default:

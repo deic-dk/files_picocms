@@ -92,11 +92,12 @@
         </div>
 
         <button class="edit-button btn btn-primary btn-flat" path="{{ oc_path }}"
-   			{% if (meta.access != 'private' or meta.permissions == 'none') and 
+   			{% if (meta.access == 'public' or meta.permissions == 'none') and
     		(oc_user is not defined  or oc_owner is not defined or oc_owner != oc_user) %}
     		style="display:none;"
-    		{% endif %}            dir_id="{{ oc_parent_id }}" user="{{ oc_user }}" owner="{{ oc_owner }}"
-        group="{{ oc_group }}">Show file</button>
+    		{% endif %}
+        dir_id="{{ oc_parent_id }}" id="{{ oc_id }}" user="{{ oc_user }}" owner="{{ oc_owner }}"
+        group="{{ oc_group }}" host="{{ oc_user_home_url }}">Show file</button>
         
         {% if num_pages > 1 %}
 	        <div class="home-link">
@@ -141,7 +142,15 @@
 		  </div>
 	  </div>
     </comments>
-    
+
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			tex2jax: {ignoreClass: 'ace_content',  inlineMath: [['$','$'], ['\\(','\\)']] },
+			TeX: {extensions: ['mhchem.js']}
+		});
+	</script>
+	<script src="/apps/files_markdown/js/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
 </body>
 
 </html>

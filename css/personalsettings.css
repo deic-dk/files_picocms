@@ -24,8 +24,11 @@ fieldset#filesPicoSiteFolders div#filesPicoSiteFoldersList {
 	margin-top: 10px;
 }
 
-.edit_personal_website {
+.btn.edit_personal_website {
 	text-align: center;
+	display: block;
+	margin: 0 auto;
+	width: max-content;
 }
 
 .addSiteFolder .extraSpan{

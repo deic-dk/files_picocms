@@ -90,9 +90,9 @@ class Lib {
 	public static $SITE_NAME_EXISTS = 1;
 	public static $COPY_CONTENT_FAILED = 2;
 	
-	public static function createPersonalSite($user_id, $folder, $content=null, $destination=null, $theme=null, $copy_themes=false){
+	public static function createPersonalSite($user_id, $folder, $name, $content=null, $destination=null, $theme=null, $copy_themes=false){
 		// Serve
-		if($folder!='/public' && !self::addSiteFolder($folder, $user_id, '')){
+		if($folder!='/public' && !self::addSite($folder, $name, $user_id, '')){
 			\OCP\Util::writeLog('files_picocms', 'Adding site '.$folder, \OC_Log::WARN);
 			return self::$SITE_NAME_EXISTS;
 		}
@@ -447,6 +447,23 @@ class Lib {
 	public static function dbSetServePublicUrl($user, $serve){
 		$ret = \OCP\Config::setUserValue($user, 'files_picocms', 'servepublicurl', $serve?'yes':'no');
 		return $ret;
+	}
+	
+	public static function dbGetUseridFromEmail($email){
+		$query = \OC_DB::prepare('SELECT `userid` FROM `*PREFIX*preferences` WHERE `configkey` = ? AND `configvalue` = ?');
+		$result = $query->execute(Array('email', $email));
+		if(\OCP\DB::isError($result)){
+			\OCP\Util::writeLog('files_sharding', 'ERROR: could not find user with email '.$email.'. '.\OC_DB::getErrorMessage($result), \OC_Log::ERROR);
+			return $email;
+		}
+		$results = $result->fetchAll();
+		if(count($results)>1){
+			\OCP\Util::writeLog('files_sharding', 'ERROR: Multiple users found with email '.$email, \OCP\Util::ERROR);
+			return $email;
+		}
+		foreach($results as $row){
+			return $row['userid'];
+		}
 	}
 	
 }

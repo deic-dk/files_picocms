@@ -67,7 +67,7 @@
         <div class="container-fluid">
             <!-- Brand and toggle get grouped for better mobile display -->
             {% set num_pages = paged_pages|length %}
-            {% if num_pages>1 %}
+            {% if num_pages>0 %}
             <div class="navbar-header page-scroll">
                 <a class="navbar-brand-post" href="{{ base_url }}">Home</a>
             </div>
@@ -101,12 +101,14 @@
                 </div>
             </div>
         </div>
-        <button class="edit-button btn btn-primary btn-flat" path="{{ oc_path }}" dir_id="{{ oc_parent_id }}"
-        {% if (meta.access != 'private' or meta.permissions == 'none') and 
+        <button class="edit-button btn btn-primary btn-flat" path="{{ oc_path }}"
+        dir_id="{{ oc_parent_id }}" id="{{ oc_id }}"
+        {% if (meta.access == 'public' or meta.permissions == 'none') and
         (oc_user is not defined  or oc_owner is not defined or oc_owner != oc_user) %}
         	style="display:none;"
         {% endif %}
-        user="{{ oc_user }}" owner="{{ oc_owner }}" group="{{ oc_group }}">Show file</button>
+        user="{{ oc_user }}" owner="{{ oc_owner }}" group="{{ oc_group }}"
+         host="{{ oc_user_home_url }}">Show file</button>
     </header>
     
     <hr class="small">
@@ -183,6 +185,15 @@
             </div>
         </div>
     </footer>
+
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({
+			tex2jax: {ignoreClass: 'ace_content',  inlineMath: [['$','$'], ['\\(','\\)']] },
+			TeX: {extensions: ['mhchem.js']}
+		});
+	</script>
+	<script src="/apps/files_markdown/js/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
 </body>
 
 </html>

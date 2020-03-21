@@ -153,8 +153,11 @@ function createPersonalSite(callback) {
 	addSpinner();
 	$.ajax(OC.linkTo('files_picocms', 'ajax/create_personal_site.php'), {
 		type: 'GET',
-		data: {folder: $('#personal_site_folder').text().trim(), content: $('input[name="pico_type"]:checked').attr('content'),
-			destination: $('input[name="pico_type"]:checked').attr('destination'), theme: $('input[name="pico_type"]:checked').attr('theme'),
+		data: {folder: $('#personal_site_folder').text().trim(),
+			name: $('input[name="pico_type"]:checked').attr('site_name'),
+			content: $('input[name="pico_type"]:checked').attr('content'),
+			destination: $('input[name="pico_type"]:checked').attr('destination'),
+			theme: $('input[name="pico_type"]:checked').attr('theme'),
 			copy_themes: $('input[name="pico_type"]:checked').attr('copyThemes')},
 		success: function(jsondata){
 			if(jsondata.error){
@@ -171,8 +174,7 @@ function createPersonalSite(callback) {
 					}
 				}
 				else{
-					window.location.href = OC.webroot+ '/sites/'+jsondata.site+
-					($('input[name="pico_content"]:checked').val()=='/samplesite/content-sample_blog'?'/profile':'');
+					window.location.href = OC.webroot+ '/sites/'+jsondata.site;
 				}
 
 			}

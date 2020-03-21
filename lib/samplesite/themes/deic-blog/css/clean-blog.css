@@ -133,7 +133,7 @@ hr {
 }
 
 #search_form  {
-	margin-left: 20px;
+	margin-left: 14px;
 	font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
@@ -149,9 +149,9 @@ hr {
 
 #write_post {
 	float: left;
-	margin-left: 14px;
+	margin-left: 4px;
 	position: absolute;
-	top: 308px;
+	top: 148px;
 }
 
 a.navbar-left:hover, a.navbar-left:focus {
@@ -168,7 +168,7 @@ a.navbar-left:hover, a.navbar-left:focus {
 	color: white;
 	margin-left: 24px;
 	position: absolute;
-	top: 313px;
+	top: 136px;
 }
 
 .search_result p {
