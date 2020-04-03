@@ -15,6 +15,9 @@ If you choose type "Blog" type, you can edit pages by clicking "Show file".</p>
 name ending in ".md" or ".html" will be served under <?php print($publicUrl);?> (as e.g. <?php print($publicUrl);?>my_file).</p>-->
 <div>Type:</div>
 <div>
+	<input type="radio" name="pico_type" theme="deic-wiki" copyThemes="yes"
+		content="/samplesite/content-sample_wiki" destination="content" folder="/wiki"
+		site_name="<?php print($randomName);?>" />Wiki<br />
 	<input type="radio" name="pico_type" theme="deic-blog" copyThemes="no"
 		content="/samplesite/content-sample_blog/profile.md" destination="index.md"
 		folder="<?php print($publicFolder);?>" site_name="" checked />Single public profile page<br />

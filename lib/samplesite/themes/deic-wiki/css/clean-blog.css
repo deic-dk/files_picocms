@@ -806,6 +806,7 @@ nav .labels {
 .leftbar {
   left: 8px;
   top: 56px;
+  padding-top: 35px;
 }
 
 .labelsbar {
@@ -1127,5 +1128,10 @@ table {
 
 .toc.nav.active {
 	background-color: #a8a8a8;
+}
+
+code {
+	color: #58585c;
+	background-color: #eaeaec;
 }
 

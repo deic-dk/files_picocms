@@ -9,7 +9,7 @@ function create_remove_dialog(path){
 	$("#filesPicoSiteFolders #filesPicoSiteFoldersList div.siteFolder[path='"+path+"'] div.dialog").text("Are you sure you want to stop serving the folder "+path+"?");
 	
 	remove_dialogs[path] =  $("#filesPicoSiteFolders  #filesPicoSiteFoldersList div.siteFolder[path='"+path+"'] div.dialog").dialog({
-		title: "Confirm sync",
+		title: "Confirm unserve",
 		autoOpen: false,
 		resizable: true,
 		height:180,
