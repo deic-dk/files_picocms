@@ -26,7 +26,7 @@ fieldset#filesPicoSiteFolders div#filesPicoSiteFoldersList {
 
 .btn.edit_personal_website {
 	text-align: center;
-	display: block;
+	display: table;
 	margin: 0 auto;
 	width: max-content;
 }

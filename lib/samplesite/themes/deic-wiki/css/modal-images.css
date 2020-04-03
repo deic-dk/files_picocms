@@ -77,15 +77,15 @@
   display: inline-block;
 }
 
-/* Prevent rotation */
-img {
-  image-orientation: from-image;
-}
-
 /* Add Animation - Zoom in the Modal */
 .modal-img, .modal-caption {
   animation-name: zoom;
   animation-duration: 0.6s;
+}
+
+/* Prevent rotation */
+img {
+  image-orientation: from-image;
 }
 
 @keyframes zoom {

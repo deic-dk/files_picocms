@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8" />
+
+    <title>Search results</title>
+    {% if meta.description %}
+        <meta name="description" content="{{ meta.description|striptags }}">
+    {% endif %}{% if meta.robots %}
+        <meta name="robots" content="{{ meta.robots }}">
+    {% endif %}
+    <!-- Bootstrap Core CSS -->
+    <link href="{{ theme_url }}/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="{{ theme_url }}/css/clean-blog.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="{{ theme_url }}/css/font-awesome.css" rel="stylesheet" type="text/css">
+    <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+    
+    <link id="favicon" rel="shortcut icon" type="image/png" href="img/favicon.png" />
+  </head>
+  
+ <body>
+ 
+  <nav class="navbar search navbar-default navbar-custom navbar-fixed-top">
+      <div class="container-fluid page-nav">
+          <span class="nav search">
+              <a href="{{ base_url }}"><img alt="Home" src="{% if current_page.meta.icon %}{{ meta.icon }}{% else %}{{ base_url }}/img/icon.png{% endif %}" class="icon" /></a>
+          </span>
+          <span class="nav search">
+              <form id="search_form" class="search_page" action="{{ base_url  }}/search">
+                  <input type="search" id="search_input" name="q" placeholder="Search" />
+                  <!--<input type="submit" id="search_submit" value="Search" />-->
+              </form>
+              <script type="text/javascript">
+                      // Intercept form submit and go to the search results page directly, avoiding a redirect
+                      document.getElementById('search_form').addEventListener('submit', function (e) {
+                              var search_terms = document.getElementById('search_input').value;
+                              location.href = '{{ base_url  }}/search/' + encodeURIComponent(search_terms);
+                              e.preventDefault();
+                      });
+              </script>
+          </span>                    
+      </div>
+  </nav>
+    
+  <div class="container-fluid">
+   	<div class="row-fluid">
+			<div class="span9 main">
+				{% for page in pages %}
+					<div class="search_result">
+						<h2><a href="{{ page.url }}">{{ page.title }}</a></h2>
+						{% if page.description %}<p>{{ page.description }}</p>{% endif %}
+					</div>
+				{% endfor %} 
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>

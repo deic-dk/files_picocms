@@ -16,6 +16,7 @@ class Pagination extends AbstractPicoPlugin {
 	public $paged_pages = array();
 	public $paged_folders = array();
 	public $contents = array();
+	public $labels = array();
 	
 	public function __construct(Pico $pico)
 	{
@@ -89,8 +90,13 @@ class Pagination extends AbstractPicoPlugin {
 					}
 				}
 			}
+			if(!empty($page['meta']['labels'])){
+				$this->labels = array_unique(array_merge($this->labels,
+						array_map('trim', explode(",", $page['meta']['labels']))));
+			}
 		}
 		\OCP\Util::writeLog('files_piocms', "Folders: ".implode(":", $show_folders), \OC_Log::WARN);
+		\OCP\Util::writeLog('files_piocms', "Labels: ".implode(":", $this->labels), \OC_Log::WARN);
 		// get total pages before show_pages is sliced
 		$this->total_pages = ceil(count($show_pages) / $this->config['limit']);
 		// slice show_pages to the limit
@@ -110,6 +116,7 @@ class Pagination extends AbstractPicoPlugin {
 			$twigVariables['paged_pages'] = $this->paged_pages;
 			$twigVariables['paged_folders'] = $this->paged_folders;
 			$twigVariables['contents'] = $this->contents;
+			$twigVariables['labels'] = $this->labels;
 			
 		// set var for page_number
 		if ($this->page_number)

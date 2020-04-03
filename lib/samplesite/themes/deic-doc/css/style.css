@@ -351,3 +351,9 @@ section#content div.inner li input[type=checkbox] {
 	right: 32px;
 }
 
+/* Prevent rotation */
+img {
+	image-orientation: from-image;
+}
+
+

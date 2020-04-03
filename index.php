@@ -164,7 +164,7 @@ $extension = empty($_GET['path'])?'':pathinfo($_GET['path'], PATHINFO_EXTENSION)
 if(!empty($extension) && ($extension=='png'||$extension=='jpg')){
 	header("Content-type: image/".$extension);
 }
-elseif(!empty($extension) && ($$extension=='svg')){
+elseif(!empty($extension) && ($extension=='svg')){
 	header("Content-type: image/svg+xml");
 }
 elseif($extension!=='md' && basename($_GET['path'])=="feed"){
@@ -232,8 +232,19 @@ else{
 
 // requesttoken is needed to get avatars
 $config['requesttoken'] = \OC::$session->get('requesttoken');
+if(empty($config['requesttoken']) && \OCP\App::isEnabled('files_sharding') && (empty($user_id) ||
+		!\OCA\FilesSharding\Lib::onServerForUser($user_id)) &&
+		!\OCA\FilesSharding\Lib::isMaster()){
+	$instanceId = \OC_Config::getValue('instanceid', null);
+	if(!empty($_COOKIE[$instanceId])){
+		\OCP\Util::writeLog('files_picocms', 'Getting session from master '.$_COOKIE[$instanceId], \OC_Log::WARN);
+		$session = \OCA\FilesSharding\Lib::getUserSession($_COOKIE[$instanceId], false);
+		\OC_Log::write('files_sharding', 'got session '.serialize($session), \OC_Log::WARN);
+		$config['requesttoken'] = $session['requesttoken'];
+	}
+}
 
-// This is for the clean-blog theme
+// This is for the deic-blog theme
 $config['pages_order_by'] = 'date';
 //$config['pages_order'] = 'asc';
 $config['pagination'] = -1;

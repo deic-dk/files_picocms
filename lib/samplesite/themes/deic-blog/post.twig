@@ -95,8 +95,16 @@
                         <h1>{{ meta.title }}</h1>
                         <h2 class="subheading">{{ meta.description }}</h2>
 												{% if has_search_page %}
-                        <span class="meta">Posted by <a href="{{ base_url }}/search/author:{{ meta.author }}">{{ meta.displayname }}</a> on {{ meta.date }}</span>
+                        <div class="meta">Posted by <a href="{{ base_url }}/search/author:{{ meta.author }}">{{ meta.displayname }}</a> on {{ meta.date }}</div>
 												{% endif %}
+												{% if meta.labels and has_search_page %}
+		                    <div class="labels">
+		                    	{% set labels = meta.labels|split(',') %}
+		                    	{% for label in labels %}
+		   									 		<a href="{{ base_url }}/search/labels:{{ label }}"><span class="label">{{ label }}</span></a>
+													{% endfor %}
+		                    </div>
+                    		{% endif %}
                     </div>
                 </div>
             </div>
