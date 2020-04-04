@@ -988,6 +988,7 @@ class Pico
 								}
 								if(!empty($fileInfo)){
 									$this->ocId = $fileInfo->getId();
+									$this->ocParentId = $pathInfo['parent'];
 								}
 							}
 							else{
