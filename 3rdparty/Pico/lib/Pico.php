@@ -946,9 +946,9 @@ class Pico
 		$contentDir = $this->getConfig('content_dir');
 		$ocRootPath = substr($contentDir, strlen($ownerRoot));
 		$ocPath = !empty($ocPath)?$ocPath:$ocRootPath;
-		$this->ocPath = $this->indexInferred?(dirname($ocPath)."/"):$ocPath;
-		\OCP\Util::writeLog('files_picocms', 'Checking permissions: '.$access.' to '.$ocPath. ' in '.
-				$ownerRoot, \OC_Log::WARN);
+		$this->ocPath = $this->indexInferred&&substr($ocPath,-1)!="/"?(dirname($ocPath)."/"):$ocPath;
+		\OCP\Util::writeLog('files_picocms', 'Checking permissions: '.$access.' to access '.$ocPath. ' in '.
+				$ownerRoot." :: ".$this->ocPath, \OC_Log::WARN);
 		// First check if I own the file
 		if($user_id===$owner){
 			$this->ocShare = '';
