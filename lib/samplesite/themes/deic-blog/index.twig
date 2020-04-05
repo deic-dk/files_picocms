@@ -74,11 +74,15 @@
 								<input type="search" id="search_input" name="q" placeholder="Search" />
 								<!--<input type="submit" id="search_submit" value="Search" />-->
 							</form>
-							<div class="navbar-header page-scroll navbar-right">
-									<a class="navbar-brand search" href="{{ base_url }}/search">Search</a>
-									<div class="about"><a href="about">About</a></div>
-							</div>
 						{% endif %}
+						<div class="navbar-header page-scroll navbar-right">
+						{% if has_search_page %}
+							<a class="navbar-brand search" href="{{ base_url }}/search">Search</a>
+						{% endif %}
+						{% if meta.about %}
+							<div class="about"><a href="about">About</a></div>
+						{% endif %}
+						</div>
         </div>
         <!-- /.container -->
     </nav>

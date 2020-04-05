@@ -107,9 +107,9 @@ hr {
 }
 
 .post-header .avatardiv {
-	float: left;
-	margin-top: 44px;
-	margin-left: 26px;
+	float: right;
+	margin-top: 56px;
+	margin-right: 26px;
 	position: relative;
 	height: 64px;
 	width: 64px;
@@ -663,8 +663,7 @@ section#content div.inner li input[type=checkbox] {
 }
 
 .navbar-header .about {
-	margin: 147px 0 0 7px;
-	display: none;
+	margin: 131px 0 0 6px;
 }
 
 .about a {
