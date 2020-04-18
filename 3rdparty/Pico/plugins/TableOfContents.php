@@ -13,7 +13,7 @@
 class TableOfContents extends AbstractPicoPlugin {
 
    // default settings
-   private $depth = 3;
+   private $depth = 5;
    private $min_headers = 3;
    private $top_txt = '&uarr;';
    private $caption = '';
@@ -22,9 +22,13 @@ class TableOfContents extends AbstractPicoPlugin {
    // internal
    private $toc = '';
    private $xpQuery;
+   private $content;
 
    private function makeToc(&$content)
    {
+   	
+   		// remember content in case toc_depth is set in meta
+   		$this->content = $content;
       //get the headings
       if(preg_match_all('/<(h[1-'.$this->depth.']|toc) *.*?>.*?<\/(h[1-'.$this->depth.']|toc)>/s',$content,$headers) === false)
          return "";
@@ -125,7 +129,13 @@ class TableOfContents extends AbstractPicoPlugin {
 
    public function onPageRendering(&$twig, &$twig_vars, &$templateName)
    {
-      $twig_vars['toc'] = $this->toc;
+   		// toc_depth set in page meta can only be <= the one set in the config
+	   	if(isset($twig_vars['meta']['toc_depth']) && $twig_vars['meta']['toc_depth']<$this->depth){
+	   		$this->depth = $twig_vars['meta']['toc_depth'];
+	   		// Discard higher tocs
+	   		$this->toc = $this->makeToc($this->content);
+	   	}
+	   	$twig_vars['toc'] = $this->toc;
       $twig_vars['toc_top'] = $this->anchor ? "" : '<a id="top"></a>';
       $twig_vars['top_link'] = $this->top_link;
    }
