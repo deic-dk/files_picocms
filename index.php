@@ -119,12 +119,16 @@ elseif(!empty($_GET['site'])){
 	$config['base_uri'] = \OC::$WEBROOT."/sites/".$siteInfo['site'];
 }
 
-\OCP\Util::writeLog('files_picocms', 'Site INFO: '.serialize($siteInfo), \OC_Log::WARN);
+\OCP\Util::writeLog('files_picocms', 'Site INFO: '.\OCA\FilesSharding\Lib::getServerForUser($siteInfo['uid']).
+		'-->'.serialize($siteInfo), \OC_Log::WARN);
 
 if(\OCP\App::isEnabled('files_sharding') && !empty($siteInfo['uid']) &&
 		!\OCA\FilesSharding\Lib::onServerForUser($siteInfo['uid'])){
 	$userServerUrl = \OCA\FilesSharding\Lib::getServerForUser($siteInfo['uid']);
-	if(!empty($userServerUrl)){
+	$master = \OCA\FilesSharding\Lib::getMasterHostName();
+	if(!empty($userServerUrl) && substr($_SERVER['HTTP_HOST'], -strlen($master))==$master){
+		// Only redirect urls of the form https://siloX.masterdomain/sites/mysite
+		// i.e. don't redirect custom sites with external dns
 		$redirect_full = $userServerUrl.$_SERVER['REQUEST_URI'];
 		header("HTTP/1.1 307 Temporary Redirect");
 		header('Location: ' . $redirect_full);
