@@ -1059,6 +1059,12 @@ pagebreak, .pagebreak {
 	margin-left: 60px;
 }
 
+.gray_header {
+  color:#747474!important;;
+  font-size: 24px;
+  font-weight: bold;
+}
+
 @media print{
 	
 	body {
@@ -1073,7 +1079,7 @@ pagebreak, .pagebreak {
 		width: 0;
 		opacity: 0;
 	}
-	.noprint, .noprint * {
+	.copyright, #show_comments, .foot, .noprint, .noprint * {
 		display: none;
 	}
 	
