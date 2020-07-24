@@ -996,7 +996,7 @@ td, th {
 }
 
 .small-image {
-	width: 50%;
+	/*width: 50%;*/
 	position: relative;
 	display: block;
 	margin: 24px auto;
@@ -1139,5 +1139,10 @@ table {
 code {
 	color: #58585c;
 	background-color: #eaeaec;
+}
+
+.center {
+	display: block;
+	margin: 24px auto;
 }
 
