@@ -174,7 +174,8 @@ elseif(!empty($extension) && ($extension=='svg')){
 elseif($extension!=='md' && basename($_GET['path'])=="feed"){
 	header("Content-type: application/rss+xml");
 }
-elseif(!empty($extension) && ($extension!='md') && dirname($_GET['path'])!="search"){
+elseif(!empty($extension) && ($extension!='md') && dirname($_GET['path'])!="search" ||
+		!empty($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'letsencrypt')!==false){
 	$filePath = $dataDir.'/'.$sitePath.'/'.$_GET['path'];
 	if(!file_exists($filePath)){
 		$filePath = $dataDir.'/'.$sitePath.'/content/'.$_GET['path'];
