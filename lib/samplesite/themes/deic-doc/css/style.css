@@ -319,6 +319,12 @@ img {
 	margin-top: -10px;
 }
 
+.inline-img1 {
+	margin-bottom: 0;
+	margin-top: 0;
+	padding-bottom: 4px;
+}
+
 .modal-body {
     padding-bottom: 15px;
     padding-top: 0;
