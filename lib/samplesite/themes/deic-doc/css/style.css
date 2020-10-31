@@ -362,4 +362,14 @@ img {
 	image-orientation: from-image;
 }
 
-
+.small-image {
+	/*width: 50%;*/
+	max-width: 320px;
+	max-height: 320px;
+	position: relative;
+	display: block;
+	margin: 24px auto;
+	border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px;
+}
