@@ -289,7 +289,7 @@ thead th:empty {
   border: 0;
 }
 
-img {
+img:not(.no-lightbox) {
     cursor: pointer;
 }
 
@@ -373,3 +373,26 @@ img {
   border-radius: 4px;
   padding: 5px;
 }
+
+.very-small-image {
+	max-width: 180px;
+	max-height: 180px;
+	position: relative;
+	display: block;
+	margin: 24px auto;
+	border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px;
+}
+
+.tiny-image {
+	max-height: 24px;
+	position: relative;
+	display: inline;
+	margin: 2px auto;
+	border: none;
+  border-radius: 2px;
+  padding: 1px;
+}
+
+
