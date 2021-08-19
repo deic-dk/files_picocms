@@ -1241,7 +1241,7 @@ class Pico
 		// NC change
 		// remove Joplin meta footer
 		if(\OCP\App::isEnabled('notes') ){
-			$joplinPattern = "|^([^\n]+)(\n\n)?(.*)\n((\n.+: .+)*)$|s";
+			$joplinPattern = "|([^\n]+)(\n\n)?(.*)\n((\n.+: .+)*)$|s";
 			// TODO: perhaps use Joplin metadata.
 			$content = preg_replace($joplinPattern, "$3", $content);
 			// Support files_markdown images
@@ -1259,7 +1259,7 @@ class Pico
 		  					'!['.$matches[1][$i].'](:/'.$matches[2][$i].')'
 		  					, \OC_Log::WARN);
 		  			$content = str_replace('!['.$matches[1][$i].'](/'.$matches[2][$i].')',
-		  					'<img src="data:'.$mime.';base64,'.base64_encode($imageData).'">', $content);
+		  					'<p class="nobreak"><img src="data:'.$mime.';base64,'.base64_encode($imageData).'"></p>', $content);
 		  			++$i;
 				}
 			}
@@ -1269,7 +1269,7 @@ class Pico
 				$i = 0;
 				foreach($matches[0] as $fullMatch){
 					$datadir = OC_Config::getValue( 'datadirectory' );
-					$imageFile = $datadir.'/'.$this->ocOwner.'/files/'.\OCA\Notes\Lib::getNotesFolder().".resource/".
+					$imageFile = $datadir.'/'.$this->ocOwner.'/files/'.\OCA\Notes\Lib::getNotesFolder($this->ocOwner).".resource/".
 						$matches[2][$i];
 					if(!file_exists($imageFile)){
 						continue;
@@ -1280,7 +1280,29 @@ class Pico
 							'!['.$matches[1][$i].'](:/'.$matches[2][$i].')'
 							, \OC_Log::WARN);
 					$content = str_replace('!['.$matches[1][$i].'](:/'.$matches[2][$i].')',
-							'<img src="data:'.$mime.';base64,'.base64_encode($imageData).'">', $content);
+							'<p class="nobreak"><img src="data:'.$mime.';base64,'.base64_encode($imageData).'"></p>', $content);
+					++$i;
+				}
+			}
+			if(preg_match_all('|<img [^<>]*src="\:/([^\(\)"]+)" [^<>]*>|s', $content, $matches)) {
+				// Avoid breaking images when printing - on Firefox (break-inside: avoid; is not respected for img src="data:...)
+				$content = preg_replace('|(<img [^<]+?/*>)|', "<p class=\"nobreak\">$1</p>", $content);
+				require_once('notes/lib/libnotes.php');
+				$i = 0;
+				foreach($matches[0] as $fullMatch){
+					$datadir = OC_Config::getValue( 'datadirectory' );
+					$imageFile = $datadir.'/'.$this->ocOwner.'/files/'.\OCA\Notes\Lib::getNotesFolder($this->ocOwner).".resource/".
+							$matches[1][$i];
+					\OCP\Util::writeLog('files_picocms', 'Fixing image '.':/'.$matches[1][$i].'-->'.$imageFile, \OC_Log::WARN);
+					if(!file_exists($imageFile)){
+						++$i;
+						continue;
+					}
+					\OCP\Util::writeLog('files_picocms', 'Fixing this image '.':/'.$matches[1][$i].'-->'.$imageFile, \OC_Log::WARN);
+					$mime = mime_content_type($imageFile);
+					$imageData = file_get_contents($imageFile);
+					$content = str_replace(':/'.$matches[1][$i],
+							'data:'.$mime.';base64,'.base64_encode($imageData), $content);
 					++$i;
 				}
 			}

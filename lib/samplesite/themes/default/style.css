@@ -552,7 +552,8 @@ pagebreak, .pagebreak {
 	}
 	
 	a, a:visited {
-    color: #444;
-    text-decoration: none;
+		color: #444;
+		text-decoration: none;
+	}
 }
 

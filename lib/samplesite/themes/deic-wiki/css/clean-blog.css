@@ -1079,7 +1079,7 @@ pagebreak, .pagebreak {
 		width: 0;
 		opacity: 0;
 	}
-	.copyright, #show_comments, .foot, .noprint, .noprint * {
+	button.btn, .copyright, #show_comments, .foot, .noprint, .noprint * {
 		display: none;
 	}
 	
@@ -1105,6 +1105,11 @@ pagebreak, .pagebreak {
 	 margin-left: unset;
 	}
 	
+}
+
+img, nobreak {
+	page-break-inside: avoid;
+	break-inside: avoid;
 }
 
 small {

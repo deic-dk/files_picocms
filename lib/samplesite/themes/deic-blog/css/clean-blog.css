@@ -823,4 +823,30 @@ div#toc ul{
     transition: all 0.5s ease;
 }
 
+@media print{
+	pagebreak.noprint, .pagebreak.noprint {
+		display: block;
+		width: 0;
+		opacity: 0;
+	}
+	.noprint, .noprint * {
+		display: none;
+	}
+	
+	a, a:visited {
+		color: #444;
+		text-decoration: none;
+	}
+	
+	button.btn, .copyright, #show_comments, footer, .foot, .noprint, .noprint * {
+		display: none;
+	}
 
+}
+
+img, .nobreak {
+	page-break-inside: avoid;
+	break-inside: avoid;
+}
+	
+	
