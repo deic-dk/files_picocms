@@ -956,6 +956,9 @@ class Pico
 			if(empty($file)){
 				$this->ocParentId = $view->getFileInfo($ocRootPath)->getId();
 			}
+			else{
+				$this->ocParentId = $view->getFileInfo(dirname($ocPath))->getId();
+			}
 			return true;
 		}
 		else{
@@ -1007,7 +1010,7 @@ class Pico
 						$itemShared = \OCA\FilesSharding\Lib::checkReadAccess($user_id, $fileInfo->getId(), $fileType);
 					}
 					\OCP\Util::writeLog('files_picocms', 'Checking sharing of: '.$ocPath.':'.$fileInfo->getId().':'.
-							$fileInfo->getType().':'.serialize($itemShared), \OC_Log::INFO);
+							$fileInfo->getType().':'.$this->ocId.':'.$this->ocParentId.':'.serialize($itemShared), \OC_Log::WARN);
 					if(!empty($itemShared)){
 						//$this->ocShare = $fileInfo->getId();
 						$this->ocShare = $folderId;
@@ -1019,7 +1022,7 @@ class Pico
 					$ocPath = dirname($ocPath);
 					++$i;
 				}
-				if(empty($file)){
+				if(empty($file) && empty($this->ocParentId)){
 					$this->ocParentId = $view->getFileInfo($ocRootPath)->getId();
 				}
 			}
