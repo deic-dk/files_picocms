@@ -165,6 +165,7 @@ if(empty($_GET['path']) &&
 }
 
 $extension = empty($_GET['path'])?'':pathinfo($_GET['path'], PATHINFO_EXTENSION);
+$filePath = $dataDir.'/'.$sitePath.'/'.$_GET['path'];
 if(!empty($extension) && ($extension=='png'||$extension=='jpg')){
 	header("Content-type: image/".$extension);
 }
@@ -176,7 +177,6 @@ elseif($extension!=='md' && basename($_GET['path'])=="feed"){
 }
 elseif(!empty($extension) && ($extension!='md') && dirname($_GET['path'])!="search" ||
 		!empty($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'letsencrypt')!==false){
-	$filePath = $dataDir.'/'.$sitePath.'/'.$_GET['path'];
 	if(!file_exists($filePath)){
 		$filePath = $dataDir.'/'.$sitePath.'/content/'.$_GET['path'];
 	}
@@ -186,12 +186,18 @@ elseif(!empty($extension) && ($extension!='md') && dirname($_GET['path'])!="sear
 	elseif($extension=='html'){
 		header("Content-type: text/html");
 	}
-	elseif(!empty($filePath)){
-		$mimetype = \OC_Helper::getFileNameMimeType($filePath);
-		header("Content-type: $mimetype");
+	elseif(!empty($filePath) && file_exists($filePath)){
+		//$mimetype = \OC_Helper::getFileNameMimeType($filePath);
+		$mimetype = mime_content_type($filePath);
+		if($mimetype!='directory'){
+			header("Content-type: $mimetype");
+		}
 	}
-	echo file_get_contents($filePath);
-	exit;
+	if((empty($mimetype) || $mimetype!='directory') && file_exists($filePath)){
+		\OCP\Util::writeLog('files_picocms', 'Serving '.$mimetype.'-->'.$filePath, \OC_Log::WARN);
+		echo file_get_contents($filePath);
+		exit;
+	}
 }
 
 if(is_dir($dataDir.'/'.$sitePath.'/themes')){
@@ -218,7 +224,7 @@ elseif(is_dir($dataDir.'/'.$sitePath)){
 		"/apps/files_picocms/lib/samplesite/themes";
 }
 else{
-	echo("Site does not exist. ".$dataDir.'::'.$sitePath);
+	\OCP\Util::writeLog('files_picocms', "Site does not exist. ".$dataDir.'::'.$sitePath, \OC_Log::ERROR);
 	exit;
 }
 
@@ -270,6 +276,8 @@ $pico = new Pico(
 // override configuration?
 $pico->setConfig($config);
 $pico->ocOwner = $siteInfo['uid'];
+
+$pico->requestFileExists = file_exists($filePath);
 
 // run application
 echo $pico->run();
