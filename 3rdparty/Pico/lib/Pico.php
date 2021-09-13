@@ -278,7 +278,6 @@ class Pico
 	
 	private $site;
 	public $forbidden;
-	public $requestFileExists;
 
 	/**
 	 * Constructs a new Pico instance
@@ -318,7 +317,6 @@ class Pico
 				Pico::shutDownFunction();
 		});
 		$this->forbidden = false;
-		$this->requestFileExists = false;
 	}
 	
 	public static function shutDownFunction() {
@@ -823,7 +821,7 @@ class Pico
 				}
 			}
 			$pathInfo = pathinfo(array_pop((array_slice($requestFileParts, -1))));
-			if(empty($pathInfo['extension']) || !$this->requestFileExists){
+			if(empty($pathInfo['extension'])){
 				$this->requestFile .= $this->getConfig('content_ext');
 			}
 		}
@@ -1239,16 +1237,15 @@ class Pico
 	public function prepareFileContent($rawContent, array $meta)
 	{
 		// remove meta header
-		//$metaHeaderPattern = "/^(\/(\*)|---)[[:blank:]]*(?:\r)?\n"
-		//	. "(?:(.*?)(?:\r)?\n)?(?(2)\*\/|---)[[:blank:]]*(?:(?:\r)?\n|$)/s";
-		$metaHeaderPattern = "/^(\/\*|---)[[:blank:]]*\r?\n"
-			. "(.*?\r?\n)?(\*\/|---)[[:blank:]]*(\r?\n|$)/s";
+		$metaHeaderPattern = "/^(\/(\*)|---)[[:blank:]]*(?:\r)?\n"
+			. "(?:(.*?)(?:\r)?\n)?(?(2)\*\/|---)[[:blank:]]*(?:(?:\r)?\n|$)/s";
 		$content = preg_replace($metaHeaderPattern, '', $rawContent, 1);
 		
 		// NC change
 		// remove Joplin meta footer and first line (note title)
 		if(\OCP\App::isEnabled('notes')){
-			$joplinPattern = "|([^\n]+)(\n\n?)(.*)\n((\n[^:]+: [^:]+)+)+$|s";
+			//$joplinPattern = "|([^\n]+)(\n\n)?(.*)\n((\n.+: .+)*)$|s";
+			$joplinPattern = "|([^\n]+)(\n\n?)(.*)\n(?:(\n[^:\n]+: .+)*)$|s";
 			// TODO: perhaps use Joplin metadata.
 			if(preg_match($joplinPattern, $content)){
 				$content = preg_replace($joplinPattern, "$3", $content);

@@ -277,8 +277,6 @@ $pico = new Pico(
 $pico->setConfig($config);
 $pico->ocOwner = $siteInfo['uid'];
 
-$pico->requestFileExists = file_exists($filePath);
-
 // run application
 echo $pico->run();
 
