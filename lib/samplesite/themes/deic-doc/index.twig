@@ -76,7 +76,9 @@
 											{% if toc %}
 												{{ toc }}
 											{% else %}
-												<a href="{{ page.url }}">{{ page.title }}</a>
+												{% if len != 2 %}
+													<a href="{{ page.url }}">{{ page.title }}</a>
+												{% endif %}
 											{% endif %}
 										</li>
 									{% else %}
