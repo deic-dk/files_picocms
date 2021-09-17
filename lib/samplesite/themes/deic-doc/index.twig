@@ -70,7 +70,7 @@
 									{% endif %}
 									{% if meta.title == page.title %}
 										<li class="current toc{{ len }}">
-											{% if len == 2 %}
+											{% if len == 2 and not toc %}
 												<a href="{{ page.url }}">{{ page.title }}</a>
 											{% endif %}
 											{% if toc %}
