@@ -188,7 +188,13 @@ elseif(!empty($extension) && ($extension!='md') && dirname($_GET['path'])!="sear
 	}
 	elseif(!empty($filePath) && file_exists($filePath)){
 		//$mimetype = \OC_Helper::getFileNameMimeType($filePath);
-		$mimetype = mime_content_type($filePath);
+		if($extension=='js'){
+			$mimetype = 'text/javascript';
+		}
+		elseif($extension=='css'){
+			$mimetype = 'text/css';
+		}
+		$mimetype = empty($mimetype)?mime_content_type($filePath):$mimetype;
 		if($mimetype!='directory'){
 			header("Content-type: $mimetype");
 		}

@@ -821,7 +821,8 @@ class Pico
 				}
 			}
 			$pathInfo = pathinfo(array_pop((array_slice($requestFileParts, -1))));
-			if(empty($pathInfo['extension'])){
+			if(empty($pathInfo['extension']) ||
+					!file_exists($this->requestFile) && file_exists($this->requestFile . $this->getConfig('content_ext'))){
 				$this->requestFile .= $this->getConfig('content_ext');
 			}
 		}
