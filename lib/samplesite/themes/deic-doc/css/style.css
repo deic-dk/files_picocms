@@ -8,7 +8,8 @@
     font-family: "Circular";
     font-style: normal;
     font-weight: 400;
-    src: url("https://sp-bootstrap.global.ssl.fastly.net/7.2.0/fonts/circular-book.woff2") format("woff2"), url("https://sp-bootstrap.global.ssl.fastly.net/7.2.0/fonts/circular-book.woff") format("woff");
+    /*src: url("https://sp-bootstrap.global.ssl.fastly.net/7.2.0/fonts/circular-book.woff2") format("woff2"), url("https://sp-bootstrap.global.ssl.fastly.net/7.2.0/fonts/circular-book.woff") format("woff");*/
+    src: url("https://sp-bootstrap.global.ssl.fastly.net/7.2.0/fonts/circular-light.woff2") format("woff2"), url("https://sp-bootstrap.global.ssl.fastly.net/7.2.0/fonts/circular-light.woff") format("woff");
 }
 @font-face {
     font-family: "Circular";
