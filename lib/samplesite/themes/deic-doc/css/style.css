@@ -290,7 +290,7 @@ thead th:empty {
   border: 0;
 }
 
-img:not(.no-lightbox) {
+img:not(.no-lightbox):not(.img-fluid) {
     cursor: pointer;
 }
 
