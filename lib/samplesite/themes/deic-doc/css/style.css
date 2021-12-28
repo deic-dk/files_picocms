@@ -363,6 +363,14 @@ img {
 	image-orientation: from-image;
 }
 
+.medium-image {
+	max-width: 50%;
+	position: relative;
+	display: block;
+	margin: 24px auto;
+  padding: 5px;
+}
+
 .small-image {
 	/*width: 50%;*/
 	max-width: 320px;
