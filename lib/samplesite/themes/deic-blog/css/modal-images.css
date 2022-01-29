@@ -20,6 +20,14 @@
   max-height: 320px;
 }
 
+.smaller-image {
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+  max-width: 200px;
+  max-height: 200px;
+}
+
 .verysmall-image {
   border-radius: 5px;
   cursor: pointer;
