@@ -852,5 +852,8 @@ img, .nobreak {
 	page-break-inside: avoid;
 	break-inside: avoid;
 }
-	
-	
+
+ul>li:last-child {
+	margin-bottom: 14px;
+}
+
