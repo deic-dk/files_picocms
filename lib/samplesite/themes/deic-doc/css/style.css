@@ -413,3 +413,11 @@ centerbig {
 	display: inline-block;
 }
 
+@media print {
+	.navigation {
+		display: none!important;
+	}
+	.main {
+		margin-left: 4%!important;
+	}
+}
