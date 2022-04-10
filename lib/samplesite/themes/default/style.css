@@ -555,5 +555,8 @@ pagebreak, .pagebreak {
 		color: #444;
 		text-decoration: none;
 	}
+	.inner {
+		max-width: 85%;
+	}
 }
 
