@@ -256,6 +256,13 @@ class Pico
 	protected $ocMasterUrl;
 
 	/**
+	 * Support email.
+	 *
+	 * @var string
+	 */
+	protected $ocSupportEmail;
+	
+	/**
 	 * URL of the home server of the current user in a sharded setup.
 	 *
 	 * @var string
@@ -305,6 +312,7 @@ class Pico
 			$this->ocMasterUrl = $_SERVER['HTTP_HOST'];
 			$this->ocUserHomeUrl = $_SERVER['HTTP_HOST'];
 		}
+		$this->ocSupportEmail = \OCP\Config::getSystemValue('fromemail', '');
 		if(\OCP\App::isEnabled('user_orcid')){
 			require_once('user_orcid/lib/lib_orcid.php');
 			$this->orcid = \OCA\FilesOrcid\Lib::getOrcid($owner);
@@ -1368,6 +1376,9 @@ class Pico
 		if(!empty($this->ocMasterUrl)){
 			$content = str_replace('%master_url%', $this->ocMasterUrl, $content);
 		}
+		if(!empty($this->ocSupportEmail)){
+			$content = str_replace('%support_email%', $this->ocSupportEmail, $content);
+		}
 		if(!empty($this->ocUserHomeUrl)){
 			$content = str_replace('%user_home_url%', $this->ocUserHomeUrl, $content);
 		}
@@ -1755,6 +1766,7 @@ class Pico
 			'oc_group' => $this->getConfig('group'),
 			'oc_owner' => $this->ocOwner,
 			'oc_master_url' => $this->ocMasterUrl,
+			'oc_support_email' => $this->ocSupportEmail,
 			'oc_user_home_url' => $this->ocUserHomeUrl,
 			'orcid' => $this->orcid,
 			'oc_email' => $this->ocEmail,
