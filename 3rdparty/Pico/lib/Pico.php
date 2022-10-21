@@ -470,7 +470,7 @@ class Pico
 		if(!empty($this->meta['access'])){
 			if(!$this->checkPermissions($this->requestFile, $this->meta['access'],
 					$this->getConfig('user'), $this->getConfig('group'))){
-				header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden');
+				//header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden');
 				$this->rawContent = $this->loadStatusContent($this->requestFile, 403);
 				$this->forbidden = true;
 			}
