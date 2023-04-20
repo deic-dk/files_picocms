@@ -1016,7 +1016,7 @@ class Pico
 								$fileType, $fileInfo->getId(), $user_id);
 					}
 					else{
-						$itemShared = \OCA\FilesSharding\Lib::checkReadAccess($user_id, $fileInfo->getId(), $fileType);
+						$itemShared = \OCA\FilesSharding\Lib::checkAccess($user_id, $fileInfo->getId(), $fileType);
 					}
 					\OCP\Util::writeLog('files_picocms', 'Checking sharing of: '.$ocPath.':'.$fileInfo->getId().':'.
 							$fileInfo->getType().':'.$this->ocId.':'.$this->ocParentId.':'.serialize($itemShared), \OC_Log::WARN);
