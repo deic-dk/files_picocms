@@ -160,8 +160,8 @@
 				<div id="content"><div id="controls"><div id="notification"></div></div></div>
 
 				<!-- Generate index. -->
-				{% if not forbidden and ( meta.access == 'private' or meta.access == 'shared' ) and
-				meta.permissions != 'none' %}
+				{% if not forbidden and (( meta.access == 'private' or meta.access == 'shared' ) and
+				meta.permissions != 'none' or meta.access == 'public' ) %}
 					<div id="contents">
 						<!-- Contents of {{ current_page.folder }} -->
 						<ul>
@@ -169,10 +169,11 @@
 							{% if file != '403.md' and file != '404.md' and file != 'search.md' and file != 'img/' or
 									current_page.folder != '/' %}
 								<li>
-									<a href="{{ file }}">{{ file }}</a>
-									{% if file ends with 'png' or file ends with 'jpg' or file ends with 'gif' %}
-										<a href="{{ file }}" class="modal-image" src="{{ file }}"><i class="fas fa-eye"></i></a>
-										{% endif %}
+									{% if file ends with '.png' or file ends with '.jpg' or file ends with '.gif' or file ends with '.mp4' %}
+										<a href="{{ file }}">{{ file }}</a>&nbsp;<a href="{{ file }}" class="modal-image" src="{{ file }}"><i class="fas fa-eye"></i></a>
+									{% else %}
+										<a href="{{ file }}">{{ file }}</a>
+									{% endif %}
 								</li>
 							{% endif %}
 							{% endfor %}

@@ -200,8 +200,14 @@ elseif(!empty($extension) && ($extension!='md') && dirname($_GET['path'])!="sear
 		}
 	}
 	if((empty($mimetype) || $mimetype!='directory') && file_exists($filePath)){
-		\OCP\Util::writeLog('files_picocms', 'Serving '.$mimetype.'-->'.$filePath, \OC_Log::WARN);
-		echo file_get_contents($filePath);
+		\OCP\Util::writeLog('files_picocms', 'Serving '.$mimetype.' : '.$_SERVER['HTTP_USER_AGENT'].'-->'.$filePath, \OC_Log::WARN);
+		if($mimetype=="video/quicktime" /*&&
+				(stripos($_SERVER['HTTP_USER_AGENT'],"AppleWebKit") || stripos($_SERVER['HTTP_USER_AGENT'],"iPhone"))*/){
+			\OCA\FilesSharding\Lib::rangeServe($filePath, $mimetype);
+		}
+		else{
+			echo file_get_contents($filePath);
+		}
 		exit;
 	}
 }

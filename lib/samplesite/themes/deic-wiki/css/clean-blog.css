@@ -124,7 +124,7 @@ hr {
   position: fixed;
   left: 26px;
   top: 72px;
-  z-index: 10;
+  z-index: 1;
   cursor: pointer;
   padding: 6px 18px 17px 18px;
 }
