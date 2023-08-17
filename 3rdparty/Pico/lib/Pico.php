@@ -283,6 +283,13 @@ class Pico
 	 */
 	protected $ocEmail;
 	
+	public static $SHARE_TYPE_NONE = 'none';
+	public static $SHARE_TYPE_MINE = 'mine';
+	public static $SHARE_TYPE_SHARED_WITH_ME = 'shared_with_me';
+	public static $SHARE_TYPE_SHARED_WITH_ME_RW = 'shared_with_me_rw';
+	public static $SHARE_TYPE_SHARED_PUBLIC = 'shared_public';
+	public static $SHARE_TYPE_SHARED_PUBLIC_RW = 'shared_public_rw';
+	
 	private $site;
 	public $forbidden;
 
@@ -468,7 +475,7 @@ class Pico
 
 		// NC change
 		if(!empty($this->meta['access'])){
-			if(!$this->checkPermissions($this->requestFile, $this->meta['access'],
+			if(!$this->checkReadPermission($this->requestFile, $this->meta['access'],
 					$this->getConfig('user'), $this->getConfig('group'))){
 				//header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden');
 				$this->rawContent = $this->loadStatusContent($this->requestFile, 403);
@@ -895,20 +902,21 @@ class Pico
 	}
 
 	/**
-	 * If the meta attribute 'Access' is set to 'private',
-	 * this function is called to check Nextcloud access rights.
+	 * If the meta attribute 'Access' is set to 'private' or 'shared,
+	 * this function is called to check ownCloud access rights.
 	 * It also sets the variables $ocPath, $ocShare, $ocId and $ocParentId.
 	 * @param string $file absolute path of the file
 	 * @param string $access Pico ACL defined by file's meta attribute 'Access'.
-	 * 				If set to 'private' or 'shared', NC access rights are checked.
+	 * 				If set to 'private' or 'shared', ownCloud access rights are checked.
 	 * 				If set to 'public' they are not.
 	 * @param string $owner the owner of the file
 	 * @param string $group possible name of group folder holding the file
 	 */
-	public function checkPermissions($file, $access, $owner, $group=null)
+	private function checkReadPermission($file, $access, $owner, $group=null)
 	{
 		if(empty($access) || trim(strtolower($access))=='public'){
-			$this->meta['permissions'] = 'none';
+			$this->meta['share_type'] = self::$SHARE_TYPE_NONE;
+			$this->meta['readable'] = true;
 			return true;
 		}
 		if(trim(strtolower($access))!='shared' && trim(strtolower($access))!='private'){
@@ -929,16 +937,7 @@ class Pico
 				$user_id = $session['user_id'];
 			}
 		}
-		if(empty($user_id)){
-			\OCP\Util::writeLog('files_picocms', 'No user '.$user_id.', '.$access, \OC_Log::ERROR);
-			$this->meta['permissions'] = 'none';
-			if(trim(strtolower($access))=='private'){
-				return false;
-			}
-			if(trim(strtolower($access))=='shared'){
-				return true;
-			}
-		}
+
 		if(!empty($group)){
 			$view = new \OC\Files\View('/'.$owner.'/user_group_admin/'.$group);
 		}
@@ -948,20 +947,51 @@ class Pico
 		$ownerRoot = $view->getLocalFile('/');
 		if($file!==null && strpos($file, $ownerRoot)!==0){
 			\OCP\Util::writeLog('files_picocms', 'Trying to access file outside of user dir', \OC_Log::ERROR);
-			$this->meta['permissions'] = 'none';
+			$this->meta['share_type'] = self::$SHARE_TYPE_NONE;
 			return false;
 		}
-		$ocPath = substr($file, strlen($ownerRoot));
+		$ocPath = "/".ltrim(substr($file, strlen($ownerRoot)), "/");
+
+		if(empty($user_id)){
+			\OCP\Util::writeLog('files_picocms', 'No user '.$user_id.', '.$access, \OC_Log::WARN);
+			$this->meta['share_type'] = self::$SHARE_TYPE_NONE;
+			if(trim(strtolower($access))=='private'){
+				return false;
+			}
+			if(trim(strtolower($access))=='shared'){
+				// Check if current folder is publicly shared.
+				if(\OCP\App::isEnabled('files_sharding')){
+					$share_permissions = (int)\OCA\FilesSharding\Lib::checkPubliclyShared($ocPath, $owner, $group);
+					\OCP\Util::writeLog('files_picocms', 'Public share permissions: '.$share_permissions, \OC_Log::WARN);
+					$this->meta['permissions'] = $share_permissions;
+					if($share_permissions & \OCP\PERMISSION_DELETE){
+						$this->meta['share_type'] = self::$SHARE_TYPE_SHARED_PUBLIC_RW;
+						// We don't support public editing
+						//$this->meta['editable'] = true;
+						$this->meta['readable'] = true;
+					}
+					elseif($share_permissions){
+						$this->meta['share_type'] = self::$SHARE_TYPE_SHARED_PUBLIC;
+						$this->meta['readable'] = true;
+					}
+				}
+				return true;
+			}
+		}
+		
 		$contentDir = $this->getConfig('content_dir');
 		$ocRootPath = substr($contentDir, strlen($ownerRoot));
 		$ocPath = !empty($ocPath)?$ocPath:$ocRootPath;
 		$this->ocPath = $this->indexInferred&&substr($ocPath,-1)!="/"?(dirname($ocPath)."/"):$ocPath;
-		\OCP\Util::writeLog('files_picocms', 'Checking permissions: '.$access.' to access '.$ocPath. ' in '.
+		\OCP\Util::writeLog('files_picocms', 'Checking permissions. Access: '.$access.' Path: '.$ocPath. ' in '.
 				$ownerRoot." :: ".$this->ocPath, \OC_Log::WARN);
 		// First check if I own the file
 		if($user_id===$owner){
+			$this->meta['permissions'] = \OCP\PERMISSION_ALL;
+			$this->meta['editable'] = true;
+			$this->meta['readable'] = true;
 			$this->ocShare = '';
-			$this->meta['permissions'] = 'mine';
+			$this->meta['share_type'] = self::$SHARE_TYPE_MINE;
 			if(empty($file)){
 				$this->ocParentId = $view->getFileInfo($ocRootPath)->getId();
 			}
@@ -1012,15 +1042,17 @@ class Pico
 					}
 					$fileType = $fileInfo->getType()===\OCP\Files\FileInfo::TYPE_FOLDER?'folder':'file';
 					if(!\OCP\App::isEnabled('files_sharding') || \OCA\FilesSharding\Lib::isMaster()){
-						$itemShared = \OCP\Share::getItemSharedWithUser(
-								$fileType, $fileInfo->getId(), $user_id);
+						$itemShared = \OCP\Share::getItemSharedWithUser($fileType, $fileInfo->getId(), $user_id);
+						$this->meta['permissions'] = (int)$itemShared['permissions'];
 					}
 					else{
-						$itemShared = \OCA\FilesSharding\Lib::checkAccess($user_id, $fileInfo->getId(), $fileType);
+						$itemSharedPermissions = \OCA\FilesSharding\Lib::checkAccess($user_id, $fileInfo->getId(), $fileType);
+						$this->meta['permissions'] = (int)$itemSharedPermissions;
 					}
 					\OCP\Util::writeLog('files_picocms', 'Checking sharing of: '.$ocPath.':'.$fileInfo->getId().':'.
-							$fileInfo->getType().':'.$this->ocId.':'.$this->ocParentId.':'.serialize($itemShared), \OC_Log::WARN);
-					if(!empty($itemShared)){
+							$fileInfo->getType().':'.$this->ocId.':'.$this->ocParentId.':'.serialize($itemShared).':'.
+							serialize($itemSharedPermissions), \OC_Log::WARN);
+					if(!empty($itemShared) || !empty($itemSharedPermissions)){
 						//$this->ocShare = $fileInfo->getId();
 						$this->ocShare = $folderId;
 						// This sets $this->ocPath to the path relative to the parent of the shared folder
@@ -1044,11 +1076,20 @@ class Pico
 				\OC_Util::setupFS('/'.$user_id.'/files');
 			}
 			if(!empty($ocPath) && $ocPath!=='.'){
-				$this->meta['permissions'] = 'shared_with_me';
+				if(!empty($this->meta['permissions']) && ($this->meta['permissions'] & \OCP\PERMISSION_DELETE)){
+					$this->meta['share_type'] = self::$SHARE_TYPE_SHARED_WITH_ME_RW;
+					$this->meta['editable'] = true;
+					$this->meta['readable'] = true;
+				}
+				elseif(!empty($this->meta['permissions']) && ($this->meta['permissions'] & \OCP\PERMISSION_READ)){
+					$this->meta['share_type'] = self::$SHARE_TYPE_SHARED_WITH_ME;
+					$this->meta['readable'] = true;
+				}
 				return true;
 			}
 			else{
-				$this->meta['permissions'] = 'none';
+				$this->meta['share_type'] = self::$SHARE_TYPE_NONE;
+				$this->meta['permissions'] = 0;
 				return false;
 			}
 		}

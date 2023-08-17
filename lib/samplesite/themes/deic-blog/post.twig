@@ -115,7 +115,7 @@
         </div>
         <button class="edit-button btn btn-primary btn-flat" path="{{ oc_path }}"
         dir_id="{{ oc_parent_id }}" id="{{ oc_id }}"
-        {% if (meta.access == 'public' or meta.permissions == 'none') and
+        {% if (meta.access == 'public' or not meta.readable is not empty) and
         (oc_user is not defined  or oc_owner is not defined or oc_owner != oc_user) %}
         	style="display:none;"
         {% endif %}

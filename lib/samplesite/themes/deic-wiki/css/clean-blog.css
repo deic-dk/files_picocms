@@ -124,7 +124,7 @@ hr {
   position: fixed;
   left: 26px;
   top: 72px;
-  z-index: 1;
+  z-index: 10;
   cursor: pointer;
   padding: 6px 18px 17px 18px;
 }
@@ -806,7 +806,6 @@ nav .labels {
 .leftbar {
   left: 8px;
   top: 56px;
-  padding-top: 35px;
 }
 
 .labelsbar {
@@ -851,8 +850,8 @@ nav .labels {
 	border-style: solid;
 	border-color: #979797;
 	border-radius: 6px;
-	position: absolute;
-	right: -5px;
+	position: relative;
+	margin-bottom: 4px;
 }
 
 button#editor_save:hover {

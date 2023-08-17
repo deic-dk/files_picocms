@@ -73,6 +73,11 @@
 
 </head>
 
+{% set editable = '' %}
+{% if meta.editable is not empty and not current_page.id is empty %}
+{% set editable = 'yes' %}
+{% endif %}
+
 <body>
 
 	<!-- Navigation -->
@@ -89,7 +94,7 @@
 				<input type="search" id="search_input" name="q" placeholder="Search" />
 			</form>
 		{% endif %}
-		{% if not meta.permissions is empty and meta.permissions != 'none' %}
+		{% if editable is not empty %}
 			<div class="write-post" share="{{ oc_share }}" path="{{ oc_path }}"
 				dir_id="{{ oc_parent_id }}" id="{{ oc_id }}" owner="{{ oc_owner }}" user="{{ oc_user }}"
 				user_home_url="{{ oc_user_home_url }}" group="{{ oc_group }}" title="Create new page">
@@ -106,7 +111,9 @@
 	</nav>
 
 	<ul class="leftbar">
-		<button id="manage_files">Manage</button>
+		{% if editable is not empty %}
+			<button id="manage_files">Manage</button>
+		{% endif %}
 		{% for fol in paged_folders|sort %}
 		{% if fol != "/" %}
 			{% set depth = fol | split('/') | length -1 %}
@@ -127,7 +134,7 @@
 		{% endfor %}
 	</ul>
 
-	{% if (not meta.permissions is empty and meta.permissions != 'none' and not current_page.id is empty) %}
+	{% if editable is not empty and not current_page.id is empty %}
 		<button title="Edit page" class="edit-button float-button"
 		path="{{ oc_path }}{% if current_page.id ends with 'index' and oc_path ends with '/' %}index.md{% endif %}"
 		dir_id="{{ oc_parent_id }}" id="{{ oc_id }}" 
@@ -158,10 +165,8 @@
 
 				<!-- File editor -->
 				<div id="content"><div id="controls"><div id="notification"></div></div></div>
-
 				<!-- Generate index. -->
-				{% if not forbidden and (( meta.access == 'private' or meta.access == 'shared' ) and
-				meta.permissions != 'none' or meta.access == 'public' ) %}
+				{% if meta.readable is not empty %}
 					<div id="contents">
 						<!-- Contents of {{ current_page.folder }} -->
 						<ul>

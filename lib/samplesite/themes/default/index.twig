@@ -48,23 +48,21 @@
             </nav>
             {% endif %}
         </div>
-        {% if not forbidden and (meta.access == 'private' or  meta.access == 'shared') and
-        		meta.permissions != 'none' %}
+        {% if meta.editable is not empty %}
             <button class="edit-button btn btn-primary btn-flat" path="{{  oc_path }}"
             id="{{  oc_id }}" dir_id="{{  oc_parent_id }}" user="{{  oc_user }}"
             owner="{{  oc_owner }}" group="{{  oc_group }}" host="{{  oc_user_home_url }}">
             Show file{% if not current_page.id %}s{% endif %}</button>
         {% endif %}
     </header>
-    {% if not forbidden and (meta.access == 'private' or  meta.access == 'shared' ) and
-    	meta.permissions != 'none' and
+    {% if meta.readable is not empty and
     (not current_page.id) and folder!="/" and folder!="" %}
     	<div class="up-button btn btn-primary btn-flat noprint">
 				<a href="../">⤴</a>
 			</div>
-		{% elseif not forbidden and (meta.access == 'private' or  meta.access == 'shared') and
+		{% elseif meta.readable is not empty and
 			not (current_page.id == 'index' or current_page.id matches '{.*\/index$}') and
-			meta.permissions != 'none' and current_page.id and folder!="/" %}
+			current_page.id and folder!="/" %}
     	<div class="up-button btn btn-primary btn-flat noprint">
 				<a href="./">×</a>
 			</div>
@@ -75,8 +73,7 @@
 	{% endif %}
 
 <!-- If this is a Joplin directory/notebook with no index file, show a list of md files -->
-	{% if not forbidden and (meta.access == 'private' or  meta.access == 'shared') and
-    	meta.permissions != 'none' and not current_page.id %}
+	{% if meta.readable is not empty and current_page.id is empty %}
 		<div id="nav" class="inner">
 			<ul>
 				{% for fol in paged_folders|sort %}
