@@ -186,12 +186,11 @@ hr {
 #search_input {
   display: block;
   margin: 0 auto;
-  background-color: #4b4b4b;
+  background-color: #ddd;
   border-radius: 20px;
   border-style: solid;
-  color: #fff;
   padding: 2px 16px;
-  border-color: #0006;
+  border-color: #aaa;
 }
 
 #write_post {
@@ -735,7 +734,7 @@ section#content div.inner li input[type=checkbox] {
 }
 
 nav.navbar {
-  background-color: #000;
+  background-color: #2d2b2a1f;
 }
 
 .float-button {
@@ -1150,3 +1149,6 @@ code {
 	margin: 24px auto;
 }
 
+.fa-stack-2x {
+  color: #737373;
+}
