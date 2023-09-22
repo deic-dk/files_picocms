@@ -30,6 +30,9 @@
     <script type="text/javascript" src="{{ theme_url }}/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="{{ theme_url }}/js/ekko-lightbox.js"></script>
     <script type="text/javascript" src="{{ theme_url }}/js/toc.js"></script>
+    {% if meta.favicon %}
+      <link id="favicon" rel="shortcut icon" type="image/png" href="{{ base_url }}/{{ meta.favicon }}" />
+    {% endif %}	
   </head>
 <body>
 
