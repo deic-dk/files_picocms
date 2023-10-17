@@ -941,10 +941,12 @@ class Pico
 	 */
 	private function checkReadPermission($file, $access, $owner, $group=null)
 	{
-		if(empty($access) || trim(strtolower($access))=='public' /*|| trim(strtolower($access))=='shared'*/ /*Need to set editable...*/){
+		if(empty($access) || trim(strtolower($access))=='public' || trim(strtolower($access))=='shared'){
 			$this->shareType = self::$SHARE_TYPE_NONE;
 			$this->readable = true;
-			return true;
+			if(/*Need to set editable for shared...*/empty($access) || trim(strtolower($access))=='public'){
+				return true;
+			}
 		}
 		if(trim(strtolower($access))!='shared' && trim(strtolower($access))!='private'){
 			// Unknown value of access - better bail out
