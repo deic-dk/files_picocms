@@ -94,7 +94,7 @@
 		</div>
 
 		<button class="edit-button btn btn-primary btn-flat" path="{{ oc_path }}"
-			{% if meta.editable is empty %}
+			{% if editable is empty %}
 			style="display:none;"
 			{% endif %}            dir_id="{{ oc_parent_id }}" user="{{ oc_user }}" owner="{{ oc_owner }}"
 		group="{{ oc_group }}">Show file</button>

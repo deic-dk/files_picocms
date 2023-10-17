@@ -59,12 +59,12 @@
 						});
 				</script>
 				
-				{% if paged_pages %}
+				{% if found_pages %}
 				<div id="nav">
 					<ul>
 						{% set len = '0' %}
-						{% for folder in paged_folders|sort_by("date") %}
-							{% for page in paged_pages|sort_by("date") %}
+						{% for folder in found_folders|sort_by("date") %}
+							{% for page in found_pages|sort_by("date") %}
 								{% if page.folder == folder  %}
 									{% set arr = page.id|split('/') %}
 									{% set len = arr|length %}

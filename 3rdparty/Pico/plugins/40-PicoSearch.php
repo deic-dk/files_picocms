@@ -104,7 +104,7 @@ class PicoSearch extends AbstractPicoPlugin
         	return;
         }
 	    	$pico = $this->getPico();
-	    	$excludes = array('403', '404', 'search');
+	    	$excludes = array('403', '404', 'search', 'rss');
 	    	$confExcludes = $pico->getConfig('search_excludes');
 	    	if (!empty($confExcludes)) {
 	    		$excludes = array_merge($excludes, $confExcludes);

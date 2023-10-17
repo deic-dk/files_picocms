@@ -48,19 +48,19 @@
             </nav>
             {% endif %}
         </div>
-        {% if meta.editable is not empty %}
+        {% if editable is not empty %}
             <button class="edit-button btn btn-primary btn-flat" path="{{  oc_path }}"
             id="{{  oc_id }}" dir_id="{{  oc_parent_id }}" user="{{  oc_user }}"
             owner="{{  oc_owner }}" group="{{  oc_group }}" host="{{  oc_user_home_url }}">
             Show file{% if not current_page.id %}s{% endif %}</button>
         {% endif %}
     </header>
-    {% if meta.readable is not empty and
+    {% if readable is not empty and
     (not current_page.id) and folder!="/" and folder!="" %}
     	<div class="up-button btn btn-primary btn-flat noprint">
 				<a href="../">⤴</a>
 			</div>
-		{% elseif meta.readable is not empty and
+		{% elseif readable is not empty and
 			not (current_page.id == 'index' or current_page.id matches '{.*\/index$}') and
 			current_page.id and folder!="/" %}
     	<div class="up-button btn btn-primary btn-flat noprint">
@@ -73,10 +73,10 @@
 	{% endif %}
 
 <!-- If this is a Joplin directory/notebook with no index file, show a list of md files -->
-	{% if meta.readable is not empty and current_page.id is empty %}
+	{% if readable is not empty and current_page.id is empty %}
 		<div id="nav" class="inner">
 			<ul>
-				{% for fol in paged_folders|sort %}
+				{% for fol in found_folders|sort %}
 					{% if (fol starts with folder and fol != folder or folder == "/")  and fol != "/" %}
 						{% if folder == "/" %}
 							{% set folderlen = 0 %}

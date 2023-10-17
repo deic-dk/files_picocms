@@ -549,7 +549,7 @@ class Parsedown
             // Replace [ ] with checkbox and [x] with checked checkbox
             $text = preg_replace('|^\[ \]|', '<input disabled type="checkbox" />', $text);
             $text = preg_replace('|^\[x\]|', '<input disabled checked type="checkbox" />', $text);
-            
+
             $Block['li'] = array(
                 'name' => 'li',
                 'handler' => 'li',

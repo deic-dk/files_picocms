@@ -283,6 +283,11 @@ class Pico
 	 */
 	protected $ocEmail;
 	
+	protected $permissions;
+	protected $sharetype;
+	protected $readable;
+	protected $editable;
+	
 	public static $SHARE_TYPE_NONE = 'none';
 	public static $SHARE_TYPE_MINE = 'mine';
 	public static $SHARE_TYPE_SHARED_WITH_ME = 'shared_with_me';
@@ -292,6 +297,7 @@ class Pico
 	
 	private $site;
 	public $forbidden;
+	public $notFound;
 
 	/**
 	 * Constructs a new Pico instance
@@ -332,6 +338,7 @@ class Pico
 				Pico::shutDownFunction();
 		});
 		$this->forbidden = false;
+		$this->notFound = false;
 	}
 	
 	public static function shutDownFunction() {
@@ -383,6 +390,10 @@ class Pico
 	{
 		return $this->themesDir;
 	}
+	
+	private function lsort($a,$b){
+		return strlen($b)-strlen($a);
+	}
 
 	/**
 	 * Runs this Pico instance
@@ -425,7 +436,7 @@ class Pico
 
 		$notFoundFile = '404' . $this->getConfig('content_ext');
 		if($this->requestFile===null){
-			// Let the default theme generate directory listing for sharees.
+			// Let the theme generate directory listing for sharees.
 		}
 		elseif(file_exists($this->requestFile) && (basename($this->requestFile) !== $notFoundFile)){
 			$this->rawContent = $this->loadFileContent($this->requestFile);
@@ -442,17 +453,19 @@ class Pico
 		elseif($this->indexInferred){
 		}
 		else{
-				\OCP\Util::writeLog('files_picocms', 'No such file '.$this->requestFile, \OC_Log::ERROR);
-
-				$this->triggerEvent('on404ContentLoading', array(&$this->requestFile));
-
+			\OCP\Util::writeLog('files_picocms', 'No such file '.$this->requestFile, \OC_Log::ERROR);
+			$this->triggerEvent('on404ContentLoading', array(&$this->requestFile));
 			header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
-			$this->rawContent = $this->load404Content($this->requestFile);
-
+			//$this->rawContent = $this->load404Content($this->requestFile);
+			$this->rawContent = $this->loadStatusContent($this->requestFile, 404);
 			$this->triggerEvent('on404ContentLoaded', array(&$this->rawContent));
+			//exit();
+			$this->notfound = true;
 		}
 
-		$this->triggerEvent('onContentLoaded', array(&$this->rawContent));
+		if(!$this->notfound){
+			$this->triggerEvent('onContentLoaded', array(&$this->rawContent));
+		}
 
 		// parse file meta
 		$headers = $this->getMetaHeaders();
@@ -460,23 +473,23 @@ class Pico
 		$this->triggerEvent('onMetaParsing', array(&$this->rawContent, &$headers));
 		$this->meta = $this->parseFileMeta($this->rawContent, $headers);
 
-		$inferTheme = false;
-		if($this->requestFile===null || empty($this->rawContent)){
-			$this->meta['access'] = 'private';
+		// Handle directory requests
+		$generatedIndex = false;
+		if(($this->requestFile===null || empty($this->rawContent)) && !$this->notfound){
 			//$this->meta['folder'] = dirname(preg_replace('|^'.$this->getConfig('content_dir').'|',
 			//		'', $this->requestFile));
+			$generatedIndex = true;
+			// Default to not allowing directory listings
+			$this->meta['access'] = 'private';
 			\OCP\Util::writeLog('files_picocms', 'Generating index '.$this->requestFile.' : '.
 					$this->getConfig('content_dir'), \OC_Log::WARN);
-			if(empty($this->meta['theme']) && file_exists($this->getConfig('content_dir').'/index.md')){
-						\OCP\Util::writeLog('files_picocms', 'Inferring theme', \OC_Log::WARN);
-						$inferTheme = true;
-			}
 		}
 
 		// NC change
 		if(!empty($this->meta['access'])){
 			if(!$this->checkReadPermission($this->requestFile, $this->meta['access'],
 					$this->getConfig('user'), $this->getConfig('group'))){
+				\OCP\Util::writeLog('files_picocms', 'Not allowed '.$this->requestFile.':'.$this->meta['access'].':'.$this->rawContent, \OC_Log::WARN);
 				//header($_SERVER['SERVER_PROTOCOL'] . ' 403 Forbidden');
 				$this->rawContent = $this->loadStatusContent($this->requestFile, 403);
 				$this->forbidden = true;
@@ -501,19 +514,24 @@ class Pico
 		// read pages
 		$this->triggerEvent('onPagesLoading');
 
-		$this->readPages();
-		$this->sortPages();
-		$this->discoverCurrentPage();
+		$this->pages = array();
+		if(!$this->forbidden && !$this->notFound){
+			$this->readPages();
+			$this->sortPages();
+			$this->discoverCurrentPage();
+			$this->triggerEvent('onPagesLoaded', array(
+					&$this->pages,
+					&$this->currentPage,
+					&$this->previousPage,
+					&$this->nextPage
+			));
+		}
 
-		$this->triggerEvent('onPagesLoaded', array(
-			&$this->pages,
-			&$this->currentPage,
-			&$this->previousPage,
-			&$this->nextPage
-		));
-
-		if($inferTheme){
-			$this->meta['theme'] = $this->pages['index']['meta']['theme'];
+		if(empty($this->meta['theme'])){
+			$this->meta['theme'] = $this->getConfig('theme');
+			if(!empty($this->pages['index']) && !empty($this->pages['index']['meta']) && !empty($this->pages['index']['meta']['theme'])){
+				$this->meta['theme'] = $this->pages['index']['meta']['theme'];
+			}
 		}
 
 		// register twig
@@ -525,21 +543,30 @@ class Pico
 		if($this->forbidden){
 			$this->twigVariables['forbidden'] = true;
 		}
-		if(isset($this->meta['template']) && $this->meta['template']) {
-			$templateName = $this->meta['template'];
+
+		$templateName = '';
+		if(!empty($this->meta['template']) && !$generatedIndex) {
+			$templateName = $this->meta['template'].'.twig';
 		}
 		else{
-			$templateName = 'index';
-		}
-		if (file_exists($this->getThemesDir() . (!empty($this->meta['theme'])?
-			$this->meta['theme']:$this->getConfig('theme')) . '/' . $templateName . '.twig')) {
-			$templateName .= '.twig';
-		}
-		else {
-			$templateName .= '.html';
+			if (!$this->notfound && $generatedIndex &&
+					file_exists($this->getThemesDir() . $this->meta['theme'] . '/contents.twig')) {
+				$templateName = 'contents.twig';
+			}
+			elseif (file_exists($this->getThemesDir() . $this->meta['theme'] . '/index.twig')) {
+				$templateName = 'index.twig';
+			}
+			elseif (file_exists($this->getThemesDir() . $this->meta['theme'] . '/index.html')) {
+				$templateName = 'index.html';
+			}
+			elseif (file_exists($this->getThemesDir() . $this->meta['theme'] . '/page.twig')) {
+				$templateName = 'page.twig';
+			}
 		}
 
 		$this->triggerEvent('onPageRendering', array(&$this->twig, &$this->twigVariables, &$templateName));
+
+		\OCP\Util::writeLog('files_picocms', 'Rendering...'.$this->twigVariables['page_of_page'].':'.$templateName.':'.serialize($this->twigVariables['editable']), \OC_Log::WARN);
 
 		$output = $this->twig->render($templateName, $this->twigVariables);
 		$this->triggerEvent('onPageRendered', array(&$output));
@@ -914,9 +941,9 @@ class Pico
 	 */
 	private function checkReadPermission($file, $access, $owner, $group=null)
 	{
-		if(empty($access) || trim(strtolower($access))=='public'){
-			$this->meta['share_type'] = self::$SHARE_TYPE_NONE;
-			$this->meta['readable'] = true;
+		if(empty($access) || trim(strtolower($access))=='public' /*|| trim(strtolower($access))=='shared'*/ /*Need to set editable...*/){
+			$this->shareType = self::$SHARE_TYPE_NONE;
+			$this->readable = true;
 			return true;
 		}
 		if(trim(strtolower($access))!='shared' && trim(strtolower($access))!='private'){
@@ -947,14 +974,14 @@ class Pico
 		$ownerRoot = $view->getLocalFile('/');
 		if($file!==null && strpos($file, $ownerRoot)!==0){
 			\OCP\Util::writeLog('files_picocms', 'Trying to access file outside of user dir', \OC_Log::ERROR);
-			$this->meta['share_type'] = self::$SHARE_TYPE_NONE;
+			$this->shareType = self::$SHARE_TYPE_NONE;
 			return false;
 		}
 		$ocPath = "/".ltrim(substr($file, strlen($ownerRoot)), "/");
 
 		if(empty($user_id)){
 			\OCP\Util::writeLog('files_picocms', 'No user '.$user_id.', '.$access, \OC_Log::WARN);
-			$this->meta['share_type'] = self::$SHARE_TYPE_NONE;
+			$this->shareType = self::$SHARE_TYPE_NONE;
 			if(trim(strtolower($access))=='private'){
 				return false;
 			}
@@ -963,16 +990,16 @@ class Pico
 				if(\OCP\App::isEnabled('files_sharding')){
 					$share_permissions = (int)\OCA\FilesSharding\Lib::checkPubliclyShared($ocPath, $owner, $group);
 					\OCP\Util::writeLog('files_picocms', 'Public share permissions: '.$share_permissions, \OC_Log::WARN);
-					$this->meta['permissions'] = $share_permissions;
+					$this->permissions = $share_permissions;
 					if($share_permissions & \OCP\PERMISSION_DELETE){
-						$this->meta['share_type'] = self::$SHARE_TYPE_SHARED_PUBLIC_RW;
-						// We don't support public editing
-						//$this->meta['editable'] = true;
-						$this->meta['readable'] = true;
+						$this->shareType = self::$SHARE_TYPE_SHARED_PUBLIC_RW;
+						// We don't support public editing / empty($user_id)
+						//$this->editable = true;
+						$this->readable = true;
 					}
 					elseif($share_permissions){
-						$this->meta['share_type'] = self::$SHARE_TYPE_SHARED_PUBLIC;
-						$this->meta['readable'] = true;
+						$this->shareType = self::$SHARE_TYPE_SHARED_PUBLIC;
+						$this->readable = true;
 					}
 				}
 				return true;
@@ -984,20 +1011,21 @@ class Pico
 		$ocPath = !empty($ocPath)?$ocPath:$ocRootPath;
 		$this->ocPath = $this->indexInferred&&substr($ocPath,-1)!="/"?(dirname($ocPath)."/"):$ocPath;
 		\OCP\Util::writeLog('files_picocms', 'Checking permissions. Access: '.$access.' Path: '.$ocPath. ' in '.
-				$ownerRoot." :: ".$this->ocPath, \OC_Log::WARN);
+				$ownerRoot." :: ".$this->ocPath." :: ".$user_id." :: ".$owner, \OC_Log::WARN);
 		// First check if I own the file
 		if($user_id===$owner){
-			$this->meta['permissions'] = \OCP\PERMISSION_ALL;
-			$this->meta['editable'] = true;
-			$this->meta['readable'] = true;
+			$this->permissions = \OCP\PERMISSION_ALL;
+			$this->editable = true;
+			$this->readable = true;
 			$this->ocShare = '';
-			$this->meta['share_type'] = self::$SHARE_TYPE_MINE;
+			$this->shareType = self::$SHARE_TYPE_MINE;
 			if(empty($file)){
 				$this->ocParentId = $view->getFileInfo($ocRootPath)->getId();
 			}
 			else{
 				$this->ocParentId = $view->getFileInfo(dirname($ocPath))->getId();
 			}
+			\OCP\Util::writeLog('files_picocms', 'All fine: '.$this->editable, \OC_Log::WARN);
 			return true;
 		}
 		else{
@@ -1043,11 +1071,11 @@ class Pico
 					$fileType = $fileInfo->getType()===\OCP\Files\FileInfo::TYPE_FOLDER?'folder':'file';
 					if(!\OCP\App::isEnabled('files_sharding') || \OCA\FilesSharding\Lib::isMaster()){
 						$itemShared = \OCP\Share::getItemSharedWithUser($fileType, $fileInfo->getId(), $user_id);
-						$this->meta['permissions'] = (int)$itemShared['permissions'];
+						$this->permissions = (int)$itemShared['permissions'];
 					}
 					else{
 						$itemSharedPermissions = \OCA\FilesSharding\Lib::checkAccess($user_id, $fileInfo->getId(), $fileType);
-						$this->meta['permissions'] = (int)$itemSharedPermissions;
+						$this->permissions = (int)$itemSharedPermissions;
 					}
 					\OCP\Util::writeLog('files_picocms', 'Checking sharing of: '.$ocPath.':'.$fileInfo->getId().':'.
 							$fileInfo->getType().':'.$this->ocId.':'.$this->ocParentId.':'.serialize($itemShared).':'.
@@ -1076,20 +1104,20 @@ class Pico
 				\OC_Util::setupFS('/'.$user_id.'/files');
 			}
 			if(!empty($ocPath) && $ocPath!=='.'){
-				if(!empty($this->meta['permissions']) && ($this->meta['permissions'] & \OCP\PERMISSION_DELETE)){
-					$this->meta['share_type'] = self::$SHARE_TYPE_SHARED_WITH_ME_RW;
-					$this->meta['editable'] = true;
-					$this->meta['readable'] = true;
+				if(!empty($this->permissions) && ($this->permissions & \OCP\PERMISSION_DELETE)){
+					$this->shareType = self::$SHARE_TYPE_SHARED_WITH_ME_RW;
+					$this->editable = true;
+					$this->readabl = true;
 				}
-				elseif(!empty($this->meta['permissions']) && ($this->meta['permissions'] & \OCP\PERMISSION_READ)){
-					$this->meta['share_type'] = self::$SHARE_TYPE_SHARED_WITH_ME;
-					$this->meta['readable'] = true;
+				elseif(!empty($this->permissions) && ($this->permissions & \OCP\PERMISSION_READ)){
+					$this->shareType = self::$SHARE_TYPE_SHARED_WITH_ME;
+					$this->readable = true;
 				}
 				return true;
 			}
 			else{
-				$this->meta['share_type'] = self::$SHARE_TYPE_NONE;
-				$this->meta['permissions'] = 0;
+				$this->shareType = self::$SHARE_TYPE_NONE;
+				$this->permissions = 0;
 				return false;
 			}
 		}
@@ -1489,7 +1517,6 @@ class Pico
 	 */
 	protected function readPages()
 	{
-		$this->pages = array();
 		$files = $this->getFiles($this->getConfig('content_dir'), $this->getConfig('content_ext'), Pico::SORT_NONE);
 		foreach ($files as $i => $file) {
 			// skip 404 page
@@ -1525,8 +1552,9 @@ class Pico
 				$meta = &$this->meta;
 			}
 			$content = $this->prepareFileContent($rawContent, $meta);
-			$excerptLength = empty($meta['excerpt_length'])?$this->getConfig('excerpt_length'):
-				$meta['excerpt_length'];
+			// This is an alternative to the plugin PicoExcerpt
+			$excerptLength = empty($meta['excerptlength'])?$this->getConfig('excerpt_length'):
+				$meta['excerptlength'];
 			$excerpt = $this->parseFileContent(
 					substr($content, 0, $excerptLength)."<span class='readmore'></span>"
 					);
@@ -1720,12 +1748,31 @@ class Pico
 	{
 		
 		
-		\OCP\Util::writeLog('files_picocms', 'Rendering '.
-				(empty($this->meta['theme'])?'':$this->meta['theme']), \OC_Log::WARN);
-		
-			$theme = $this->getThemesDir() . (!empty($this->meta['theme'])?
-				$this->meta['theme']:$this->getConfig('theme'));
-			$twigLoader = new Twig_Loader_Filesystem($theme);
+		$theme = (!empty($this->meta['theme'])?$this->meta['theme']:$this->getConfig('theme'));
+		$themePath = $this->getThemesDir() . $theme;
+		\OCP\Util::writeLog('files_picocms', 'Rendering '.$themePath, \OC_Log::WARN);
+		if(!file_exists($themePath)){
+			// If the theme is not found, but there is one and only one present, use it
+			$themes_found = scandir($this->getThemesDir());
+			$themes_found = array_filter($themes_found, function($el){if(strpos($el, '.')!==0){return true;} else{return false;}});
+			$themes_found = array_values($themes_found);
+			\OCP\Util::writeLog('files_picocms', 'Found themes '.implode(':', $themes_found), \OC_Log::WARN);
+			if(count($themes_found)==1 && is_dir($this->getThemesDir().$themes_found[0])){
+				$theme = $themes_found[0];
+				$this->meta['theme'] = $theme;
+				$themePath = $this->getThemesDir() . $theme;
+			}
+			// If none is found, use the themes folder of the app
+			else{
+				$systemThemeDir = __DIR__ .'/../../../lib/samplesite/themes/';
+				$systemThemePath = $systemThemeDir . $theme;
+				if(file_exists($systemThemePath)){
+					$themePath = $systemThemePath;
+				}
+				$this->themesDir = $systemThemeDir;
+			}
+		}
+		$twigLoader = new Twig_Loader_Filesystem($themePath);
 		$this->twig = new Twig_Environment($twigLoader, $this->getConfig('twig_config'));
 		$this->twig->addExtension(new Twig_Extension_Debug());
 		$this->twig->addExtension(new PicoTwigExtension($this));
@@ -1760,6 +1807,11 @@ class Pico
 	public function getTwig()
 	{
 		return $this->twig;
+	}
+	
+	public function getFolder(){
+		return preg_replace("|^".$this->getConfig('content_dir')."|", "",
+				dirname($this->requestFile)."/");
 	}
 
 	/**
@@ -1819,6 +1871,9 @@ class Pico
 			'current_page' => $this->currentPage,
 			'next_page' => $this->nextPage,
 			'is_front_page' => ($this->requestFile === $frontPage),
+			'permissions' => $this->permissions,
+			'readable' => $this->readable,
+			'editable' => $this->editable,
 		);
 	}
 

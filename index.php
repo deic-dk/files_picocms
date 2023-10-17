@@ -101,6 +101,8 @@ if(!empty($_GET['path'])){
 	$_SERVER['QUERY_STRING'] = $_GET['path'];
 }
 
+$config = array();
+
 if(!empty($_GET['user'])){
 	// user is actually the email address. Look up the actual uid
 	$user = OCA\FilesPicoCMS\Lib::dbGetUseridFromEmail($_GET['user']);
@@ -255,6 +257,7 @@ else{
 
 // requesttoken is needed to get avatars
 $config['requesttoken'] = \OC::$session->get('requesttoken');
+$user_id = \OCP\User::getUser();
 if(empty($config['requesttoken']) && \OCP\App::isEnabled('files_sharding') && (empty($user_id) ||
 		!\OCA\FilesSharding\Lib::onServerForUser($user_id)) &&
 		!\OCA\FilesSharding\Lib::isMaster()){
@@ -271,7 +274,7 @@ if(empty($config['requesttoken']) && \OCP\App::isEnabled('files_sharding') && (e
 $config['pages_order_by'] = 'date';
 //$config['pages_order'] = 'asc';
 $config['pagination'] = -1;
-$config['pagination_limit'] = 100;
+$config['pagination_limit'] = 10;
 $config['toc_top_txt'] = '';
 
 \OCP\Util::writeLog('files_picocms', 'Content dir: '.$config['content_dir'], \OC_Log::WARN);

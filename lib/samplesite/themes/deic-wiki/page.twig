@@ -88,7 +88,7 @@
 				<input type="search" id="search_input" name="q" placeholder="Search" />
 			</form>
 		{% endif %}
-		{% if meta.editable is not empty %}
+		{% if editable is not empty %}
 			<div class="write-post" share="{{ oc_share }}" path="{{ oc_path }}"
 				dir_id="{{ oc_parent_id }}" id="{{ oc_id }}" owner="{{ oc_owner }}" user="{{ oc_user }}"
 				user_home_url="{{ oc_user_home_url }}" group="{{ oc_group }}" title="Create new page">
@@ -105,10 +105,10 @@
 	</nav>
 
 	<ul class="leftbar">
-		{% if meta.editable is not empty %}
+		{% if editable is not empty %}
 			<button id="manage_files">Manage</button>
 		{% endif %}
-		{% for fol in paged_folders|sort %}
+		{% for fol in found_folders|sort %}
 		{% if fol != "/" %}
 			{% set depth = fol | split('/') | length -1 %}
 			{% set name = (fol | split('/'))[ depth - 1 ] %}
@@ -128,7 +128,7 @@
 		{% endfor %}
 	</ul>
 
-	{% if meta.editable is not empty and not current_page.id is empty %}
+	{% if editable is not empty and not current_page.id is empty %}
 		<button title="Edit page" class="edit-button float-button"
 		path="{{ oc_path }}{% if current_page.id ends with 'index' and oc_path ends with '/' %}index.md{% endif %}"
 		dir_id="{{ oc_parent_id }}" id="{{ oc_id }}" 

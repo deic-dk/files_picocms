@@ -53,10 +53,10 @@
 						});
 				</script>
 				
-				{% if paged_pages %}
+				{% if found_pages %}
 				<div id="nav">
 					<ul>
-						{% for page in paged_pages|sort_by("title") %}
+						{% for page in found_pages|sort_by("title") %}
 							{% if meta.title == page.title %}
 								<li class="current">
 									<a href="{{ page.url }}">{{ page.title }}</a>

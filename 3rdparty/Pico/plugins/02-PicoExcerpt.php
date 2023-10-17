@@ -55,10 +55,13 @@ class PicoExcerpt extends AbstractPicoPlugin
      */
     public function onSinglePageLoaded(array &$pageData)
     {
+        if (isset($pageData['meta']['excerptlength'])){
+            $this->config['excerpt_length'] = $pageData['meta']['excerptlength'];
+        }
         if (!isset($pageData['excerpt'])) {
-            $pageData['excerpt'] = $this->createExcerpt(
+        	$pageData['excerpt'] = $this->config('excerpt_length').':'.$this->createExcerpt(
                 strip_tags($pageData['content']),
-                $this->getConfig('excerpt_length')
+                $this->config('excerpt_length')
             );
         }
     }

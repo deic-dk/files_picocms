@@ -13,8 +13,9 @@ class Pagination extends AbstractPicoPlugin {
 	public $offset = 0;
 	public $page_number = 0;
 	public $total_pages = 1;
+	public $found_pages = array();
 	public $paged_pages = array();
-	public $paged_folders = array();
+	public $found_folders = array();
 	public $contents = array();
 	public $labels = array();
 	
@@ -30,7 +31,9 @@ class Pagination extends AbstractPicoPlugin {
 			'output_format'	=> 'links',
 			'flip_links' => false,
 			'filter_date' => true,
-			'sub_page' => true,
+			'sub_page' => false,
+			'pico' => $pico,
+			'exclude_labels' => []
 		);
 	}
 
@@ -59,25 +62,53 @@ class Pagination extends AbstractPicoPlugin {
 
 	public function onPagesLoaded(&$pages, &$currentPage, &$previousPage, &$nextPage)
 	{
+		// Honor pagination_ settings in metadata
+		if (isset($currentPage['meta']['paginationlimit'])){
+			$this->config['limit'] = $currentPage['meta']['paginationlimit'];
+		}
+		if (isset($currentPage['meta']['paginationnexttext'])){
+			$this->config['next_text'] = $currentPage['meta']['paginationnexttext'];
+		}
+		if (isset($currentPage['meta']['paginationprevioustext'])){
+			$this->config['prev_text'] = $currentPage['meta']['paginationprevioustext'];
+		}
+		if (isset($currentPage['meta']['paginationfliplinks'])){
+			$this->config['flip_links'] = ($currentPage['meta']['paginationfliplinks']=='true' ||
+																		$currentPage['meta']['paginationfliplinks']=='yes');
+		}
+		if (isset($currentPage['meta']['excludelabels'])){
+			$this->config['exclude_labels'] = $currentPage['meta']['excludelabels'];
+		}
 		// Filter the pages returned based on the pagination options
 		$this->offset = ($this->page_number-1) * $this->config['limit'];
 		$show_folders = array();
-		$path = $this->config['content_dir']."/".$currentPage['folder'];
+		// For a generated index there is no currentPage
+		//$path = $this->config['content_dir']."/".$currentPage['folder'];
+		$path = $this->config['content_dir']."/".$this->config['pico']->getFolder();
 		$contents = array_diff(scandir($path),
-				array(".", "..", "index.md", "403.md", "404.md", ".DS_Store"));
+				array(".", "..", "index.md", "403.md", "404.md", "rss.md", ".DS_Store"));
 		$contents = array_map(function($name) use ($path) {return $name.(is_dir($path."/".$name)?"/":"");}, $contents);
-		// if filter_date is true, it filters so only dated items are returned.
-		if ($this->config['filter_date']) {
-			$show_pages = array();
-			foreach($pages as $key=>$page) {
-				if ($page['date']) {
-					$show_pages[$key] = $page;
-				}
+
+		$show_pages = array();
+		foreach($pages as $key=>$page) {
+			// If filter_date is true, return only dated items.
+			if ($this->config['filter_date'] && !$page['date']) {
+				continue;
 			}
+			// if the calling page has ExcludeLabels set, return only pages w/o those
+			// Allow override by $_GET['labels']
+			if (!empty($this->config['exclude_labels']) && !empty($page['meta']['labels']) &&
+					!empty(array_intersect($this->config['exclude_labels'], $page['meta']['labels'])) &&
+					(empty($_GET['label']) || !in_array($_GET['label'], $page['meta']['labels']))){
+				continue;
+			}
+			if(!empty($_GET['label']) && ( empty($page['meta']['labels']) ||
+					!in_array($_GET['label'], $page['meta']['labels']))){
+				continue;
+			}
+			$show_pages[$key] = $page;
 		}
-		else {
-			$show_pages = $pages;
-		}
+
 		foreach($pages as $key=>$page) {
 			if(!empty($page['folder']) && !in_array($page['folder'], $show_folders)){
 				$show_folders[] = $page['folder'];
@@ -91,19 +122,21 @@ class Pagination extends AbstractPicoPlugin {
 				}
 			}
 			if(!empty($page['meta']['labels'])){
+				\OCP\Util::writeLog('files_picocms', "Raw labels: ".serialize($page['meta']['labels']), \OC_Log::DEBUG);
 				$this->labels = array_unique(array_merge($this->labels,
-						array_map('trim', explode(",", $page['meta']['labels']))));
+						is_array($page['meta']['labels'])?$page['meta']['labels']:array_map('trim', explode(",", $page['meta']['labels']))));
 			}
 		}
-		\OCP\Util::writeLog('files_piocms', "Folders: ".implode(":", $show_folders), \OC_Log::WARN);
-		\OCP\Util::writeLog('files_piocms', "Labels: ".implode(":", $this->labels), \OC_Log::WARN);
+		\OCP\Util::writeLog('files_picocms', "Folders: ".implode(":", $show_folders), \OC_Log::WARN);
 		// get total pages before show_pages is sliced
 		$this->total_pages = ceil(count($show_pages) / $this->config['limit']);
 		// slice show_pages to the limit
+		$show_pages = array_reverse($show_pages);
+		$this->found_pages = $show_pages;
 		$show_pages = array_slice($show_pages, $this->offset, $this->config['limit']);
 		// set filtered pages to paged_pages
 		$this->paged_pages = $show_pages;
-		$this->paged_folders = $show_folders;
+		$this->found_folders = $show_folders;
 		$this->contents = $contents;
 	}
 
@@ -111,13 +144,23 @@ class Pagination extends AbstractPicoPlugin {
 	{
 		// Set a bunch of view vars
 
+		if($this->config['pico']->forbidden){
+			$twigVariables['paged_pages'] = array();
+			$twigVariables['found_folders'] = array();
+			$twigVariables['labels'] = array();
+		}
+		
 		// send the paged pages in separate var
-		if ($this->paged_pages)
+		elseif ($this->paged_pages){
+			$twigVariables['found_pages'] = $this->found_pages;
 			$twigVariables['paged_pages'] = $this->paged_pages;
-			$twigVariables['paged_folders'] = $this->paged_folders;
+			$twigVariables['found_folders'] = $this->found_folders;
 			$twigVariables['contents'] = $this->contents;
-			$twigVariables['labels'] = $this->labels;
-			
+			$twigVariables['labels'] = empty($this->labels)?array():$this->labels;
+		}
+		
+		\OCP\Util::writeLog('files_picocms', "Labels: ".implode(":", $twigVariables['labels']), \OC_Log::WARN);
+		
 		// set var for page_number
 		if ($this->page_number)
 			$twigVariables['page_number'] = $this->page_number;
@@ -131,15 +174,23 @@ class Pagination extends AbstractPicoPlugin {
 		
 		// build pagination links
 		// set next and back link vars to empty. links will be added below if they are available.
-		$twigVariables['next_page_link'] = $twigVariables['prev_page_link'] = '';
-		$pagination_parts = array();
+		$twigVariables['next_page_link'] = '';
+		$pagination_parts = array('prev_link'=>'', 'next_link'=>'');
+		list($path, $qs) = explode("?", $_SERVER["REQUEST_URI"], 2);
+		if(empty($qs)){
+			$qs = '';
+		}
+		else{
+			$qs = '?'.$qs;
+		}
+		$page_base = preg_replace('|'.$this->config['page_indicator'].'/[0-9]+/*$|', '', $path);
 		if ($this->page_number > 1) {
-			$prev_path = $this->getBaseUrl() . '/' . $this->config['page_indicator'] . '/' . ($this->page_number - 1);
-			$pagination_parts['prev_link'] = $twigVariables['prev_page_link'] = '<a href="' . $prev_path . '" id="prev_page_link">' . $this->config['prev_text'] . '</a>';
+			$prev_path = $page_base . $this->config['page_indicator'] . '/' . ($this->page_number - 1);
+			$pagination_parts['prev_link'] = '<a href="' . $prev_path . $qs. '" id="prev_page_link">' . $this->config['prev_text'] . '</a>';
 		}
 		if ($this->page_number < $this->total_pages) {
-			$next_path = $this->getBaseUrl() . '/' . $this->config['page_indicator'] . '/' . ($this->page_number + 1);
-			$pagination_parts['next_link'] = $twigVariables['next_page_link'] = '<a href="' . $next_path . '" id="next_page_link">' . $this->config['next_text'] . '</a>';
+			$next_path = $page_base . $this->config['page_indicator'] . '/' . ($this->page_number + 1);
+			$pagination_parts['next_link'] = '<a href="' . $next_path . $qs .'" id="next_page_link">' . $this->config['next_text'] . '</a>';
 		}
 
 		// reverse order if flip_links is on
@@ -149,19 +200,19 @@ class Pagination extends AbstractPicoPlugin {
 
 		// create pagination links output
 		if ($this->config['output_format'] == "list") {
-            $twigVariables['pagination_links'] = '<ul id="pagination"><li>' . implode('</li><li>', array_values($pagination_parts)) . '</li></ul>';
+            $twigVariables['paginationlinks'] = '<ul id="pagination"><li>' . implode('</li><li>', array_values($pagination_parts)) . '</li></ul>';
 		} else {
-            $twigVariables['pagination_links'] = implode(' ', array_values($pagination_parts));
+			$twigVariables['paginationlinks'] = array_values($pagination_parts);
 		}
 
 		// set page of page var
-        $twigVariables['page_of_page'] = "Page " . $this->page_number . " of " . $this->total_pages . ".";
+    $twigVariables['page_of_page'] = "Page " . $this->page_number . " of " . $this->total_pages . ".";
 	}
 
 	public function onRequestUrl(&$url)
 	{
 		// checks for page # in URL
-		$pattern = '/' . $this->config['page_indicator'] . '\/[0-9]*$/';
+		$pattern = '/' . $this->config['page_indicator'] . '\/[0-9]*/';
 		if (preg_match($pattern, $url)) {
 			$page_numbers = explode('/', $url);
 			$page_number = $page_numbers[count($page_numbers)-1];
@@ -174,5 +225,6 @@ class Pagination extends AbstractPicoPlugin {
 		} else {
 			$this->page_number = 1;
 		}
+		\OCP\Util::writeLog('files_picocms', 'URL: '.$url.':'.$this->config['sub_page'], \OC_Log::WARN);
 	}
 }
