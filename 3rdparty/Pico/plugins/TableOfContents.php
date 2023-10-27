@@ -27,7 +27,7 @@ class TableOfContents extends AbstractPicoPlugin {
    private function makeToc(&$content)
    {
    	
-   		// remember content in case toc_depth is set in meta
+   		// remember content in case tocdepth is set in meta
    		$this->content = $content;
       //get the headings
       if(preg_match_all('/<(h[1-'.$this->depth.']|toc) *.*?>.*?<\/(h[1-'.$this->depth.']|toc)>/s',$content,$headers) === false)
@@ -130,8 +130,8 @@ class TableOfContents extends AbstractPicoPlugin {
    public function onPageRendering(&$twig, &$twig_vars, &$templateName)
    {
    		// toc_depth set in page meta can only be <= the one set in the config
-	   	if(isset($twig_vars['meta']['toc_depth']) && $twig_vars['meta']['toc_depth']<$this->depth){
-	   		$this->depth = $twig_vars['meta']['toc_depth'];
+	   	if(isset($twig_vars['meta']['tocdepth']) && $twig_vars['meta']['tocdepth']<$this->depth){
+	   		$this->depth = $twig_vars['meta']['tocdepth'];
 	   		// Discard higher tocs
 	   		$this->toc = $this->makeToc($this->content);
 	   	}

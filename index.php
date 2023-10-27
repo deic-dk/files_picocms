@@ -168,13 +168,19 @@ if(empty($_GET['path']) &&
 
 $extension = empty($_GET['path'])?'':pathinfo($_GET['path'], PATHINFO_EXTENSION);
 $filePath = $dataDir.'/'.$sitePath.'/'.$_GET['path'];
-if(!empty($extension) && ($extension=='png'||$extension=='jpg')){
+if(!empty($extension) && ($extension=='png'||$extension=='jpg'||$extension=='jpeg')){
 	header("Content-type: image/".$extension);
 }
 elseif(!empty($extension) && ($extension=='svg')){
 	header("Content-type: image/svg+xml");
 }
 elseif($extension!=='md' && basename($_GET['path'])=="feed"){
+	header("Content-type: application/rss+xml");
+}
+elseif(!empty($extension) && $extension=='nb'){
+	header("Content-type: application/vnd.wolfram.mathematica");
+}
+elseif($extension!=='md' && (basename($_GET['path'])=="feed" || basename($_GET['path'])=="rss")){
 	header("Content-type: application/rss+xml");
 }
 elseif(!empty($extension) && ($extension!='md') && dirname($_GET['path'])!="search" ||

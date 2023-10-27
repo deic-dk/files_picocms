@@ -247,6 +247,13 @@ class Pico
 	 * @var string
 	 */
 	public $ocOwner;
+	
+	/**
+	 * Logged in user
+	 * 
+	 * @var string
+	 */
+	public $ocUser;
 
 	/**
 	 * URL of the master in a sharded setup.
@@ -339,6 +346,24 @@ class Pico
 		});
 		$this->forbidden = false;
 		$this->notFound = false;
+
+		// is a user logged in?
+		$user_id = \OCP\User::getUser();
+		\OCP\Util::writeLog('files_picocms', 'user_id '.$user_id, \OC_Log::WARN);
+		if(\OCP\App::isEnabled('files_sharding') && (empty($user_id) ||
+				!\OCA\FilesSharding\Lib::onServerForUser($user_id)) &&
+				!\OCA\FilesSharding\Lib::isMaster()){
+					$instanceId = \OC_Config::getValue('instanceid', null);
+			if(!empty($_COOKIE[$instanceId])){
+				\OCP\Util::writeLog('files_picocms', 'Getting session from master '.$_COOKIE[$instanceId], \OC_Log::WARN);
+				$session = \OCA\FilesSharding\Lib::getUserSession($_COOKIE[$instanceId], false);
+				\OC_Log::write('files_picocms', 'got session '.serialize($session), \OC_Log::WARN);
+				$user_id = $session['user_id'];
+			}
+		}
+		
+		$this->ocUser = $user_id;
+
 	}
 	
 	public static function shutDownFunction() {
@@ -444,8 +469,9 @@ class Pico
 			// Why is this necessary? Why aren't images served...?
 			$pathInfo = pathinfo($this->requestFile);
 			if(empty($pathInfo['extension']) || in_array(strtolower($pathInfo['extension']),
-					['png', 'jpg', 'jpeg', 'gif', 'svg'])){
-				if(strtolower($pathInfo['extension'])=='svg' || getimagesize($this->requestFile)){
+					['png', 'jpg', 'jpeg', 'gif', 'svg', 'html'])){
+				if(strtolower($pathInfo['extension'])=='svg' || getimagesize($this->requestFile) ||
+						strtolower($pathInfo['extension'])=='html'){
 					return $this->rawContent;
 				}
 			}
@@ -453,17 +479,18 @@ class Pico
 		elseif($this->indexInferred){
 		}
 		else{
-			\OCP\Util::writeLog('files_picocms', 'No such file '.$this->requestFile, \OC_Log::ERROR);
+			\OCP\Util::writeLog('files_picocms', 'No such file '.$this->requestFile.' : '.$_SERVER['REQUEST_URI'].' : '.$_SERVER['QUERY_STRING'], \OC_Log::ERROR);
 			$this->triggerEvent('on404ContentLoading', array(&$this->requestFile));
 			header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
-			//$this->rawContent = $this->load404Content($this->requestFile);
-			$this->rawContent = $this->loadStatusContent($this->requestFile, 404);
+			$this->rawContent = $this->load404Content($this->requestFile);
+			//$this->rawContent = $this->loadStatusContent($this->requestFile, 404);
 			$this->triggerEvent('on404ContentLoaded', array(&$this->rawContent));
 			//exit();
-			$this->notfound = true;
+			// Render 404 page
+			$this->notFound = true;
 		}
 
-		if(!$this->notfound){
+		if(!$this->notFound){
 			$this->triggerEvent('onContentLoaded', array(&$this->rawContent));
 		}
 
@@ -475,18 +502,18 @@ class Pico
 
 		// Handle directory requests
 		$generatedIndex = false;
-		if(($this->requestFile===null || empty($this->rawContent)) && !$this->notfound){
+		if(($this->requestFile===null || empty($this->rawContent)) && !$this->notFound){
 			//$this->meta['folder'] = dirname(preg_replace('|^'.$this->getConfig('content_dir').'|',
 			//		'', $this->requestFile));
 			$generatedIndex = true;
-			// Default to not allowing directory listings
+			// Default to not allowing directory listings for non-owners or sharees
 			$this->meta['access'] = 'private';
 			\OCP\Util::writeLog('files_picocms', 'Generating index '.$this->requestFile.' : '.
 					$this->getConfig('content_dir'), \OC_Log::WARN);
 		}
 
 		// NC change
-		if(!empty($this->meta['access'])){
+		if(!empty($this->meta['access']) && !$this->notFound){
 			if(!$this->checkReadPermission($this->requestFile, $this->meta['access'],
 					$this->getConfig('user'), $this->getConfig('group'))){
 				\OCP\Util::writeLog('files_picocms', 'Not allowed '.$this->requestFile.':'.$this->meta['access'].':'.$this->rawContent, \OC_Log::WARN);
@@ -549,7 +576,7 @@ class Pico
 			$templateName = $this->meta['template'].'.twig';
 		}
 		else{
-			if (!$this->notfound && $generatedIndex &&
+			if (!$this->notFound && $generatedIndex &&
 					file_exists($this->getThemesDir() . $this->meta['theme'] . '/contents.twig')) {
 				$templateName = 'contents.twig';
 			}
@@ -787,10 +814,14 @@ class Pico
 		//
 		// Note: you MUST NOT call the index page with /pico/?someBooleanParameter;
 		// use /pico/?someBooleanParameter= or /pico/?index&someBooleanParameter instead
-		$pathComponent = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '';
+		$pathComponent = isset($_SERVER['QUERY_STRING']) ? preg_replace('|^'.$this->getBaseUrl().'|', '', $_SERVER['QUERY_STRING']) : '';
 		if (($pathComponentLength = strpos($pathComponent, '&')) !== false) {
 			$pathComponent = substr($pathComponent, 0, $pathComponentLength);
 		}
+		//$this->requestUrl = (strpos($pathComponent, '=') === false) ? rawurldecode($pathComponent) : '';
+		// $_SERVER['QUERY_STRING'] is already urldecoded. And apparently wrongly with
+		// %2B decoded to a space. We try to make up for that by double-encoding links
+		// with plus signs in the themes
 		$this->requestUrl = (strpos($pathComponent, '=') === false) ? rawurldecode($pathComponent) : '';
 		$this->requestUrl = trim($this->requestUrl, '/');
 	}
@@ -822,7 +853,8 @@ class Pico
 				if(!file_exists($this->requestFile)){
 					$this->requestFile = null;
 				}
-		} else {
+		}
+		else {
 			// prevent content_dir breakouts using malicious request URLs
 			// we don't use realpath() here because we neither want to check for file existence
 			// nor prohibit symlinks which intentionally point to somewhere outside the content_dir
@@ -852,7 +884,14 @@ class Pico
 			// Note: $requestFileParts neither contains a trailing nor a leading slash
 			$this->requestFile = $this->getConfig('content_dir') . implode('/', $requestFileParts);
 			if (is_dir($this->requestFile)) {
-				// if no index file is found, try a accordingly named file in the previous dir
+				$indexHtmlFile = $this->requestFile . '/index.html';
+				if (file_exists($indexHtmlFile)) {
+					\OCP\Util::writeLog('files_picocms', 'Using '.$indexHtmlFile, \OC_Log::WARN);
+					$this->requestFile = $indexHtmlFile;
+					$this->indexInferred = true;
+					return;
+				}
+				// if no index file is found, try an accordingly named file in the previous dir
 				// if this file doesn't exist either, show the 404 page, but assume the index
 				// file as being requested (maintains backward compatibility to Pico < 1.0)
 				$indexFile = $this->requestFile . '/index' . $this->getConfig('content_ext');
@@ -948,24 +987,11 @@ class Pico
 				return true;
 			}
 		}
-		if(trim(strtolower($access))!='shared' && trim(strtolower($access))!='private'){
+		elseif(trim(strtolower($access))!='private'){
 			// Unknown value of access - better bail out
 			return false;
 		}
 		// $access = 'private' or 'shared'
-		$user_id = \OCP\User::getUser();
-		\OCP\Util::writeLog('files_picocms', 'user_id '.$user_id, \OC_Log::WARN);
-		if(\OCP\App::isEnabled('files_sharding') && (empty($user_id) ||
-				!\OCA\FilesSharding\Lib::onServerForUser($user_id)) &&
-				!\OCA\FilesSharding\Lib::isMaster()){
-			$instanceId = \OC_Config::getValue('instanceid', null);
-			if(!empty($_COOKIE[$instanceId])){
-				\OCP\Util::writeLog('files_picocms', 'Getting session from master '.$_COOKIE[$instanceId], \OC_Log::WARN);
-				$session = \OCA\FilesSharding\Lib::getUserSession($_COOKIE[$instanceId], false);
-				\OC_Log::write('files_sharding', 'got session '.serialize($session), \OC_Log::WARN);
-				$user_id = $session['user_id'];
-			}
-		}
 
 		if(!empty($group)){
 			$view = new \OC\Files\View('/'.$owner.'/user_group_admin/'.$group);
@@ -981,8 +1007,8 @@ class Pico
 		}
 		$ocPath = "/".ltrim(substr($file, strlen($ownerRoot)), "/");
 
-		if(empty($user_id)){
-			\OCP\Util::writeLog('files_picocms', 'No user '.$user_id.', '.$access, \OC_Log::WARN);
+		if(empty($this->ocUser)){
+			\OCP\Util::writeLog('files_picocms', 'No user '.$this->ocUser.', '.$access, \OC_Log::INFO);
 			$this->shareType = self::$SHARE_TYPE_NONE;
 			if(trim(strtolower($access))=='private'){
 				return false;
@@ -991,7 +1017,7 @@ class Pico
 				// Check if current folder is publicly shared.
 				if(\OCP\App::isEnabled('files_sharding')){
 					$share_permissions = (int)\OCA\FilesSharding\Lib::checkPubliclyShared($ocPath, $owner, $group);
-					\OCP\Util::writeLog('files_picocms', 'Public share permissions: '.$share_permissions, \OC_Log::WARN);
+					\OCP\Util::writeLog('files_picocms', 'Public share permissions: '.$share_permissions, \OC_Log::INFO);
 					$this->permissions = $share_permissions;
 					if($share_permissions & \OCP\PERMISSION_DELETE){
 						$this->shareType = self::$SHARE_TYPE_SHARED_PUBLIC_RW;
@@ -1013,9 +1039,9 @@ class Pico
 		$ocPath = !empty($ocPath)?$ocPath:$ocRootPath;
 		$this->ocPath = $this->indexInferred&&substr($ocPath,-1)!="/"?(dirname($ocPath)."/"):$ocPath;
 		\OCP\Util::writeLog('files_picocms', 'Checking permissions. Access: '.$access.' Path: '.$ocPath. ' in '.
-				$ownerRoot." :: ".$this->ocPath." :: ".$user_id." :: ".$owner, \OC_Log::WARN);
+				$ownerRoot." :: ".$this->ocPath." :: ".$this->ocUser." :: ".$owner, \OC_Log::WARN);
 		// First check if I own the file
-		if($user_id===$owner){
+		if($this->ocUser===$owner){
 			$this->permissions = \OCP\PERMISSION_ALL;
 			$this->editable = true;
 			$this->readable = true;
@@ -1043,6 +1069,9 @@ class Pico
 					$view = new \OC\Files\View($baseDir);
 					$pathInfo = $view->getFileInfo($ocPath);
 					$fileInfo = \OC\Files\Filesystem::getFileInfo($ocPath);
+					if($ocPath == dirname($ocPath)){
+						break;
+					}
 					if($this->indexInferred && empty($fileInfo)){
 							$ocPath = dirname($ocPath);
 							++$i;
@@ -1072,11 +1101,11 @@ class Pico
 					}
 					$fileType = $fileInfo->getType()===\OCP\Files\FileInfo::TYPE_FOLDER?'folder':'file';
 					if(!\OCP\App::isEnabled('files_sharding') || \OCA\FilesSharding\Lib::isMaster()){
-						$itemShared = \OCP\Share::getItemSharedWithUser($fileType, $fileInfo->getId(), $user_id);
+						$itemShared = \OCP\Share::getItemSharedWithUser($fileType, $fileInfo->getId(), $this->ocUser);
 						$this->permissions = (int)$itemShared['permissions'];
 					}
 					else{
-						$itemSharedPermissions = \OCA\FilesSharding\Lib::checkAccess($user_id, $fileInfo->getId(), $fileType);
+						$itemSharedPermissions = \OCA\FilesSharding\Lib::checkAccess($this->ocUser, $fileInfo->getId(), $fileType);
 						$this->permissions = (int)$itemSharedPermissions;
 					}
 					\OCP\Util::writeLog('files_picocms', 'Checking sharing of: '.$ocPath.':'.$fileInfo->getId().':'.
@@ -1102,8 +1131,8 @@ class Pico
 			}
 			finally {
 				\OC_Util::teardownFS();
-				\OC_User::setUserId($user_id);
-				\OC_Util::setupFS('/'.$user_id.'/files');
+				\OC_User::setUserId($this->ocUser);
+				\OC_Util::setupFS('/'.$this->ocUser.'/files');
 			}
 			if(!empty($ocPath) && $ocPath!=='.'){
 				if(!empty($this->permissions) && ($this->permissions & \OCP\PERMISSION_DELETE)){
@@ -1530,6 +1559,10 @@ class Pico
 				unset($files[$i]);
 				continue;
 			}
+			if (basename($file) === 'rss' . $this->getConfig('content_ext')) {
+				unset($files[$i]);
+				continue;
+			}
 			$id = substr($file, strlen($this->getConfig('content_dir')), -strlen($this->getConfig('content_ext')));
 
 			// drop inaccessible pages (e.g. drop "sub.md" if "sub/index.md" exists)
@@ -1561,10 +1594,30 @@ class Pico
 					substr($content, 0, $excerptLength)."<span class='readmore'></span>"
 					);
 
+			$absfolder = dirname($file);
+			$folder = preg_replace("|^".$this->getConfig('content_dir')."|", "", dirname($file)."/");
+			$filename = basename($file);
+			
+			$readable = $this->checkReadPermission($file, $meta['access'],
+					$this->getConfig('user'), $this->getConfig('group'));
+			\OCP\Util::writeLog('files_picocms', 'Readable: '.$readable.':'.$absfolder.':'.$file, \OC_Log::INFO);
+			// To generate a contents listing of files, contents must be 'yes' in the
+			//  meta of both the page we're listing and the page we're viewing
+			if(!$this->notFound && $this->meta['contents']=='yes' &&
+					!empty($folder) && $meta['contents']=='yes' &&
+					strpos($absfolder, dirname($this->requestFile))===0){
+				\OCP\Util::writeLog('files_picocms', 'Scanning '.$absfolder.':'.$file, \OC_Log::WARN);
+				$contents = array_diff(scandir($absfolder),
+						array(".", "..", "index.md", "403.md", "404.md", "rss.md", ".DS_Store"));
+				$contents = array_map(function($name) use ($absfolder) {return $name.(is_dir($absfolder."/".$name)?"/":"");}, $contents);
+			}
+			else{
+				$contents = [];
+			}
+
 			// build page data
 			// title, description, author and date are assumed to be pretty basic data
 			// everything else is accessible through $page['meta']
-			$folder = preg_replace("|^".$this->getConfig('content_dir')."|", "", dirname($file)."/");
 			$page = array(
 				'id' => $id,
 				'url' => $url,
@@ -1574,7 +1627,7 @@ class Pico
 					// NC change
 				'displayname' => &$meta['displayname'],
 				'folder' => empty($folder)?"/":$folder,
-				'filename' => basename($file),
+				'filename' => $filename,
 				'template' => &$meta['template'],
 				//
 				'time' => &$meta['time'],
@@ -1582,7 +1635,10 @@ class Pico
 				'date_formatted' => &$meta['date_formatted'],
 				'raw_content' => &$rawContent,
 				'excerpt' => $excerpt,
-				'meta' => &$meta
+				'meta' => &$meta,
+				//
+				'readable' => $readable,
+				'contents' => $contents
 			);
 
 			if ($file === $this->requestFile) {

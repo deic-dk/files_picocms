@@ -26,32 +26,28 @@
  <body>
 
      <!-- Navigation -->
-    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
-      <a class="navbar-brand navbar-right" href="{{ base_url }}">Home</a>
-    </nav>
 
-    <header class="intro-header" style="{% if meta.img %}background-image:  url({{ meta.img }})
+    <header class="intro-header navbar-custom" style="{% if meta.img %}background-image:  url({{ meta.img }})
     {% else %}background: #006286;{% endif %};">
-			<div class="site-heading" style="color: gray;">
-				<div class="span2 navigation">
-					<form id="search_form" action="{{ base_url  }}/search">
-						<input type="search" id="search_input" name="q" placeholder="Search" />
-						<!--<input type="submit" id="search_submit" value="Search" />-->
-					</form>
-					<script type="text/javascript">
-							// Intercept form submit and go to the search results page directly, avoiding a redirect
-							document.getElementById('search_form').addEventListener('submit', function (e) {
-									var search_terms = document.getElementById('search_input').value;
-									location.href = '{{ base_url  }}/search/' + encodeURIComponent(search_terms);
-									e.preventDefault();
-							});
-					</script>
-				</div>
+			<div class="span2 navigation">
+				<form id="search_form" action="{{ base_url  }}/search">
+					<input type="search" id="search_input" name="q" placeholder="Search" />
+					<!--<input type="submit" id="search_submit" value="Search" />-->
+				</form>
+				<script type="text/javascript">
+						// Intercept form submit and go to the search results page directly, avoiding a redirect
+						document.getElementById('search_form').addEventListener('submit', function (e) {
+								var search_terms = document.getElementById('search_input').value;
+								location.href = '{{ base_url  }}/search/' + encodeURIComponent(search_terms);
+								e.preventDefault();
+						});
+				</script>
 			</div>
+			<a class="navbar-brand search-home" href="{{ base_url }}">Home</a>
     </header>
 
     <div class="container-fluid">
-    <div class="row-fluid">
+    <div class="row-fluid search-results">
 			<div class="span9 main">
 				{% for page in pages | reverse %}
 					<div class="search_result">

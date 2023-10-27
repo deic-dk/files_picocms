@@ -16,7 +16,7 @@ class Pagination extends AbstractPicoPlugin {
 	public $found_pages = array();
 	public $paged_pages = array();
 	public $found_folders = array();
-	public $contents = array();
+	//public $contents = array();
 	public $labels = array();
 	
 	public function __construct(Pico $pico)
@@ -42,6 +42,10 @@ class Pagination extends AbstractPicoPlugin {
 		// Pull config options for site config
 		if (isset($settings['pagination_limit']))
 			$this->config['limit'] = $settings['pagination_limit'];
+		if (isset($settings['pagination_folder']))
+				$this->config['folder'] = $settings['pagination_folder'];
+		if (isset($settings['pagination_template']))
+			$this->config['template'] = $settings['pagination_template'];
 		if (isset($settings['pagination_next_text']))
 			$this->config['next_text'] = $settings['pagination_next_text'];
 		if (isset($settings['pagination_prev_text']))
@@ -63,6 +67,12 @@ class Pagination extends AbstractPicoPlugin {
 	public function onPagesLoaded(&$pages, &$currentPage, &$previousPage, &$nextPage)
 	{
 		// Honor pagination_ settings in metadata
+		if (isset($currentPage['meta']['paginationfolder'])){
+			$this->config['folder'] = $currentPage['meta']['paginationfolder'];
+		}
+		if (isset($currentPage['meta']['paginationtemplate'])){
+			$this->config['template'] = $currentPage['meta']['paginationtemplate'];
+		}
 		if (isset($currentPage['meta']['paginationlimit'])){
 			$this->config['limit'] = $currentPage['meta']['paginationlimit'];
 		}
@@ -84,15 +94,24 @@ class Pagination extends AbstractPicoPlugin {
 		$show_folders = array();
 		// For a generated index there is no currentPage
 		//$path = $this->config['content_dir']."/".$currentPage['folder'];
-		$path = $this->config['content_dir']."/".$this->config['pico']->getFolder();
+		/*$path = $this->config['content_dir']."/".$this->config['pico']->getFolder();
 		$contents = array_diff(scandir($path),
 				array(".", "..", "index.md", "403.md", "404.md", "rss.md", ".DS_Store"));
-		$contents = array_map(function($name) use ($path) {return $name.(is_dir($path."/".$name)?"/":"");}, $contents);
+		$contents = array_map(function($name) use ($path) {return $name.(is_dir($path."/".$name)?"/":"");}, $contents);*/
 
 		$show_pages = array();
 		foreach($pages as $key=>$page) {
 			// If filter_date is true, return only dated items.
-			if ($this->config['filter_date'] && !$page['date']) {
+			if($this->config['filter_date'] && !$page['date']){
+				continue;
+			}
+			if(!empty($this->config['folder']) && !empty($page['folder']) &&
+					strpos(trim($page['folder'], '/'), trim($this->config['folder'], '/'))!==0){
+						\OCP\Util::writeLog('files_picocms', "Not in folder: ".$page['filename'].":".$page['folder'].":".$this->config['folder'], \OC_Log::INFO);
+				continue;
+			}
+			if(!empty($this->config['template']) && !empty($page['meta']['template']) &&
+					$this->config['template']!=$page['meta']['template']){
 				continue;
 			}
 			// if the calling page has ExcludeLabels set, return only pages w/o those
@@ -104,6 +123,9 @@ class Pagination extends AbstractPicoPlugin {
 			}
 			if(!empty($_GET['label']) && ( empty($page['meta']['labels']) ||
 					!in_array($_GET['label'], $page['meta']['labels']))){
+				continue;
+			}
+			if(!$page['readable']){
 				continue;
 			}
 			$show_pages[$key] = $page;
@@ -137,7 +159,7 @@ class Pagination extends AbstractPicoPlugin {
 		// set filtered pages to paged_pages
 		$this->paged_pages = $show_pages;
 		$this->found_folders = $show_folders;
-		$this->contents = $contents;
+		//$this->contents = $contents;
 	}
 
 	public function onPageRendering(&$twig, &$twigVariables, &$templateName)

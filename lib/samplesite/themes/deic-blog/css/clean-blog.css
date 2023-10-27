@@ -145,6 +145,17 @@ hr {
 	float: right;
 }
 
+.search-home {
+  position: absolute;
+  top: -4px;
+  right: 24px;
+}
+
+.search-results {
+	margin-top: 76px;
+	margin-left: 12px;
+}
+
 #search_form.navbar-search {
 	float: right;
 	margin-top: 8px;
