@@ -170,7 +170,7 @@
 					<div id="contents">
 						<!-- Contents of {{ current_page.folder }} -->
 						<ul>
-							{% for file in contents | sort %}
+							{% for file in current_page.contents | sort %}
 							{% if file != '403.md' and file != '404.md' and file != 'search.md' and file != 'img/' or
 									current_page.folder != '/' %}
 								<li>
