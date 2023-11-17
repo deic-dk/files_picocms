@@ -894,3 +894,8 @@ ul>li:last-child {
 	margin-bottom: 14px;
 }
 
+code {
+	color: black;
+	opacity: 0.8;
+}
+

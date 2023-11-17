@@ -91,13 +91,11 @@
             </div>
         </div>
 
-        <button class="edit-button btn btn-primary btn-flat" path="{{ oc_path }}"
-   			{% if (meta.access == 'public' or readable is empty) and
-    		(oc_user is not defined  or oc_owner is not defined or oc_owner != oc_user) %}
-    		style="display:none;"
+   			{% if meta.access != 'public' and editable is not empty %}
+	        <button class="edit-button btn btn-primary btn-flat" path="{{ oc_path }}"
+	        dir_id="{{ oc_parent_id }}" id="{{ oc_id }}" user="{{ oc_user }}" owner="{{ oc_owner }}"
+	        group="{{ oc_group }}" host="{{ oc_user_home_url }}">Show file</button>
     		{% endif %}
-        dir_id="{{ oc_parent_id }}" id="{{ oc_id }}" user="{{ oc_user }}" owner="{{ oc_owner }}"
-        group="{{ oc_group }}" host="{{ oc_user_home_url }}">Show file</button>
         
         {% if num_pages > 1 %}
 	        <div class="home-link">
