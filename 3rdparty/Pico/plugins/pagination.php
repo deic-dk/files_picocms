@@ -91,7 +91,7 @@ class Pagination extends AbstractPicoPlugin {
 		}
 		// Filter the pages returned based on the pagination options
 		$this->offset = ($this->page_number-1) * $this->config['limit'];
-		$show_folders = array();
+		$all_folders = array();
 		// For a generated index there is no currentPage
 		//$path = $this->config['content_dir']."/".$currentPage['folder'];
 		/*$path = $this->config['content_dir']."/".$this->config['pico']->getFolder();
@@ -99,7 +99,7 @@ class Pagination extends AbstractPicoPlugin {
 				array(".", "..", "index.md", "403.md", "404.md", "rss.md", ".DS_Store"));
 		$contents = array_map(function($name) use ($path) {return $name.(is_dir($path."/".$name)?"/":"");}, $contents);*/
 
-		$show_pages = array();
+		$all_pages = array();
 		foreach($pages as $key=>$page) {
 			// If filter_date is true, return only dated items.
 			if($this->config['filter_date'] && !$page['date']){
@@ -128,18 +128,18 @@ class Pagination extends AbstractPicoPlugin {
 			if(!$page['readable']){
 				continue;
 			}
-			$show_pages[$key] = $page;
+			$all_pages[$key] = $page;
 		}
 
 		foreach($pages as $key=>$page) {
-			if(!empty($page['folder']) && !in_array($page['folder'], $show_folders)){
-				$show_folders[] = $page['folder'];
+			if(!empty($page['folder']) && !in_array($page['folder'], $all_folders)){
+				$all_folders[] = $page['folder'];
 				$subfolders = explode('/', $page['folder']);
 				$fullSubfolder = '';
 				foreach($subfolders as $subfolder){
 					$fullSubfolder = trim($fullSubfolder.$subfolder, '/').'/';
-					if(!empty($fullSubfolder) && !in_array($fullSubfolder, $show_folders)){
-						$show_folders[] = $fullSubfolder;
+					if(!empty($fullSubfolder) && !in_array($fullSubfolder, $all_folders)){
+						$all_folders[] = $fullSubfolder;
 					}
 				}
 			}
@@ -149,16 +149,16 @@ class Pagination extends AbstractPicoPlugin {
 						is_array($page['meta']['labels'])?$page['meta']['labels']:array_map('trim', explode(",", $page['meta']['labels']))));
 			}
 		}
-		\OCP\Util::writeLog('files_picocms', "Folders: ".implode(":", $show_folders), \OC_Log::WARN);
+		\OCP\Util::writeLog('files_picocms', "Folders: ".implode(":", $all_folders), \OC_Log::WARN);
 		// get total pages before show_pages is sliced
-		$this->total_pages = ceil(count($show_pages) / $this->config['limit']);
+		$this->total_pages = ceil(count($all_pages) / $this->config['limit']);
 		// slice show_pages to the limit
-		$show_pages = array_reverse($show_pages);
-		$this->found_pages = $show_pages;
-		$show_pages = array_slice($show_pages, $this->offset, $this->config['limit']);
+		$all_pages = array_reverse($all_pages);
+		$this->found_pages = $all_pages;
+		$paged_pages = array_slice($all_pages, $this->offset, $this->config['limit']);
 		// set filtered pages to paged_pages
-		$this->paged_pages = $show_pages;
-		$this->found_folders = $show_folders;
+		$this->paged_pages = $paged_pages;
+		$this->found_folders = $all_folders;
 		//$this->contents = $contents;
 	}
 
