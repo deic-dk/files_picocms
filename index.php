@@ -97,6 +97,8 @@ require_once('apps/files_picocms/3rdparty/Pico/lib/PicoTwigExtension.php');
 
 require_once('apps/files_picocms/lib/OC_Pico.php');
 
+\OCP\Util::writeLog('files_picocms', 'QUERY_STRING: '.$_SERVER['QUERY_STRING'].' --> '.$_GET['path'], \OC_Log::WARN);
+
 if(!empty($_GET['path'])){
 	$_SERVER['QUERY_STRING'] = $_GET['path'];
 }
@@ -183,7 +185,7 @@ elseif(!empty($extension) && $extension=='nb'){
 elseif($extension!=='md' && (basename($_GET['path'])=="feed" || basename($_GET['path'])=="rss")){
 	header("Content-type: application/rss+xml");
 }
-elseif(!empty($extension) && ($extension!='md') && dirname($_GET['path'])!="search" ||
+elseif(!empty($extension) && ($extension!='md') && basename(dirname($_GET['path']))!="search" ||
 		!empty($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'letsencrypt')!==false){
 	if(!file_exists($filePath)){
 		$filePath = $dataDir.'/'.$sitePath.'/content/'.$_GET['path'];

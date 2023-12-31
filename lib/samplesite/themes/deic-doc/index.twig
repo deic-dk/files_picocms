@@ -54,7 +54,7 @@
 						// Intercept form submit and go to the search results page directly, avoiding a redirect
 						document.getElementById('search_form').addEventListener('submit', function (e) {
 								var search_terms = document.getElementById('search_input').value;
-								location.href = '{{ base_url  }}/search/' + encodeURIComponent(search_terms);
+								location.href = '{{ base_url  }}/search/' + search_terms;
 								e.preventDefault();
 						});
 				</script>

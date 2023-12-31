@@ -40,29 +40,41 @@
 			<div class="span2 navigation">
 				<form id="search_form" action="{{ base_url  }}/search">
 					<label id="search_label" for="search_input"><a href="{{ base_url  }}">
-					<i class="icon icon-home icon-white"></i>{{ (pages|first).title }}</a></label>
-					<input type="search" id="search_input" name="q" placeholder="Search the docs" />
+					<i class="icon icon-home icon-white"></i>{{ meta.site }}</a></label>
+					<input type="search" id="search_input" name="q" placeholder="Search the docs" value="{{ search_terms }}"/>
 					<!--<input type="submit" id="search_submit" value="Search" />-->
 				</form>
 				<script type="text/javascript">
 						// Intercept form submit and go to the search results page directly, avoiding a redirect
 						document.getElementById('search_form').addEventListener('submit', function (e) {
 								var search_terms = document.getElementById('search_input').value;
-								location.href = '{{ base_url  }}/search/' + encodeURIComponent(search_terms);
+								location.href = '{{ base_url  }}/search/' + search_terms;
 								e.preventDefault();
 						});
 				</script>
 				
 				{% if found_pages %}
+				<script type="text/javascript">
+                    function highlight(pageid){
+                        if(pageid && document.getElementById(pageid)){
+                            document.getElementById(pageid).classList.add("highlight");
+                        }
+                    };
+                    function unhighlight(pageid){
+                        if(pageid && document.getElementById(pageid)){
+                            document.getElementById(pageid).classList.remove("highlight");
+                        }
+                    };
+                </script>
 				<div id="nav">
 					<ul>
 						{% for page in found_pages|sort_by("title") %}
 							{% if meta.title == page.title %}
-								<li class="current">
+								<li class="current" id="{{ page.id }}">
 									<a href="{{ page.url }}">{{ page.title }}</a>
 								</li>
 							{% else %}	
-								<li>
+								<li id="{{ page.id }}">
 									<a href="{{ page.url }}">{{ page.title }}</a>
 								</li>
 							{% endif %}	
@@ -73,10 +85,11 @@
 				{{ toc }}
 			</div>
 			<div class="span9 main">
-				{% for page in pages %}
-					<div class="search_result">
+				{% for page in found_pages|sort_by("title") %}
+					<div class="search_result" onmouseover='highlight("{{ page.id }}")' onmouseout='unhighlight("{{ page.id }}")'>
 						<h2><a href="{{ page.url }}">{{ page.title }}</a></h2>
-						{% if page.description %}<p>{{ page.description }}</p>{% endif %}
+						{% if page.description %}<p><em>{{ page.description }}</em></p>{% endif %}
+						{% if page.search_hit %}<p><em>{{ page.search_hit }}</em></p>{% endif %}						
 					</div>
 				{% endfor %} 
 			</div>

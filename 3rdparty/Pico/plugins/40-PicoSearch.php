@@ -38,7 +38,12 @@ class PicoSearch extends AbstractPicoPlugin
             exit;
         }
 
-        if (preg_match('~^(.+/)?search/([^/]+)(/.+)?$~', $url, $matches)) {
+        \OCP\Util::writeLog('files_picocms', 'Search URL: '.$url, \OC_Log::WARN);
+
+        // The pattern below discards what's after the first / after search - meaning one
+        // cannot search for e.g. 'mnt/home'. Why?...
+        //if (preg_match('~^(.+/)?search/([^/]+)(/.+)?$~', $url, $matches)) {
+        if (preg_match('~^(.+/)?search/(.+)$~', $url, $matches)) {
             $this->search_terms = urldecode($matches[2]);
 
             if (!empty($matches[1])) {
@@ -52,6 +57,7 @@ class PicoSearch extends AbstractPicoPlugin
     	if ($this->has_search_page){
     		$twigVariables['has_search_page'] = $this->has_search_page;
     	}
+        $twigVariables['search_terms'] = $this->search_terms;
     }
 
     /**
@@ -132,9 +138,17 @@ class PicoSearch extends AbstractPicoPlugin
             			});
             		}
             		else{
-            			$pages = array_filter($pages, function ($page) {
-            				return (stripos($page['title'], $this->search_terms) !== false)
-            				|| (stripos($page['raw_content'], $this->search_terms) !== false);
+            			$pages = array_filter($pages, function (&$page) {
+                            if(stripos($page['title'], $this->search_terms) !== false){
+                                return true;
+                            }
+                            if(($hit_pos=stripos($page['raw_content'], $this->search_terms)) !== false){
+                                $page['search_hit'] = substr($page['raw_content'], $hit_pos -50 , 100);
+                                $page['search_hit'] = preg_replace('|^[^ ]+ |', '' , $page['search_hit']);
+                                $page['search_hit'] = preg_replace('| [^ ]+$|', '\1' , $page['search_hit']);
+                                $page['search_hit'] = '...'.  preg_replace('|('.$this->search_terms.')|i', '<b>\1</b>' , $page['search_hit']) . '...';
+                                return true;
+                            }
             			});
             		}
             }
