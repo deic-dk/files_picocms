@@ -111,13 +111,13 @@ a:focus {text-decoration: none;}
 	width: 264px;
 	margin-left: -10px;
 	padding-left: 10px;
-	padding-top: 6px;
+	padding-top: 0px;
 	padding-bottom: 3px;
 }
 #nav ul>li #toc>ul>li {
-		padding-top: 0px;
+		padding-top: 6px;
 }
-#nav li:hover, #nav li.highlight {
+#nav li li:hover, #nav li.highlight {
 	background-color: #808080 ! important;
 }
 #nav li.current, #nav li.current li {
@@ -127,7 +127,8 @@ a:focus {text-decoration: none;}
 	padding-top: 10px;
 }
 #nav #toc>ul>li:last-child {
-	padding-bottom: 9px;
+	padding-bottom: 6px;
+	padding-top: 6px;
 }
 
 .main ul>li>ul>li:last-child {
