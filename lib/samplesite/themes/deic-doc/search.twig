@@ -73,11 +73,11 @@
 								<li class="current" id="{{ page.id }}">
 									<a href="{{ page.url }}">{{ page.title }}</a>
 								</li>
-							{% else %}	
+							{% else %}
 								<li id="{{ page.id }}">
 									<a href="{{ page.url }}">{{ page.title }}</a>
 								</li>
-							{% endif %}	
+							{% endif %}
 						{% endfor %}
 					</ul>
 				</div>
@@ -85,13 +85,15 @@
 				{{ toc }}
 			</div>
 			<div class="span9 main">
+				{% if found_pages %}
 				{% for page in found_pages|sort_by("title") %}
 					<div class="search_result" onmouseover='highlight("{{ page.id }}")' onmouseout='unhighlight("{{ page.id }}")'>
 						<h2><a href="{{ page.url }}">{{ page.title }}</a></h2>
 						{% if page.description %}<p><em>{{ page.description }}</em></p>{% endif %}
 						{% if page.search_hit %}<p><em>{{ page.search_hit }}</em></p>{% endif %}						
 					</div>
-				{% endfor %} 
+				{% endfor %}
+				{% endif %}
 			</div>
 		</div>
 	</div>
