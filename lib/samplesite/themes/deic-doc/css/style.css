@@ -414,6 +414,14 @@ centerbig {
 	display: inline-block;
 }
 
+big {
+	font-size: 24px;
+	width: 98%;
+	position: relative;
+	margin: 0 auto;
+	display: inline-block;
+}
+
 @media print {
 	.navigation {
 		display: none!important;
