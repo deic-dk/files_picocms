@@ -114,15 +114,17 @@
 		{% if iseditable is not empty %}
 			<button id="manage_files">Manage</button>
 		{% endif %}
-		{% for fol in found_folders|sort %}
-		{% if fol != "/" %}
-			{% set depth = fol | split('/') | length -1 %}
-			{% set name = (fol | split('/'))[ depth - 1 ] %}
-				<li class="toc toc{{ depth }} nav{% if fol == current_page.folder %} active{% endif %}">
-						<a href="{{ base_url  }}/{{ fol }}?index=1">{{ name}}/</a>
-				</li>
+		{% if found_folders is not empty %}
+			{% for fol in found_folders|sort %}
+				{% if fol != "/" %}
+					{% set depth = fol | split('/') | length -1 %}
+					{% set name = (fol | split('/'))[ depth - 1 ] %}
+						<li class="toc toc{{ depth }} nav{% if fol == current_page.folder %} active{% endif %}">
+								<a href="{{ base_url  }}/{{ fol }}?index=1">{{ name}}/</a>
+						</li>
+				{% endif %}
+			{% endfor %}
 		{% endif %}
-		{% endfor %}
 	</ul>
 
 	<ul class="labelsbar">

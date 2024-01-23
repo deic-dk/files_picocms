@@ -64,11 +64,13 @@
 		{% if editable is not empty %}
 			<div id="nav" class="inner">
 				<ul>
-					{% for file in contents | sort %}
-						<li class="toc1">
-							<a href="{{ file }}">{{ file }}</a>
-						</li>
-					{% endfor %}
+					{% if current_page.contents is not empty %}
+						{% for file in current_page.contents | sort %}
+							<li class="toc1">
+								<a href="{{ file }}">{{ file }}</a>
+							</li>
+						{% endfor %}
+					{% endif %}
 				</ul>
 			</div>
 		{% endif %}
