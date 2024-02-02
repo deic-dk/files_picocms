@@ -32,6 +32,6 @@ name ending in ".md" or ".html" will be served under <?php print($publicUrl);?> 
 		site_name="<?php print($randomName);?>" />PicoCMS default
 </div>
 <br />
-<p>Your website will be created in <label id="personal_site_folder"><?php print($publicFolder);?></label>&nbsp;<a href="" id="change_site_folder" style="color: #2a6496;">change</a></p>
+<p>Your website will be created in <label id="personal_site_folder"><?php print($publicFolder);?></label>&nbsp;<a class="change_website_folder" href="" id="change_site_folder" style="color: #2a6496;">change</a></p>
 <br />
 
