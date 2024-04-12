@@ -121,7 +121,7 @@ class Pico
 	 * @see Pico::getRequestFile()
 	 * @var string|null
 	 */
-	protected $requestFile;
+	public $requestFile;
 	
 	/**
 	 * NC change: keep track of whether or not an index file was *implicitly* requested.
@@ -135,7 +135,7 @@ class Pico
 	 * @see Pico::getRawContent()
 	 * @var string|null
 	 */
-	protected $rawContent;
+	public $rawContent;
 
 	/**
 	 * Meta data of the page to serve
@@ -143,7 +143,7 @@ class Pico
 	 * @see Pico::getFileMeta()
 	 * @var array|null
 	 */
-	protected $meta;
+	public $meta;
 
 	/**
 	 * Parsedown Extra instance used for markdown parsing
@@ -978,7 +978,7 @@ class Pico
 	 * @param string $owner the owner of the file
 	 * @param string $group possible name of group folder holding the file
 	 */
-	private function checkReadPermission($file, $access, $owner, $group=null)
+	public function checkReadPermission($file, $access, $owner, $group=null)
 	{
 		// Only if we're checking the request file, set $this->permissions etc.
 		$setPermissions = false;
@@ -1008,7 +1008,7 @@ class Pico
 		}
 		$ownerRoot = $view->getLocalFile('/');
 		if($file!==null && strpos($file, $ownerRoot)!==0){
-			\OCP\Util::writeLog('files_picocms', 'Trying to access file outside of user dir', \OC_Log::ERROR);
+			\OCP\Util::writeLog('files_picocms', 'Trying to access file '.$file.' outside of user dir '.$ownerRoot, \OC_Log::ERROR);
 			if($setPermissions){
 				$this->shareType = self::$SHARE_TYPE_NONE;
 			}

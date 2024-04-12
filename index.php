@@ -170,6 +170,7 @@ if(empty($_GET['path']) &&
 
 $extension = empty($_GET['path'])?'':pathinfo($_GET['path'], PATHINFO_EXTENSION);
 $filePath = $dataDir.'/'.$sitePath.'/'.$_GET['path'];
+$serveRaw = false;
 if(!empty($extension) && ($extension=='png'||$extension=='jpg'||$extension=='jpeg')){
 	header("Content-type: image/".$extension);
 }
@@ -210,44 +211,38 @@ elseif(!empty($extension) && ($extension!='md') && basename(dirname($_GET['path'
 		}
 	}
 	if((empty($mimetype) || $mimetype!='directory') && file_exists($filePath)){
-		\OCP\Util::writeLog('files_picocms', 'Serving '.$mimetype.' : '.$_SERVER['HTTP_USER_AGENT'].'-->'.$filePath, \OC_Log::WARN);
-		if($mimetype=="video/quicktime" /*&&
-				(stripos($_SERVER['HTTP_USER_AGENT'],"AppleWebKit") || stripos($_SERVER['HTTP_USER_AGENT'],"iPhone"))*/){
-			\OCA\FilesSharding\Lib::rangeServe($filePath, $mimetype);
-		}
-		else{
-			echo file_get_contents($filePath);
-		}
-		exit;
+		$serveRaw = true;
 	}
 }
 
-if(is_dir($dataDir.'/'.$sitePath.'/themes')){
-	$themesDir = $dataDir.'/'.$sitePath.'/themes/';
-	//$config['themes_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT .
-	//	"/sites/".$_GET['site']."/themes";
-	if(isset($_GET['path']) && strpos($_GET['path'], 'themes/')===0){
-		\OCP\Util::writeLog('files_picocms', 'Serving '.$dataDir.'/'.$sitePath.'/'.$_GET['path'], \OC_Log::WARN);
-		if(!empty($extension)){
-			if($extension=='js'){
-				header("Content-type: application/javascript");
+if(!$serveRaw){
+	if(is_dir($dataDir.'/'.$sitePath.'/themes')){
+		$themesDir = $dataDir.'/'.$sitePath.'/themes/';
+		//$config['themes_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT .
+		//	"/sites/".$_GET['site']."/themes";
+		if(isset($_GET['path']) && strpos($_GET['path'], 'themes/')===0){
+			\OCP\Util::writeLog('files_picocms', 'Serving '.$dataDir.'/'.$sitePath.'/'.$_GET['path'], \OC_Log::WARN);
+			if(!empty($extension)){
+				if($extension=='js'){
+					header("Content-type: application/javascript");
+				}
+				else{
+					header("Content-type: text/".$extension);
+				}
 			}
-			else{
-				header("Content-type: text/".$extension);
-			}
+			echo file_get_contents($dataDir.'/'.$sitePath.'/'.$_GET['path']);
+			exit;
 		}
-		echo file_get_contents($dataDir.'/'.$sitePath.'/'.$_GET['path']);
+	}
+	elseif(is_dir($dataDir.'/'.$sitePath)){
+		$themesDir = __DIR__ . '/lib/samplesite/themes/';
+		$config['themes_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT .
+		"/apps/files_picocms/lib/samplesite/themes";
+	}
+	else{
+		\OCP\Util::writeLog('files_picocms', "Site does not exist. ".$dataDir.'::'.$sitePath, \OC_Log::ERROR);
 		exit;
 	}
-}
-elseif(is_dir($dataDir.'/'.$sitePath)){
-	$themesDir = __DIR__ . '/lib/samplesite/themes/';
-	$config['themes_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT .
-		"/apps/files_picocms/lib/samplesite/themes";
-}
-else{
-	\OCP\Util::writeLog('files_picocms', "Site does not exist. ".$dataDir.'::'.$sitePath, \OC_Log::ERROR);
-	exit;
 }
 
 \OCP\Util::writeLog('files_picocms', 'Themes dir: '.$themesDir, \OC_Log::WARN);
@@ -285,7 +280,7 @@ $config['pagination'] = -1;
 $config['pagination_limit'] = 10;
 $config['toc_top_txt'] = '';
 
-\OCP\Util::writeLog('files_picocms', 'Content dir: '.$config['content_dir'], \OC_Log::WARN);
+\OCP\Util::writeLog('files_picocms', 'Content dir: '.$config['content_dir'].'. Raw: '.$serveRaw, \OC_Log::WARN);
 
 // instantiate Pico
 $pico = new Pico(
@@ -295,6 +290,37 @@ $pico = new Pico(
 		$themesDir,  // themes dir
 		$siteInfo['uid'] // site owner
 );
+
+if($serveRaw){
+	// Check permissions - minimalistic pico instantiation - from 3rdparty/Pico/lib/Pico.php
+	// If we're serving a raw file, check if there's an index.md in the same directory, which we can access.
+	// If not, just fail.
+	//$pico->requestFile = $filePath;
+	$pico->requestFile = dirname($filePath).'/index.md';
+	$pico->rawContent = $pico->loadFileContent($pico->requestFile);
+	\OCP\Util::writeLog('files_picocms', 'Serving raw: '.$pico->requestFile." : ".$pico->rawContent, \OC_Log::WARN);
+	$headers = $pico->getMetaHeaders();
+	$pico->meta = $pico->parseFileMeta($pico->rawContent, $headers);
+	if(empty($pico->meta['access'])){
+		$pico->meta['access'] = 'private';
+	}
+	if(!$pico->checkReadPermission($pico->requestFile, $pico->meta['access'],
+			$config['user'], $config['group'])){
+				\OCP\Util::writeLog('files_picocms', 'Not allowed '.$pico->requestFile.':'.$pico->meta['access'].':'.$pico->rawContent, \OC_Log::WARN);
+				header("HTTP/1.1 403 Forbidden");
+				exit;
+	}
+	
+	\OCP\Util::writeLog('files_picocms', 'Serving '.$mimetype.' : '.$_SERVER['HTTP_USER_AGENT'].'-->'.$filePath, \OC_Log::WARN);
+	if($mimetype=="video/quicktime" /*&&
+	(stripos($_SERVER['HTTP_USER_AGENT'],"AppleWebKit") || stripos($_SERVER['HTTP_USER_AGENT'],"iPhone"))*/){
+	\OCA\FilesSharding\Lib::rangeServe($filePath, $mimetype);
+	}
+	else{
+		echo file_get_contents($filePath);
+	}
+	exit;
+}
 
 // override configuration?
 $pico->setConfig($config);
