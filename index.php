@@ -215,34 +215,32 @@ elseif(!empty($extension) && ($extension!='md') && basename(dirname($_GET['path'
 	}
 }
 
-if(!$serveRaw){
-	if(is_dir($dataDir.'/'.$sitePath.'/themes')){
-		$themesDir = $dataDir.'/'.$sitePath.'/themes/';
-		//$config['themes_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT .
-		//	"/sites/".$_GET['site']."/themes";
-		if(isset($_GET['path']) && strpos($_GET['path'], 'themes/')===0){
-			\OCP\Util::writeLog('files_picocms', 'Serving '.$dataDir.'/'.$sitePath.'/'.$_GET['path'], \OC_Log::WARN);
-			if(!empty($extension)){
-				if($extension=='js'){
-					header("Content-type: application/javascript");
-				}
-				else{
-					header("Content-type: text/".$extension);
-				}
+if(is_dir($dataDir.'/'.$sitePath.'/themes')){
+	$themesDir = $dataDir.'/'.$sitePath.'/themes/';
+	//$config['themes_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT .
+	//	"/sites/".$_GET['site']."/themes";
+	if(isset($_GET['path']) && strpos($_GET['path'], 'themes/')===0){
+		\OCP\Util::writeLog('files_picocms', 'Serving '.$dataDir.'/'.$sitePath.'/'.$_GET['path'], \OC_Log::WARN);
+		if(!empty($extension)){
+			if($extension=='js'){
+				header("Content-type: application/javascript");
 			}
-			echo file_get_contents($dataDir.'/'.$sitePath.'/'.$_GET['path']);
-			exit;
+			else{
+				header("Content-type: text/".$extension);
+			}
 		}
-	}
-	elseif(is_dir($dataDir.'/'.$sitePath)){
-		$themesDir = __DIR__ . '/lib/samplesite/themes/';
-		$config['themes_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT .
-		"/apps/files_picocms/lib/samplesite/themes";
-	}
-	else{
-		\OCP\Util::writeLog('files_picocms', "Site does not exist. ".$dataDir.'::'.$sitePath, \OC_Log::ERROR);
+		echo file_get_contents($dataDir.'/'.$sitePath.'/'.$_GET['path']);
 		exit;
 	}
+}
+elseif(is_dir($dataDir.'/'.$sitePath)){
+	$themesDir = __DIR__ . '/lib/samplesite/themes/';
+	$config['themes_url'] = "https://".$_SERVER['HTTP_HOST'].\OC::$WEBROOT .
+	"/apps/files_picocms/lib/samplesite/themes";
+}
+else{
+	\OCP\Util::writeLog('files_picocms', "Site does not exist. ".$dataDir.'::'.$sitePath, \OC_Log::ERROR);
+	exit;
 }
 
 \OCP\Util::writeLog('files_picocms', 'Themes dir: '.$themesDir, \OC_Log::WARN);
@@ -304,7 +302,8 @@ if($serveRaw){
 	if(empty($pico->meta['access'])){
 		$pico->meta['access'] = 'private';
 	}
-	if(!$pico->checkReadPermission($pico->requestFile, $pico->meta['access'],
+	if(strpos($filePath, $themesDir)!==0 && // Theme files we don't check
+			!$pico->checkReadPermission($pico->requestFile, $pico->meta['access'],
 			$config['user'], $config['group'])){
 				\OCP\Util::writeLog('files_picocms', 'Not allowed '.$pico->requestFile.':'.$pico->meta['access'].':'.$pico->rawContent, \OC_Log::WARN);
 				header("HTTP/1.1 403 Forbidden");
