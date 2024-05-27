@@ -358,7 +358,9 @@ class Pico
 				\OCP\Util::writeLog('files_picocms', 'Getting session from master '.$_COOKIE[$instanceId], \OC_Log::WARN);
 				$session = \OCA\FilesSharding\Lib::getUserSession($_COOKIE[$instanceId], false);
 				\OC_Log::write('files_picocms', 'got session '.serialize($session), \OC_Log::WARN);
-				$user_id = $session['user_id'];
+				if(!empty($session['user_id'])){
+					$user_id = $session['user_id'];
+				}
 			}
 		}
 		
