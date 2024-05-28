@@ -171,7 +171,7 @@ if(empty($_GET['path']) &&
 $extension = empty($_GET['path'])?'':pathinfo($_GET['path'], PATHINFO_EXTENSION);
 $filePath = $dataDir.'/'.$sitePath.'/'.$_GET['path'];
 $serveRaw = false;
-if(!empty($extension) && ($extension=='png'||$extension=='jpg'||$extension=='jpeg')){
+if(!empty($extension) && ($extension=='png'||$extension=='jpg'||$extension=='jpeg'||$extension=='gif')){
 	header("Content-type: image/".$extension);
 }
 elseif(!empty($extension) && ($extension=='svg')){
@@ -290,34 +290,41 @@ $pico = new Pico(
 );
 
 if($serveRaw){
-	// Check permissions - minimalistic pico instantiation - from 3rdparty/Pico/lib/Pico.php
-	// If we're serving a raw file, check if there's an index.md in the same directory, which we can access.
-	// If not, just fail.
-	//$pico->requestFile = $filePath;
-	$pico->requestFile = dirname($filePath).'/index.md';
-	$pico->rawContent = $pico->loadFileContent($pico->requestFile);
-	\OCP\Util::writeLog('files_picocms', 'Serving raw: '.$pico->requestFile." : ".$pico->rawContent, \OC_Log::WARN);
-	$headers = $pico->getMetaHeaders();
-	$pico->meta = $pico->parseFileMeta($pico->rawContent, $headers);
-	if(empty($pico->meta['access'])){
-		$pico->meta['access'] = 'private';
-	}
-	if(strpos($filePath, $themesDir)!==0 && // Theme files we don't check
-			!$pico->checkReadPermission($pico->requestFile, $pico->meta['access'],
-			$config['user'], $config['group'])){
-				\OCP\Util::writeLog('files_picocms', 'Not allowed '.$pico->requestFile.':'.$pico->meta['access'].':'.$pico->rawContent, \OC_Log::WARN);
-				header("HTTP/1.1 403 Forbidden");
-				exit;
-	}
-	
-	\OCP\Util::writeLog('files_picocms', 'Serving '.$mimetype.' : '.$_SERVER['HTTP_USER_AGENT'].'-->'.$filePath, \OC_Log::WARN);
-	if($mimetype=="video/quicktime" /*&&
-	(stripos($_SERVER['HTTP_USER_AGENT'],"AppleWebKit") || stripos($_SERVER['HTTP_USER_AGENT'],"iPhone"))*/){
-	\OCA\FilesSharding\Lib::rangeServe($filePath, $mimetype);
-	}
-	else{
-		echo file_get_contents($filePath);
-	}
+    // If we're serving a plain html site and there's an index.html present at the root, just go ahead
+    if(($extension=="html" || $extension=="css") && file_exists($config['content_dir'].'/index.html')){
+        echo file_get_contents($filePath);
+    }
+    else{
+        // Check permissions - minimalistic pico instantiation - from 3rdparty/Pico/lib/Pico.php
+        // If we're serving a raw file, check if there's an index.md in the same directory, which we can access.
+        // If not, just fail.
+        //$pico->requestFile = $filePath;
+        $pico->requestFile = dirname($filePath).'/index.md';
+        $pico->rawContent = $pico->loadFileContent($pico->requestFile);
+        \OCP\Util::writeLog('files_picocms', 'Serving raw: '.$pico->requestFile." : ".$pico->rawContent, \OC_Log::WARN);
+        $headers = $pico->getMetaHeaders();
+        $pico->meta = $pico->parseFileMeta($pico->rawContent, $headers);
+        if(empty($pico->meta['access'])){
+            $pico->meta['access'] = 'private';
+        }
+        if(strpos($filePath, $themesDir)!==0 && // Theme files we don't check
+                !$pico->checkReadPermission($pico->requestFile, $pico->meta['access'],
+                $config['user'], $config['group'])){
+                    \OCP\Util::writeLog('files_picocms', 'Not allowed '.$pico->requestFile.':'.$pico->meta['access'].':'.$pico->rawContent, \OC_Log::WARN);
+                    header("HTTP/1.1 403 Forbidden");
+                    exit;
+        }
+        
+        \OCP\Util::writeLog('files_picocms', 'Serving '.$mimetype.' : '.$_SERVER['HTTP_USER_AGENT'].'-->'.$filePath, \OC_Log::WARN);
+        
+        if($mimetype=="video/quicktime" /*&&
+        (stripos($_SERVER['HTTP_USER_AGENT'],"AppleWebKit") || stripos($_SERVER['HTTP_USER_AGENT'],"iPhone"))*/){
+        \OCA\FilesSharding\Lib::rangeServe($filePath, $mimetype);
+        }
+        else{
+            echo file_get_contents($filePath);
+        }
+    }
 	exit;
 }
 
