@@ -61,8 +61,7 @@
 			</div>
 		{% endif %}
 
-		{% if editable is not empty %}
-			<div id="nav" class="inner">
+			<div id="nav" class="inner contents">
 				<ul>
 					{% if current_page.contents is not empty %}
 						{% for file in current_page.contents | sort %}
@@ -73,7 +72,6 @@
 					{% endif %}
 				</ul>
 			</div>
-		{% endif %}
 		
 		<!-- If this is a Joplin directory/notebook with no index file, show a list of md files -->
     <section id="content">

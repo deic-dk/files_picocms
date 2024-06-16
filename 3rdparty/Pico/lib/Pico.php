@@ -1622,8 +1622,8 @@ class Pico
 			\OCP\Util::writeLog('files_picocms', 'Readable: '.$readable.':'.$absfolder.':'.$file, \OC_Log::INFO);
 			// To generate a contents listing of files, contents must be 'yes' in the
 			//  meta of both the page we're listing and the page we're viewing
-			if(!$this->notFound && $this->meta['contents']=='yes' &&
-					(!empty($folder)||$folder=="") && $meta['contents']=='yes' &&
+			if(!$this->notFound && $meta['contents']=='yes' &&
+					(!empty($folder)||$folder=="") &&
 					strpos($absfolder, dirname($this->requestFile))===0){
 				\OCP\Util::writeLog('files_picocms', 'Scanning '.$absfolder.':'.$file, \OC_Log::WARN);
 				$contents = array_diff(scandir($absfolder),
