@@ -1374,7 +1374,7 @@ class Pico
 		if(\OCP\App::isEnabled('notes')){
 			//$joplinPattern = "|([^\n]+)(\n\n)?(.*)\n((\n.+: .+)*)$|s";
 			//$joplinPattern = "|(\n\n?)\n(?:(\n[^:\n]+: .+)+)$|s";
-			$joplinPattern = "|\n\n\n*(([^:\n ]+: [^:\n]+\n)+)|m";
+			$joplinPattern = "|\n\n\n+(([^:\n ]+: [^:\n]+\n)+)|m";
 			// TODO: perhaps use Joplin metadata.
 			if(preg_match($joplinPattern, $content)){
 				//$content = preg_replace($joplinPattern, "$3", $content);
