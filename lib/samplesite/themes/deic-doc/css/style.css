@@ -91,7 +91,7 @@ body pre{
 #nav #toc>ul>.toc5 a {margin-left: 4em;}
 #nav #toc>ul>.toc6 a {margin-left: 5em;}
 
-#nav>ul>.toc1{}
+/*#nav>ul .toc1>a, #nav>ul .toc0>a{font-weight: bold;}*/
 #nav>ul>.toc2 a {margin-left: 0.3em;}
 #nav>ul>.toc3 a {margin-left: 0.6em;}
 #nav>ul>.toc4 a {margin-left: 0.9em;}
