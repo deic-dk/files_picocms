@@ -982,6 +982,7 @@ class Pico
 	 */
 	public function checkReadPermission($file, $access, $owner, $group=null)
 	{
+		session_write_close();
 		// Only if we're checking the request file, set $this->permissions etc.
 		$setPermissions = false;
 		if($file==$this->requestFile){

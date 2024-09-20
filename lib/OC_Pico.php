@@ -199,6 +199,7 @@ class Lib {
 	}
 	
 	private static function shareSampleSite($user_id){
+		session_write_close();
 		$owner = \OCP\Config::getAppValue('files_picocms', 'samplesiteowner');
 		if($owner==$user_id){
 			return true;
