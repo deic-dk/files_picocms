@@ -39,8 +39,11 @@ body {
 	font-weight: 200;
 }
 
-body pre, body code{
+body pre{
 	font-size: 14px;
+}
+body code{
+  font-size: 13px;
 }
 body pre{
 	border-radius: 2px;
