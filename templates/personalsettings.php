@@ -52,7 +52,7 @@
 	</div>
 	<br />
 	<div class="nowrap addSiteFolder">
-		<span class="extraSpan"><label></label></span><label class="add_site_folder btn btn-flat">+</label>
+		<span class="extraSpan"><label></label></span><label title="Add site folder" class="add_site_folder btn btn-flat">+</label>
 		<div id="chosen_site_folder"></div>
 		<div class="dialog" display="none">
 			<div id="loadSiteFolderTree"></div>

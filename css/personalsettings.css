@@ -12,12 +12,23 @@
 	margin-left: -4px;
 }
 
+#filesPicoSiteFolders {
+	min-width: 1024px;
+}
+
 #filesPicoSiteFoldersList .siteFolder {
 	height: 42px;
 }
 
 #filesPicoSiteFoldersList .siteFolder .remove_site_folder {
 	margin: 5.7px 0 0 0;
+	font-weight: 800;
+}
+
+#filesPicoSiteFolders .add_site_folder {
+	margin: 5.7px 0 0 0;
+  font-weight: 800;
+  padding: 7px 10px;
 }
 
 fieldset#filesPicoSiteFolders div#filesPicoSiteFoldersList {
@@ -33,7 +44,7 @@ fieldset#filesPicoSiteFolders div#filesPicoSiteFoldersList {
 
 .addSiteFolder .extraSpan{
 	float:left;
-	width:92%;s
+	width:93%;
 }
 
 .addSiteFolder #chosen_site_folder{
