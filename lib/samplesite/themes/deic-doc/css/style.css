@@ -239,6 +239,10 @@ form#search_form input#search_submit {
 	.row-fluid .main {
 		width: 100%;
 	}
+	
+	img.smaller-end-image {
+		max-width: 46px;
+	}
 }
 
 [class^="icon-"],
@@ -384,7 +388,20 @@ img {
 	margin: 24px auto;
 	border: 1px solid #ddd;
   border-radius: 4px;
+  padding: 5px;s
+}
+
+.smaller-end-image {
+	max-width: 72px;
+	max-height: 72px;
+	position: relative;
+	display: block;
+	margin: 24px auto;
+	border: 1px solid #ddd;
+  border-radius: 4px;
   padding: 5px;
+  position: absolute;
+  right: 12px;
 }
 
 .very-small-image {

@@ -12,6 +12,15 @@
 	cursor: pointer;
 }
 
+.medium-image {
+	max-width: 80%;
+	max-height: unset;
+	position: relative;
+	display: block;
+	margin: 24px auto;
+  padding: 5px;
+}
+
 .small-image {
   border-radius: 5px;
   cursor: pointer;
@@ -25,6 +34,14 @@
   cursor: pointer;
   transition: 0.3s;
   max-width: 200px;
+  max-height: 200px;
+}
+
+.narrow-image {
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+  max-width: 150px;
   max-height: 200px;
 }
 
