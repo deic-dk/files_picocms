@@ -39,7 +39,7 @@ a:focus {
 }
 a img:hover,
 a img:focus {
-  cursor: zoom-in;
+  cursor: pointer;
 }
 h1 a {
   color: #ffffff;
@@ -117,7 +117,7 @@ hr {
 	position: absolute;
 	height: 64px;
 	width: 64px;
-	line-height: 64px;
+	/*line-height: 64px;*/
 	font-size: 48px;
 }
 
@@ -126,7 +126,8 @@ hr {
 	color: rgb(255, 255, 255);
 	font-weight: bold;
 	text-align: left;
-	line-height: 48px;
+	/*line-height: 48px;*/
+	line-height: 36px;
 	font-size: 36px;
 	float: right;
 	margin-top: 0px;

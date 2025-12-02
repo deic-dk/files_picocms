@@ -55,7 +55,7 @@
 
 .small-image:hover, .verysmall-image:hover {
 	opacity: 0.7;
-	cursor: pointer;
+	cursor: zoom-in;
 }
 
 /* The Modal (background) */
