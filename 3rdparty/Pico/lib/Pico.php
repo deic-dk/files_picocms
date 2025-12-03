@@ -461,6 +461,8 @@ class Pico
 		// load raw file content
 		$this->triggerEvent('onContentLoading', array(&$this->requestFile));
 
+		\OCP\Util::writeLog('files_picocms', "Running Pico ".$_SERVER['REQUEST_URI'].':'.$this->requestFile.':'.serialize($this->config), \OC_Log::INFO);
+
 		$notFoundFile = '404' . $this->getConfig('content_ext');
 		if($this->requestFile===null){
 			// Let the theme generate directory listing for sharees.
@@ -548,12 +550,14 @@ class Pico
 			$this->readPages();
 			$this->sortPages();
 			$this->discoverCurrentPage();
-			$this->triggerEvent('onPagesLoaded', array(
-					&$this->pages,
-					&$this->currentPage,
-					&$this->previousPage,
-					&$this->nextPage
-			));
+			//if(!empty($this->currentPage)){
+				$this->triggerEvent('onPagesLoaded', array(
+						&$this->pages,
+						&$this->currentPage,
+						&$this->previousPage,
+						&$this->nextPage
+				));
+			//}
 		}
 
 		if(empty($this->meta['theme'])){
@@ -1580,10 +1584,10 @@ class Pico
 				unset($files[$i]);
 				continue;
 			}
-			if (basename($file) === 'rss' . $this->getConfig('content_ext')) {
+			/*if (basename($file) === 'rss' . $this->getConfig('content_ext')) {
 				unset($files[$i]);
 				continue;
-			}
+			}*/
 			$id = substr($file, strlen($this->getConfig('content_dir')), -strlen($this->getConfig('content_ext')));
 
 			// drop inaccessible pages (e.g. drop "sub.md" if "sub/index.md" exists)
@@ -1757,6 +1761,7 @@ class Pico
 
 		$contentExt = $this->getConfig('content_ext');
 		$currentPageId = substr($this->requestFile, $contentDirLength, -strlen($contentExt));
+		\OCP\Util::writeLog('files_picocms', 'Searching for current page '.$this->requestFile.':'.$currentPageId.':'.implode(':', $pageIds), \OC_Log::INFO);
 		$currentPageIndex = array_search($currentPageId, $pageIds);
 		if ($currentPageIndex !== false) {
 			$this->currentPage = &$this->pages[$currentPageId];

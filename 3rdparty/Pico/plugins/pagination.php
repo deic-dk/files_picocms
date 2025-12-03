@@ -107,7 +107,7 @@ class Pagination extends AbstractPicoPlugin {
 			}
 			if(!empty($this->config['folder']) && !empty($page['folder']) &&
 					strpos(trim($page['folder'], '/'), trim($this->config['folder'], '/'))!==0){
-						\OCP\Util::writeLog('files_picocms', "Not in folder: ".$page['filename'].":".$page['folder'].":".$this->config['folder'], \OC_Log::INFO);
+						\OCP\Util::writeLog('files_picocms', "Not in folder: ".$page['filename'].":".$page['folder'].":".$this->config['folder'], \OC_Log::WARN);
 				continue;
 			}
 			if(!empty($this->config['template']) && !empty($page['meta']['template']) &&
@@ -116,9 +116,11 @@ class Pagination extends AbstractPicoPlugin {
 			}
 			// if the calling page has ExcludeLabels set, return only pages w/o those
 			// Allow override by $_GET['labels']
-			if (!empty($this->config['exclude_labels']) && !empty($page['meta']['labels']) &&
-					!empty(array_intersect($this->config['exclude_labels'], $page['meta']['labels'])) &&
+			\OCP\Util::writeLog('files_picocms', "Checking labels: ".serialize($currentPage['meta']).'-->'.serialize($currentPage).'-->'.$page['meta']['title'].'-->'.serialize($page['meta']['labels']), \OC_Log::INFO);
+			if (!empty($currentPage['meta']['excludelabels']) && !empty($page['meta']['labels']) &&
+					!empty(array_intersect($currentPage['meta']['excludelabels'], $page['meta']['labels'])) &&
 					(empty($_GET['label']) || !in_array($_GET['label'], $page['meta']['labels']))){
+					\OCP\Util::writeLog('files_picocms', "SKIPPING label...", \OC_Log::INFO);
 				continue;
 			}
 			if(!empty($_GET['label']) && ( empty($page['meta']['labels']) ||
