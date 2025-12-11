@@ -114,12 +114,11 @@
 
         <a class="navbar-left write-post" share="{{ oc_share }}" path="{{ oc_path }}"
         dir_id="{{ oc_parent_id }}" id="{{ oc_id }}"
-        {% if (meta.access == 'public' or not readable is not empty) and 
-        (oc_user is not defined  or oc_owner is not defined or oc_owner != oc_user) %}
+        {% if editable is empty %}
         	style="display:none;"
         {% endif %}
             owner="{{  oc_owner }}" user="{{ oc_user }}" group="{{ oc_group }}"
-            host="{{ oc_user_home_url }}">Write</a>
+            host="{{ oc_user_home_url }}" readable="{{ readable }} editable="{{ editable }}">Write</a>
             <input type="search" id="write_post" name="q" placeholder="Title" />
 
     </header>
