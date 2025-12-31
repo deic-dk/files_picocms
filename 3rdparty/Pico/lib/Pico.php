@@ -1646,6 +1646,7 @@ class Pico
 			$page = array(
 				'id' => $id,
 				'url' => $url,
+				'path' => parse_url($url, PHP_URL_PATH),
 				'title' => &$meta['title'],
 				'description' => &$meta['description'],
 				'author' => &$meta['author'],
