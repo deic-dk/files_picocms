@@ -1666,6 +1666,10 @@ class Pico
 				'readable' => $readable,
 				'contents' => $contents
 			);
+			
+			foreach($_REQUEST as $key=>$val){
+				$page['request_'.$key] = $val;
+			}
 
 			if ($file === $this->requestFile) {
 				$page['content'] = &$this->content;
