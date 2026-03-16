@@ -146,6 +146,10 @@ a:focus {text-decoration: none;}
 	margin-top: 6px;
 }
 
+#nav > ul > li.toc1, #nav > ul > li.toc0 {
+  font-weight: 500;
+}
+
 form#search_form input#search_submit {
 	margin-bottom: 10px;
 }
