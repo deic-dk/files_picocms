@@ -446,6 +446,10 @@ big {
 	display: inline-block;
 }
 
+hr {
+	border-top: 1px solid #bbb;
+}
+
 @media print {
 	.navigation {
 		display: none!important;
