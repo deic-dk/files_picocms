@@ -396,16 +396,16 @@ img {
 }
 
 .smaller-end-image {
-	max-width: 72px;
-	max-height: 72px;
+	max-width: 124px;
+	max-height: 124px;
 	position: relative;
 	display: block;
-	margin: 24px auto;
 	border: 1px solid #ddd;
   border-radius: 4px;
   padding: 5px;
-  position: absolute;
-  right: 12px;
+  left: 86%;
+  top: -48px;
+  margin-bottom: -48px;
 }
 
 .very-small-image {
@@ -417,6 +417,16 @@ img {
 	border: 1px solid #ddd;
   border-radius: 4px;
   padding: 5px;
+}
+
+.mini-image {
+	max-height: 56px;
+	position: relative;
+	display: inline;
+	margin: 2px auto;
+	border: none;
+  border-radius: 2px;
+  padding: 1px;
 }
 
 .tiny-image {
@@ -448,6 +458,55 @@ big {
 
 hr {
 	border-top: 1px solid #bbb;
+}
+
+h6.noblockquote+blockquote {
+  border-left: none;
+}
+
+h6.noblockquote+blockquote table {
+	font-size: 12px;
+	opacity: 0.8;
+	margin-left: 100px;
+}
+
+.noblockquote+blockquote+p, .noblockquote+blockquote+p+p, .noblockquote+blockquote+p+p+p {
+	display: inline-block;
+	margin-left: 44px;
+	margin-top: 32px;
+	margin-bottom: 52px;
+	display: inline-block;
+	left: 126px;
+	position: relative;
+}
+
+.noblockquote+blockquote+p {
+	margin-left: 0;
+}
+
+span.caption::before, span.caption::after {
+  content: "\A";
+  white-space: pre;
+}
+
+.btn-primary {
+	color: #fff;
+	background-color: #2980b9;
+	border-color: #2980b9;
+	margin-top: 6px;
+}
+
+.btn-primary:hover {
+	border-color: #122e41;
+	background-color: #2578af;
+}
+
+a.btn:visited {
+	color: #ccc;
+}
+
+.caption {
+	font-weight: 600;
 }
 
 @media print {
