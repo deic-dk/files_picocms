@@ -901,3 +901,7 @@ code {
 	opacity: 0.8;
 }
 
+td, th {
+  padding: 2px 12px 2px 6px;
+}
+
