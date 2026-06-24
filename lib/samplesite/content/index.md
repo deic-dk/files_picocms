@@ -1,8 +1,9 @@
 ---
-Site: Pico for Nextcloud
-Title: Pico for Nextcloud
+Site: Pico for ownCloud
+Title: Pico for ownCloud
 Theme: default
-Description: Pico is a simple, fast, flat file CMS.
+Description: Pico is a simple, fast, flat file CMS
+Author: Joe Bloggs
 social:
     - title: Visit us on GitHub
       url: https://github.com/picocms/Pico
@@ -17,7 +18,7 @@ social:
 
 ## Welcome
 
-Thanks for using [Pico](http://picocms.org/) for Nextcloud.
+Thanks for using [Pico](http://picocms.org/) for ownCloud.
 
 ## Creating Content
 
@@ -26,8 +27,8 @@ database to deal with. You simply create `.md` files in a `content` folder
 and those files become your pages. For example, this file is called `index.md`
 and is shown as the main landing page.
 
-Pico for Nextcloud is an app for Nextcloud, allowing to designate any folder
-in your Nextcloud account as site folder. This is done in your preferences.
+Pico for ownCloud is an app for ownCloud, allowing to designate any folder
+in your ownCloud account as site folder. This is done in your preferences.
 Once a site folder is designated, you can populate the `content` subfolder
 with `.md` files and also add your own themes in the `themes` subfolder.
 You can start by making a copy of the present web site by simply copying the
@@ -86,7 +87,7 @@ error page for your blog, you could simply create `content/blog/404.md`.
 Text files are marked up using [Markdown][] and [Markdown Extra][MarkdownExtra].
 They can also contain regular HTML.
 
-In the case of Pico for Nextcloud, we've included LaTeX support via [MathJax](https://www.mathjax.org),
+In the case of Pico for ownCloud, we've included LaTeX support via [MathJax](https://www.mathjax.org),
 allowing you to directly use expressions like:
 
 ```
@@ -118,28 +119,28 @@ These values will be contained in the `{{ meta }}` variable in themes
 
 There are also certain variables that you can use in your text files:
 
-* <code>&#37;site_title&#37;</code> - The title of your Pico site
-* <code>&#37;base_url&#37;</code> - The URL to your Pico site; internal links
+* <code>&#37;site_title&#37;</code> - %site_title% - The title of your Pico site
+* <code>&#37;base_url&#37;</code> - %base_url% - The URL to your Pico site; internal links
   can be specified using <code>&#37;base_url&#37;?sub/page</code>
-* <code>&#37;theme_url&#37;</code> - The URL to the currently used theme
+* <code>&#37;theme_url&#37;</code> - %theme_url% - The URL to the currently used theme
 * <code>&#37;meta.&#42;&#37;</code> - Access any meta variable of the current
-  page, e.g. <code>&#37;meta.author&#37;</code> is replaced with `Joe Bloggs`
+  page, e.g. <code>&#37;meta.author&#37;</code> - `%meta.author%`
 
-Pico for Nextcloud adds a few more:
+Pico for ownCloud adds a few more:
 
-* <code>&#37;user&#37;</code> - On a page marked with meta attribute <code>Access: private</code>,
-the user name of a logged-in visitor with access rights to the page in question
-* <code>&#37;group&#37;</code> - On a page marked with meta attribute <code>Access: private</code>,
-the group of a logged-in visitor that gives him access to the page in question
-* <code>&#37;owner&#37;</code> - The owner of the page in question
-* <code>&#37;master_url&#37;</code> - In a distributed setup, the URL of the master server that
+* <code>&#37;user&#37;</code> - %user% - On a page marked with meta attribute <code>Access: private</code>,
+the user name of a logged-in visitor with access rights to the page in question - notice that a visitor's credentials will time out quickly
+* <code>&#37;group&#37;</code> - %group% - On a page marked with meta attribute <code>Access: private</code>,
+the group of a logged-in visitor that gives him access to the page in question - again, notice that a visitor's credentials will time out quickly
+* <code>&#37;owner&#37;</code> - %owner% - The owner of the page in question
+* <code>&#37;master_url&#37;</code> - %master_url% - In a distributed setup, the URL of the master server that
 redirects to the slave servers holding the data. A site may e.g. have URL
 <code>%master_url%sites/mysite</code>, but be physically hosted at
 <code>https://someslave.somesite/sites/mysite</code>, and the actual file located at
 <code>https://someslave.somesite/shared/mysite/content/index.md</code>
-* <code>&#37;email&#37;</code> - The email of the owner of the page in question
-* <code>&#37;orcid&#37;</code> - The ORCID ID of the owner of the page in question -
-available only if set by the owner
+* <code>&#37;email&#37;</code> - %email% - The email of the owner of the page in question
+* <code>&#37;orcid&#37;</code> - %orcid% - The ORCID ID of the owner of the page in question -
+available only if the app `user_orcid` is installed and enabled and the owner has set her ORCID in her preferences
 
 ## Customization
 
@@ -148,7 +149,7 @@ change Pico's appearance by using themes, on the other hand you can add new
 functionality by using plugins. Doing the former includes changing Pico's HTML,
 CSS and JavaScript, the latter mostly consists of PHP programming.
 
-In the case of Pico for Nextcloud, for security reasons, users cannot add
+In the case of Pico for ownCloud, for security reasons, users cannot add
 plugins. An administrator can simply add plugins in the `plugins` folder.
 
 Moreover, special meta attributes can be used to customize individual pages:

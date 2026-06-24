@@ -1,5 +1,5 @@
 ---
-Site: Pico for Nextcloud
+Site: Pico for ownCloud
 Title: RSS
 Template: rss
 Access: public

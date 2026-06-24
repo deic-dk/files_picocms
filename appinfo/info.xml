@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <info>
     <id>files_picocms</id>
-    <name>Pico For Nextcloud</name>
+    <name>Pico For ownCloud</name>
 		<version>1.0</version>
-    <description>Pico CMS as a Nextcloud app</description>
+    <description>Pico CMS as an ownCloud app</description>
     <licence>AGPL</licence>
     <author>Frederik Orellana</author>
     <require>4.93</require>

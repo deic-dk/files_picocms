@@ -211,7 +211,7 @@ class Pico
 
 	//NC change
 	/**
-	 * Path of the requested file, relative to the Nextcloud base dir
+	 * Path of the requested file, relative to the ownCloud base dir
 	 * or the shared folder.
 	 * (i.e. relative to e.g. /data/user_name/files).
 	 * 

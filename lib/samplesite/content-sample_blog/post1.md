@@ -1,6 +1,6 @@
 ---
 Title: Welcome
-Description: to my personal blog - powered by Nextcloud and Pico CMS
+Description: to my personal blog - powered by ownCloud and Pico CMS
 Date: 
 Author: 
 Template: post
